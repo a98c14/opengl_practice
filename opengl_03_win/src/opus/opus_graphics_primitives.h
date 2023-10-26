@@ -19,9 +19,9 @@ const uint32 shape_indices_quad[] =
 internal const float32 shape_vertices_triangle[] =
 {
     // positions,        // colors
-    -0.6f, -0.4f, 0.0f,  1.f, 0.f, 0.f,
-     0.6f, -0.4f, 0.0f,  0.f, 1.f, 0.f,
-      0.f,  0.6f, 0.0f,  0.f, 0.f, 1.f
+    -0.5f, -0.288f, 0.0f,  1.f, 0.f, 0.f,
+     0.5f, -0.288f, 0.0f,  0.f, 1.f, 0.f,
+     0.0f,  0.587f, 0.0f,  0.f, 0.f, 1.f
 };
 
 internal Geometry

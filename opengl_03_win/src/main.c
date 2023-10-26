@@ -75,7 +75,7 @@ int main(void)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
-    GLFWwindow* window = glfwCreateWindow(640, 480, "Simple example", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(640, 640, "Simple example", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -104,10 +104,9 @@ int main(void)
 
     while (!glfwWindowShouldClose(window))
     {
-        float ratio;
-        int width, height;
+        int32 width, height;
         glfwGetFramebufferSize(window, &width, &height);
-        ratio = width / (float)height;
+        float32 aspect = width / (float)height;
         glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -118,8 +117,8 @@ int main(void)
         // mat4x4_mul(mvp, p, m);
 
         Mat4 model = mat4_identity();
-        model = mat4_rotate_z(model, 16 * (float32)glfwGetTime());
-        Mat4 projection = mat4_ortho(2, 2, 1, -1);
+        model = mat4_rotate_z(model, 30);
+        Mat4 projection = mat4_ortho(2 * aspect, 2, 1, -1);
         Mat4 mvp = mul_mat4(model, projection);
 
         glUseProgram(program);
