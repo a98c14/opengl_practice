@@ -11,14 +11,6 @@
 #include "opus.h"
 #include "opus.c"
 
-static const float32 vertices[] =
-{
-    // positions,        // colors
-    -0.6f, -0.4f, 0.0f,  1.f, 0.f, 0.f,
-     0.6f, -0.4f, 0.0f,  0.f, 1.f, 0.f,
-      0.f,  0.6f, 0.0f,  0.f, 0.f, 1.f
-};
-
 static void error_callback(int error, const char* description)
 {
     fprintf(stderr, "[ERROR] %s\n", description);
@@ -32,40 +24,42 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 void message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, GLchar const* message, void const* user_param)
 {
-	// auto const src_str = [source]() {
-	// 	switch (source)
-	// 	{
-	// 	case GL_DEBUG_SOURCE_API: return "API";
-	// 	case GL_DEBUG_SOURCE_WINDOW_SYSTEM: return "WINDOW SYSTEM";
-	// 	case GL_DEBUG_SOURCE_SHADER_COMPILER: return "SHADER COMPILER";
-	// 	case GL_DEBUG_SOURCE_THIRD_PARTY: return "THIRD PARTY";
-	// 	case GL_DEBUG_SOURCE_APPLICATION: return "APPLICATION";
-	// 	case GL_DEBUG_SOURCE_OTHER: return "OTHER";
-	// 	}
-	// }();
+	char* source_str;
+    switch (source)
+    {
+		case GL_DEBUG_SOURCE_API: source_str = "API"; break;
+		case GL_DEBUG_SOURCE_WINDOW_SYSTEM: source_str = "WINDOW SYSTEM"; break;
+		case GL_DEBUG_SOURCE_SHADER_COMPILER: source_str = "SHADER COMPILER"; break;
+		case GL_DEBUG_SOURCE_THIRD_PARTY: source_str = "THIRD PARTY"; break;
+		case GL_DEBUG_SOURCE_APPLICATION: source_str = "APPLICATION"; break;
+		case GL_DEBUG_SOURCE_OTHER: source_str = "OTHER"; break;
+        default: source_str = "NO_SOURCE"; break;
+    }
 
-	// auto const type_str = [type]() {
-	// 	switch (type)
-	// 	{
-	// 	case GL_DEBUG_TYPE_ERROR: return "ERROR";
-	// 	case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: return "DEPRECATED_BEHAVIOR";
-	// 	case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: return "UNDEFINED_BEHAVIOR";
-	// 	case GL_DEBUG_TYPE_PORTABILITY: return "PORTABILITY";
-	// 	case GL_DEBUG_TYPE_PERFORMANCE: return "PERFORMANCE";
-	// 	case GL_DEBUG_TYPE_MARKER: return "MARKER";
-	// 	case GL_DEBUG_TYPE_OTHER: return "OTHER";
-	// 	}
-	// }();
+	char* type_str;
+    switch (type)
+    {
+		case GL_DEBUG_TYPE_ERROR: type_str = "ERROR"; break;
+		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: type_str = "DEPRECATED_BEHAVIOR"; break;
+		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: type_str = "UNDEFINED_BEHAVIOR"; break;
+		case GL_DEBUG_TYPE_PORTABILITY: type_str = "PORTABILITY"; break;
+		case GL_DEBUG_TYPE_PERFORMANCE: type_str = "PERFORMANCE"; break;
+		case GL_DEBUG_TYPE_MARKER: type_str = "MARKER"; break;
+		case GL_DEBUG_TYPE_OTHER: type_str = "OTHER"; break;
+        default: type_str = "NO_TYPE"; break;
+    }
 
-	// auto const severity_str = [severity]() {
-	// 	switch (severity) {
-	// 	case GL_DEBUG_SEVERITY_NOTIFICATION: return "NOTIFICATION";
-	// 	case GL_DEBUG_SEVERITY_LOW: return "LOW";
-	// 	case GL_DEBUG_SEVERITY_MEDIUM: return "MEDIUM";
-	// 	case GL_DEBUG_SEVERITY_HIGH: return "HIGH";
-	// 	}
-	// }();
-	printf("%s\n", message);
+	char* severity_str;
+    switch (severity) 
+    {
+		case GL_DEBUG_SEVERITY_NOTIFICATION: severity_str = "NOTIFICATION"; break;
+		case GL_DEBUG_SEVERITY_LOW: severity_str = "LOW"; break;
+		case GL_DEBUG_SEVERITY_MEDIUM: severity_str = "MEDIUM"; break;
+		case GL_DEBUG_SEVERITY_HIGH: severity_str = "HIGH"; break;
+        default: severity_str = "NO_SEVERITY"; break;
+    }
+
+	printf("[GL_%s][%s|%s] %s\n", severity_str, source_str, type_str, message);
 }
 
 int main(void)
@@ -73,7 +67,7 @@ int main(void)
     Arena* persistent_arena = make_arena_reserve(mb(16));
     Arena* frame_arena = make_arena_reserve(mb(16));
 
-    GLint mvp_location, vpos_location, vcol_location;
+    GLint mvp_location;
     glfwSetErrorCallback(error_callback);
     if (!glfwInit())
         exit(EXIT_FAILURE);
