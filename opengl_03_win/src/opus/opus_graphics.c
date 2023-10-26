@@ -1,3 +1,4 @@
+#include "opus_base.h"
 #include "opus_graphics.h"
 
 internal uint32

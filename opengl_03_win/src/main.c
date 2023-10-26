@@ -11,15 +11,12 @@
 #include "opus.h"
 #include "opus.c"
 
-static const struct
+static const float32 vertices[] =
 {
-    float x, y;
-    float r, g, b;
-} vertices[3] =
-{
-    { -0.6f, -0.4f, 1.f, 0.f, 0.f },
-    {  0.6f, -0.4f, 0.f, 1.f, 0.f },
-    {   0.f,  0.6f, 0.f, 0.f, 1.f }
+    // positions,        // colors
+    -0.6f, -0.4f, 0.0f,  1.f, 0.f, 0.f,
+     0.6f, -0.4f, 0.0f,  0.f, 1.f, 0.f,
+      0.f,  0.6f, 0.0f,  0.f, 0.f, 1.f
 };
 
 static void error_callback(int error, const char* description)
@@ -33,18 +30,56 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
+void message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, GLchar const* message, void const* user_param)
+{
+	// auto const src_str = [source]() {
+	// 	switch (source)
+	// 	{
+	// 	case GL_DEBUG_SOURCE_API: return "API";
+	// 	case GL_DEBUG_SOURCE_WINDOW_SYSTEM: return "WINDOW SYSTEM";
+	// 	case GL_DEBUG_SOURCE_SHADER_COMPILER: return "SHADER COMPILER";
+	// 	case GL_DEBUG_SOURCE_THIRD_PARTY: return "THIRD PARTY";
+	// 	case GL_DEBUG_SOURCE_APPLICATION: return "APPLICATION";
+	// 	case GL_DEBUG_SOURCE_OTHER: return "OTHER";
+	// 	}
+	// }();
+
+	// auto const type_str = [type]() {
+	// 	switch (type)
+	// 	{
+	// 	case GL_DEBUG_TYPE_ERROR: return "ERROR";
+	// 	case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: return "DEPRECATED_BEHAVIOR";
+	// 	case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: return "UNDEFINED_BEHAVIOR";
+	// 	case GL_DEBUG_TYPE_PORTABILITY: return "PORTABILITY";
+	// 	case GL_DEBUG_TYPE_PERFORMANCE: return "PERFORMANCE";
+	// 	case GL_DEBUG_TYPE_MARKER: return "MARKER";
+	// 	case GL_DEBUG_TYPE_OTHER: return "OTHER";
+	// 	}
+	// }();
+
+	// auto const severity_str = [severity]() {
+	// 	switch (severity) {
+	// 	case GL_DEBUG_SEVERITY_NOTIFICATION: return "NOTIFICATION";
+	// 	case GL_DEBUG_SEVERITY_LOW: return "LOW";
+	// 	case GL_DEBUG_SEVERITY_MEDIUM: return "MEDIUM";
+	// 	case GL_DEBUG_SEVERITY_HIGH: return "HIGH";
+	// 	}
+	// }();
+	printf("%s\n", message);
+}
+
 int main(void)
 {
     Arena* persistent_arena = make_arena_reserve(mb(16));
     Arena* frame_arena = make_arena_reserve(mb(16));
-    
+
     GLint mvp_location, vpos_location, vcol_location;
     glfwSetErrorCallback(error_callback);
     if (!glfwInit())
         exit(EXIT_FAILURE);
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
     GLFWwindow* window = glfwCreateWindow(640, 480, "Simple example", NULL, NULL);
     if (!window)
@@ -58,27 +93,15 @@ int main(void)
     gladLoadGL(glfwGetProcAddress);
     glfwSwapInterval(1);
 
-    // NOTE: OpenGL error checks have been omitted for brevity
-    GLuint vertex_buffer;
-    glGenBuffers(1, &vertex_buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(message_callback, 0);
+
     String fragment_shader = file_read_all_as_string(persistent_arena, string("C:\\Users\\selim\\source\\practice\\opengl\\opengl_03_win\\src\\shaders\\basic.frag"));
     String vertex_shader = file_read_all_as_string(persistent_arena, string("C:\\Users\\selim\\source\\practice\\opengl\\opengl_03_win\\src\\shaders\\basic.vert"));
     uint32 program = material_new(vertex_shader, fragment_shader);
+    mvp_location = glGetUniformLocation(program, "mvp");
 
-    mvp_location = glGetUniformLocation(program, "MVP");
-    vpos_location = glGetAttribLocation(program, "vPos");
-    vcol_location = glGetAttribLocation(program, "vCol");
-
-    glEnableVertexAttribArray(vpos_location);
-    glVertexAttribPointer(vpos_location, 2, GL_FLOAT, GL_FALSE,
-                          sizeof(vertices[0]), (void*) 0);
-    glEnableVertexAttribArray(vcol_location);
-    glVertexAttribPointer(vcol_location, 3, GL_FLOAT, GL_FALSE,
-                          sizeof(vertices[0]), (void*) (sizeof(float) * 2));
-
+    Geometry geom = geometry_triangle_create();
 
     // RendererConfiguration config = {0};
     // Renderer* renderer = renderer_new(arena, &config);
