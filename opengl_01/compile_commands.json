@@ -1,0 +1,8 @@
+[
+    {
+      "directory": "/workspaces/01",
+      "command": "/usr/bin/gcc-12 -isystem /usr/local/include -isystem ./src/base -isystem ./include -Wall -Wpedantic -Wextra -Wconversion  -Wno-unused-parameter -Wno-unused-function -Wno-unused-variable -std=gnu99 -o ./dist/main -c ./src/main.c",
+      "file": "./src/main.c"
+    }
+]
+    

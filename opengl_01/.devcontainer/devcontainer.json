@@ -1,0 +1,9 @@
+{
+    "name": "Ubuntu",
+    "build": { "dockerfile": "Dockerfile" },
+    "customizations": {
+        "vscode": {
+            "extensions": ["llvm-vs-code-extensions.vscode-clangd", "ms-vscode.cpptools", "franneck94.c-cpp-runner", "vadimcn.vscode-lldb"]
+        }
+    }
+}
