@@ -137,9 +137,9 @@ mat4_identity()
 internal Mat4
 mat4_rotation(float32 angle)
 {
-    // float32 radian = angle * PI_FLOAT32 / 180.0;
-    float32 cosx = (float32)cosf(angle);
-    float32 sinx = (float32)sinf(angle);
+    float32 radian = angle * PI_FLOAT32 / 180.0;
+    float32 cosx = (float32)cosf(radian);
+    float32 sinx = (float32)sinf(radian);
     Mat4 result = mat4_identity();
     result.m[0][0] =  cosx;
     result.m[0][1] =  sinx;

@@ -118,8 +118,8 @@ int main(void)
         mat4x4_mul(mvp, p, m);
 
         Mat4 model = mat4_identity();
-        model = mat4_rotate_z(model, (float)glfwGetTime());
-        Mat4 projection = mat4_ortho(2 * ratio, 2, 1, -1);
+        model = mat4_rotate_z(model, 180);
+        Mat4 projection = mat4_ortho(2, 2, 1, -1);
         Mat4 mvp2 = mul_mat4(model, projection);
 
         glUseProgram(program);
