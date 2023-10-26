@@ -3,7 +3,7 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
-#include "linmath.h"
+// #include "linmath.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -111,19 +111,19 @@ int main(void)
         glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        mat4x4 m, p, mvp;
-        mat4x4_identity(m);
-        mat4x4_rotate_Z(m, m, (float) glfwGetTime());
-        mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);
-        mat4x4_mul(mvp, p, m);
+        // mat4x4 m, p, mvp;
+        // mat4x4_identity(m);
+        // mat4x4_rotate_Z(m, m, (float) glfwGetTime());
+        // mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);
+        // mat4x4_mul(mvp, p, m);
 
         Mat4 model = mat4_identity();
-        model = mat4_rotate_z(model, 180);
+        model = mat4_rotate_z(model, 16 * (float32)glfwGetTime());
         Mat4 projection = mat4_ortho(2, 2, 1, -1);
-        Mat4 mvp2 = mul_mat4(model, projection);
+        Mat4 mvp = mul_mat4(model, projection);
 
         glUseProgram(program);
-        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*)mvp2.v);
+        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*)mvp.v);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         glfwSwapBuffers(window);

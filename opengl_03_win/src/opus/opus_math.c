@@ -178,8 +178,13 @@ mat4_ortho(float32 width, float32 height, float32 near, float32 far)
 internal Vec4
 linear_combine_v4_m4(Vec4 v, Mat4 m)
 {
-    // TODO(selim): Add SIMD support
     Vec4 result;
+#ifdef OPUS_USE_SSE
+    result.SSE = _mm_mul_ps(_mm_shuffle_ps(v.SSE, v.SSE, 0x00), m.columns[0].SSE);
+    result.SSE = _mm_add_ps(result.SSE, _mm_mul_ps(_mm_shuffle_ps(v.SSE, v.SSE, 0x55), m.columns[1].SSE));
+    result.SSE = _mm_add_ps(result.SSE, _mm_mul_ps(_mm_shuffle_ps(v.SSE, v.SSE, 0xaa), m.columns[2].SSE));
+    result.SSE = _mm_add_ps(result.SSE, _mm_mul_ps(_mm_shuffle_ps(v.SSE, v.SSE, 0xff), m.columns[3].SSE));
+#else
     result.x = v.elements[0] * m.columns[0].x;
     result.y = v.elements[0] * m.columns[0].y;
     result.z = v.elements[0] * m.columns[0].z;
@@ -199,6 +204,6 @@ linear_combine_v4_m4(Vec4 v, Mat4 m)
     result.y += v.elements[3] * m.columns[3].y;
     result.z += v.elements[3] * m.columns[3].z;
     result.w += v.elements[3] * m.columns[3].w;
-
+#endif
     return result;
 }

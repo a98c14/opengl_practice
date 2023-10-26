@@ -2,6 +2,12 @@
 #include <math.h>
 #include "opus_base.h"
 
+// NOTE(selim): Delete this if you don't wanna use SIMD
+#define OPUS_USE_SSE
+#ifdef OPUS_USE_SSE
+# include <xmmintrin.h>
+#endif
+
 /* Constants */
 global float32 EPSILON_FLOAT32 = 1.1920929e-7f;
 global float32 PI_FLOAT32      = 3.14159265359f;
@@ -34,6 +40,9 @@ typedef union
     struct { Vec3 xyz; float32 _ignored0; };
     struct { Vec2 xy; float32 _ignored1; float32 _ignored2; };
     float32 elements[4];
+#ifdef OPUS_USE_SSE
+    __m128 SSE;
+#endif
 } Vec4;
 
 /* Matrices */
