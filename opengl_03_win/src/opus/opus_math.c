@@ -171,28 +171,12 @@ mat4_translation(Vec3 v)
 }
 
 internal Mat4 
-mat4_translate(Mat4 m, Vec3 v)
-{
-    Mat4 translation = mat4_translation(v);
-    Mat4 result = mul_mat4(m, translation);
-    return result;
-}
-
-internal Mat4 
-mat4_scaling(Vec3 v)
+mat4_scale(Vec3 v)
 {
     Mat4 result = mat4_identity();
     result.m[0][0] = v.x;
     result.m[1][1] = v.y;
     result.m[2][2] = v.z;
-    return result;
-}
-
-internal Mat4 
-mat4_scale(Mat4 m, Vec3 v)
-{
-    Mat4 scaling = mat4_scaling(v);
-    Mat4 result = mul_mat4(m, scaling);
     return result;
 }
 
@@ -211,10 +195,11 @@ mat4_rotation(float32 angle)
 }
 
 internal Mat4
-mat4_rotate_z(Mat4 m, float32 angle)
+mat4_transform(Mat4 translation, Mat4 rotation, Mat4 scale)
 {
-    Mat4 rotation = mat4_rotation(angle);
-    Mat4 result = mul_mat4(m, rotation);
+    Mat4 result;
+    result = mul_mat4(translation, rotation);
+    result = mul_mat4(result, scale);
     return result;
 }
 

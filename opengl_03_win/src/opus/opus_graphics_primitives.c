@@ -42,14 +42,20 @@ geometry_quad_create()
 internal Geometry
 geometry_triangle_create()
 {
-    GLuint vao;
+    uint32 vao;
+    uint32 ebo;
+    uint32 vbo;
+
+    glGenBuffers(1, &vbo);
+    glGenBuffers(1, &ebo);
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
-    GLuint vbo;
-    glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(shape_vertices_triangle), shape_vertices_triangle, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(shape_indices_triangle), shape_indices_triangle, GL_STATIC_DRAW);
 
     // pos
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float32), (void*)0);

@@ -103,7 +103,8 @@ int main(void)
     uint32 program = material_new(vertex_shader, fragment_shader);
     mvp_location = glGetUniformLocation(program, "mvp");
 
-    Geometry geom = geometry_triangle_create();
+    Geometry geom = geometry_quad_create();
+    // Geometry geom = geometry_triangle_create();
 
     // RendererConfiguration config = {0};
     // Renderer* renderer = renderer_new(arena, &config);
@@ -114,15 +115,16 @@ int main(void)
     {
         glClear(GL_COLOR_BUFFER_BIT);
 
-        Mat4 model = mat4_identity();
         float32 p = sinf((float)glfwGetTime());
         float32 sf = sinf((float)glfwGetTime() * 3);
-        model = mat4_translate(model, vec3(p, p, 0));
-        model = mat4_rotate_z(model, 16*(float)glfwGetTime());
-        model = mat4_scale(model, vec3(sf, sf, 0));
 
-        Mat4 projection = mat4_ortho(2 * aspect, 2, 1, -1);
-        Mat4 mvp = mul_mat4(projection, model);
+        Mat4 translation = mat4_translation(vec3(p, p, 0));
+        Mat4 rotation = mat4_rotation(16*(float)glfwGetTime());
+        Mat4 scale = mat4_scale(vec3(sf, sf, 0));
+        Mat4 transform = mat4_transform(translation, rotation, scale);
+        
+        Mat4 projection = mat4_ortho(10 * aspect, 10, 1, -1);
+        Mat4 mvp = mul_mat4(projection, transform);
 
         // draw_line(renderer, ViewTypeWorld, 10, 20);
         // draw_triangle(renderer, ViewTypeWorld, 10, 20);
@@ -130,7 +132,7 @@ int main(void)
 
         glUseProgram(program);
         glUniformMatrix4fv(mvp_location, 1, GL_FALSE, mvp.v);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

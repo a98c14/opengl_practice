@@ -88,11 +88,9 @@ internal Mat3 mat3_transpose(Mat3 m);
 
 internal Mat4 mat4_identity(void);
 internal Mat4 mat4_translation(Vec3 v);
-internal Mat4 mat4_translate(Mat4 m, Vec3 v);
-internal Mat4 mat4_scaling(Vec3 v);
-internal Mat4 mat4_scale(Mat4 m, Vec3 v);
+internal Mat4 mat4_scale(Vec3 v);
 internal Mat4 mat4_rotation(float angle);
-internal Mat4 mat4_rotate_z(Mat4 m, float32 angle);
+internal Mat4 mat4_transform(Mat4 translation, Mat4 rotation, Mat4 scale);
 internal Mat4 mat4_ortho(float32 width, float32 height, float32 near, float32 far);
 
 internal Vec4 linear_combine_v4_m4(Vec4 v, Mat4 m);

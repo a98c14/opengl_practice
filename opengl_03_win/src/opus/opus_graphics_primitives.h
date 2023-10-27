@@ -24,6 +24,11 @@ internal const float32 shape_vertices_triangle[] =
      0.0f,  0.587f, 0.0f,  0.f, 0.f, 1.f
 };
 
+const uint32 shape_indices_triangle[] =
+{
+	0, 1, 2
+};
+
 internal Geometry
 geometry_quad_create();
 
