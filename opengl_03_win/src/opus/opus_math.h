@@ -69,6 +69,7 @@ typedef union
 
 /* Constructors */
 internal Vec3 vec3(float32 x, float32 y, float32 z);
+internal Vec4 vec4(float32 x, float32 y, float32 z, float32 w);
 
 /* Basic Operations */
 internal Vec4 add_vec4(Vec4 a, Vec4 b);

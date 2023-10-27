@@ -124,7 +124,6 @@ int main(void)
     Arena* persistent_arena = make_arena_reserve(mb(16));
     Arena* frame_arena = make_arena_reserve(mb(16));
 
-    GLint mvp_location;
     glfwSetErrorCallback(error_callback);
     if (!glfwInit())
         exit(EXIT_FAILURE);
@@ -133,7 +132,7 @@ int main(void)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_RESIZABLE, 0);
 
-    GLFWwindow* window = glfwCreateWindow(1024, 768, "Simple example", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(1920, 1080, "Simple example", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -159,7 +158,9 @@ int main(void)
     String fragment_shader = file_read_all_as_string(persistent_arena, string("C:\\Users\\selim\\source\\practice\\opengl\\opengl_03_win\\src\\shaders\\basic.frag"));
     String vertex_shader = file_read_all_as_string(persistent_arena, string("C:\\Users\\selim\\source\\practice\\opengl\\opengl_03_win\\src\\shaders\\basic.vert"));
     uint32 program = material_new(vertex_shader, fragment_shader);
-    mvp_location = glGetUniformLocation(program, "mvp");
+    int32 mvp_location = glGetUniformLocation(program, "mvp");
+    int32 color_location = glGetUniformLocation(program, "u_color");
+    
 
     Geometry geom = geometry_quad_create();
     // Geometry geom = geometry_triangle_create();
@@ -168,6 +169,8 @@ int main(void)
     // Renderer* renderer = renderer_new(arena, &config);
     // Camera* camera = camera_new(arena);
     // renderer_set_camera(camera);
+
+    glClearColor(12 / 255.0f, 11 / 255.0f, 20 / 255.0f, 1.0f);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -180,16 +183,16 @@ int main(void)
         glUseProgram(program);
         for(int i = 0; i < 50; i++)
         {
-            float32 position_factor = sinf(time);
-            float32 scale_factor = cosf(time);
-
             Vec2 pos = starting_positions[i];
             Mat4 translation = mat4_translation(vec3(pos.x * 3, pos.y * 3, 0));
-            Mat4 rotation = mat4_rotation(16.0f * time * i);
-            Mat4 scale = mat4_scale(vec3(scale_factor, scale_factor, 0));
-            Mat4 transform = mat4_transform(translation, rotation, scale);
+            // Mat4 rotation = mat4_rotation(16.0f * time * i);
+            Mat4 scale = mat4_scale(vec3(.4, .3, 0));
+            // Mat4 transform = mat4_transform(translation, rotation, scale);
+            Mat4 transform = mat4_transform(translation, mat4_identity(), scale);
             Mat4 mvp = mul_mat4(projection, transform);
 
+            float32 color =  i / 50.0f;
+            glUniform4f(color_location,  color,  color, color, 1.0f);
             glUniformMatrix4fv(mvp_location, 1, GL_FALSE, mvp.v);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         }
