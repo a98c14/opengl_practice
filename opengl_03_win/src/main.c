@@ -74,8 +74,9 @@ int main(void)
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_RESIZABLE, 0);
 
-    GLFWwindow* window = glfwCreateWindow(640, 640, "Simple example", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(1024, 768, "Simple example", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -89,6 +90,13 @@ int main(void)
 
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(message_callback, 0);
+
+    // Renderer* renderer = renderer_new(window);
+
+    int32 width, height;
+    glfwGetFramebufferSize(window, &width, &height);
+    float32 aspect = width / (float)height;
+    glViewport(0, 0, width, height);
 
     String fragment_shader = file_read_all_as_string(persistent_arena, string("C:\\Users\\selim\\source\\practice\\opengl\\opengl_03_win\\src\\shaders\\basic.frag"));
     String vertex_shader = file_read_all_as_string(persistent_arena, string("C:\\Users\\selim\\source\\practice\\opengl\\opengl_03_win\\src\\shaders\\basic.vert"));
@@ -104,25 +112,20 @@ int main(void)
 
     while (!glfwWindowShouldClose(window))
     {
-        int32 width, height;
-        glfwGetFramebufferSize(window, &width, &height);
-        float32 aspect = width / (float)height;
-        glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // mat4x4 m, p, mvp;
-        // mat4x4_identity(m);
-        // mat4x4_rotate_Z(m, m, (float) glfwGetTime());
-        // mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);
-        // mat4x4_mul(mvp, p, m);
-
         Mat4 model = mat4_identity();
-        model = mat4_rotate_z(model, 30);
+        model = mat4_rotate_z(model, 16*(float)glfwGetTime());
+
         Mat4 projection = mat4_ortho(2 * aspect, 2, 1, -1);
-        Mat4 mvp = mul_mat4(model, projection);
+        Mat4 mvp = mul_mat4(projection, model);
+
+        // draw_line(renderer, ViewTypeWorld, 10, 20);
+        // draw_triangle(renderer, ViewTypeWorld, 10, 20);
+        // draw_quad(renderer, ViewTypeWorld, 30, 20, 20, 20);
 
         glUseProgram(program);
-        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*)mvp.v);
+        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, mvp.v);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         glfwSwapBuffers(window);

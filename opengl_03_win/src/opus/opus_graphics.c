@@ -6,12 +6,12 @@ material_new(String vertex_shader_text, String fragment_shader_text)
 {
     GLuint vertex_shader;
     vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex_shader, 1, &vertex_shader_text.value, NULL);
+    glShaderSource(vertex_shader, 1, (const char* const*)(&vertex_shader_text.value), NULL);
     glCompileShader(vertex_shader);
 
     GLuint fragment_shader;
     fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment_shader, 1, &fragment_shader_text.value, NULL);
+    glShaderSource(fragment_shader, 1, (const char* const*)(&fragment_shader_text.value), NULL);
     glCompileShader(fragment_shader);
 
     GLuint program = glCreateProgram();
