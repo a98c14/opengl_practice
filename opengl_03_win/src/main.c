@@ -115,7 +115,11 @@ int main(void)
         glClear(GL_COLOR_BUFFER_BIT);
 
         Mat4 model = mat4_identity();
+        float32 p = sinf((float)glfwGetTime());
+        float32 sf = sinf((float)glfwGetTime() * 3);
+        model = mat4_translate(model, vec3(p, p, 0));
         model = mat4_rotate_z(model, 16*(float)glfwGetTime());
+        model = mat4_scale(model, vec3(sf, sf, 0));
 
         Mat4 projection = mat4_ortho(2 * aspect, 2, 1, -1);
         Mat4 mvp = mul_mat4(projection, model);

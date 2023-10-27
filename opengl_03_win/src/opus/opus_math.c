@@ -1,6 +1,32 @@
 #include "opus_math.h"
 
+/* Constructors */
+internal Vec3 
+vec3(float32 x, float32 y, float32 z)
+{
+    Vec3 result;
+    result.x = x;
+    result.y = y;
+    result.z = z;
+    return result;
+}
+
 /* Basic Operations */
+internal Vec4 
+add_vec4(Vec4 a, Vec4 b)
+{
+    Vec4 result;
+#ifdef OPUS_USE_SSE
+    result.SSE = _mm_add_ps(a.SSE, b.SSE);
+#else
+    result.x = a.x + b.x;
+    result.y = a.y + b.y;
+    result.z = a.z + b.z;
+    result.w = a.w + b.w;
+#endif
+    return result;
+}
+
 internal Vec3
 mul_mat3_vec3(Mat3 m, Vec3 v)
 {
@@ -131,6 +157,42 @@ mat4_identity()
     result.m[1][1] = 1;
     result.m[2][2] = 1;
     result.m[3][3] = 1;
+    return result;
+}
+
+internal Mat4 
+mat4_translation(Vec3 v)
+{
+    Mat4 result = mat4_identity();
+    result.m[3][0] = v.x;
+    result.m[3][1] = v.y;
+    result.m[3][2] = v.z;
+    return result;
+}
+
+internal Mat4 
+mat4_translate(Mat4 m, Vec3 v)
+{
+    Mat4 translation = mat4_translation(v);
+    Mat4 result = mul_mat4(m, translation);
+    return result;
+}
+
+internal Mat4 
+mat4_scaling(Vec3 v)
+{
+    Mat4 result = mat4_identity();
+    result.m[0][0] = v.x;
+    result.m[1][1] = v.y;
+    result.m[2][2] = v.z;
+    return result;
+}
+
+internal Mat4 
+mat4_scale(Mat4 m, Vec3 v)
+{
+    Mat4 scaling = mat4_scaling(v);
+    Mat4 result = mul_mat4(m, scaling);
     return result;
 }
 

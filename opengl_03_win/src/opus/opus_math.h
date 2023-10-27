@@ -67,7 +67,11 @@ typedef union
     Vec4 columns[4];
 } Mat4;
 
+/* Constructors */
+internal Vec3 vec3(float32 x, float32 y, float32 z);
+
 /* Basic Operations */
+internal Vec4 add_vec4(Vec4 a, Vec4 b);
 internal Mat3 mul_mat3(Mat3 a, Mat3 b);
 internal Vec3 mul_mat3_vec3(Mat3 m, Vec3 v);
 internal Mat4 mul_mat4(Mat4 a, Mat4 b);
@@ -83,6 +87,10 @@ internal Mat3 mat3_rotate(Mat3 m, float32 angle);
 internal Mat3 mat3_transpose(Mat3 m);
 
 internal Mat4 mat4_identity(void);
+internal Mat4 mat4_translation(Vec3 v);
+internal Mat4 mat4_translate(Mat4 m, Vec3 v);
+internal Mat4 mat4_scaling(Vec3 v);
+internal Mat4 mat4_scale(Mat4 m, Vec3 v);
 internal Mat4 mat4_rotation(float angle);
 internal Mat4 mat4_rotate_z(Mat4 m, float32 angle);
 internal Mat4 mat4_ortho(float32 width, float32 height, float32 near, float32 far);
