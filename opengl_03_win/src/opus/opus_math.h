@@ -68,11 +68,14 @@ typedef union
 } Mat4;
 
 /* Constructors */
+internal Vec2 vec2_right();
 internal Vec3 vec3(float32 x, float32 y, float32 z);
 internal Vec4 vec4(float32 x, float32 y, float32 z, float32 w);
 
 /* Basic Operations */
+internal Vec2 add_vec2(Vec2 a, Vec2 b);
 internal Vec4 add_vec4(Vec4 a, Vec4 b);
+internal Vec2 mul_vec2_f32(Vec2 a, float32 b);
 internal Mat3 mul_mat3(Mat3 a, Mat3 b);
 internal Vec3 mul_mat3_vec3(Mat3 m, Vec3 v);
 internal Mat4 mul_mat4(Mat4 a, Mat4 b);

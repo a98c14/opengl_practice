@@ -24,7 +24,7 @@ key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
-global const Vec2 starting_positions[] = 
+global const Vec2 starting_positions[] =
 {
     { .x=-0.2268,   .y= -0.067f  },
     { .x=-0.9521,   .y= -0.4604f },
@@ -107,7 +107,7 @@ message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei
     }
 
 	char* severity_str;
-    switch (severity) 
+    switch (severity)
     {
 		case GL_DEBUG_SEVERITY_NOTIFICATION: severity_str = "NOTIFICATION"; break;
 		case GL_DEBUG_SEVERITY_LOW: severity_str = "LOW"; break;
@@ -160,11 +160,10 @@ int main(void)
     uint32 program = material_new(vertex_shader, fragment_shader);
     int32 mvp_location = glGetUniformLocation(program, "mvp");
     int32 color_location = glGetUniformLocation(program, "u_color");
-    
+
 
     Geometry geom = geometry_quad_create();
     // Geometry geom = geometry_triangle_create();
-
     // RendererConfiguration config = {0};
     // Renderer* renderer = renderer_new(arena, &config);
     // Camera* camera = camera_new(arena);
@@ -172,27 +171,51 @@ int main(void)
 
     glClearColor(12 / 255.0f, 11 / 255.0f, 20 / 255.0f, 1.0f);
 
+    uint32 boid_count = 50;
+    Vec2* positions = arena_push_array_zero(persistent_arena, Vec2, boid_count);
+    Vec2* directions = arena_push_array_zero(persistent_arena, Vec2, boid_count);
+    float32* speeds = arena_push_array_zero(persistent_arena, float32, boid_count);
+
+    // init
+    for(int i = 0; i < boid_count; i++)
+    {
+        positions[i] = starting_positions[i];
+        speeds[i] = starting_positions[i].x * 10;
+        directions[i] = vec2_right();
+    }
+
+    float32 time = (float32)glfwGetTime();
+    float32 last_frame_time, dt;
     while (!glfwWindowShouldClose(window))
     {
-        float32 time = (float)glfwGetTime();
+        last_frame_time = time;
+        time = (float32)glfwGetTime();
+        dt = time - last_frame_time;
+        
         glClear(GL_COLOR_BUFFER_BIT);
 
         // draw_line(renderer, ViewTypeWorld, 10, 20);
         // draw_triangle(renderer, ViewTypeWorld, 10, 20);
         // draw_quad(renderer, ViewTypeWorld, 30, 20, 20, 20);
-        glUseProgram(program);
-        for(int i = 0; i < 50; i++)
+
+        for(int i = 0; i < boid_count; i++)
         {
-            Vec2 pos = starting_positions[i];
+            positions[i] = add_vec2(positions[i], mul_vec2_f32(directions[i], speeds[i] * dt));
+        }
+
+
+        glUseProgram(program);
+        for(int i = 0; i < boid_count; i++)
+        {
+            Vec2 pos = positions[i];
             Mat4 translation = mat4_translation(vec3(pos.x * 3, pos.y * 3, 0));
-            // Mat4 rotation = mat4_rotation(16.0f * time * i);
+            Mat4 rotation = mat4_rotation(0);
             Mat4 scale = mat4_scale(vec3(.4, .3, 0));
-            // Mat4 transform = mat4_transform(translation, rotation, scale);
-            Mat4 transform = mat4_transform(translation, mat4_identity(), scale);
+            Mat4 transform = mat4_transform(translation, rotation, scale);
             Mat4 mvp = mul_mat4(projection, transform);
 
             float32 color =  i / 50.0f;
-            glUniform4f(color_location,  color,  color, color, 1.0f);
+            glUniform4f(color_location, color, color, color, 1.0f);
             glUniformMatrix4fv(mvp_location, 1, GL_FALSE, mvp.v);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         }

@@ -1,6 +1,15 @@
 #include "opus_math.h"
 
 /* Constructors */
+internal Vec2 
+vec2_right()
+{
+    Vec2 result;
+    result.x = 1;
+    result.y = 0;
+    return result;
+}
+
 internal Vec3 
 vec3(float32 x, float32 y, float32 z)
 {
@@ -23,6 +32,15 @@ vec4(float32 x, float32 y, float32 z, float32 w)
 }
 
 /* Basic Operations */
+internal Vec2 
+add_vec2(Vec2 a, Vec2 b)
+{
+    Vec2 result;
+    result.x = a.x + b.x;
+    result.y = a.y + b.y;
+    return result;
+}
+
 internal Vec4 
 add_vec4(Vec4 a, Vec4 b)
 {
@@ -35,6 +53,15 @@ add_vec4(Vec4 a, Vec4 b)
     result.z = a.z + b.z;
     result.w = a.w + b.w;
 #endif
+    return result;
+}
+
+internal Vec2
+mul_vec2_f32(Vec2 a, float32 b)
+{
+    Vec2 result;
+    result.x = a.x * b;
+    result.y = a.y * b;
     return result;
 }
 
