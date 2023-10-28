@@ -167,7 +167,7 @@ int main(void)
     glEnable(GL_ALPHA_TEST);
     glClearColor(12 / 255.0f, 11 / 255.0f, 20 / 255.0f, 1.0f);
 
-    uint32 boid_count = 1;
+    uint32 boid_count = 10;
     Vec2* positions = arena_push_array_zero(persistent_arena, Vec2, boid_count);
     Vec2* directions = arena_push_array_zero(persistent_arena, Vec2, boid_count);
     float32* speeds = arena_push_array_zero(persistent_arena, float32, boid_count);
@@ -175,7 +175,7 @@ int main(void)
     // init
     for(int i = 0; i < boid_count; i++)
     {
-        positions[i] = starting_positions[i];
+        positions[i] = mul_vec2_f32(starting_positions[i], 30);
         speeds[i] = 5;
         directions[i] = vec2_right();
     }
@@ -207,14 +207,22 @@ int main(void)
             directions[i] = norm_vec2(sub_vec2(mouse_world, positions[i]));
         }
 
+        float32 padding = 20;
+        draw_bounds(dc, -world_width/2+padding, world_width/2-padding, -world_height/2+padding, world_height/2-padding);
+
         for(int i = 0; i < boid_count; i++)
         {
             Vec2 pos = positions[i];
             Vec2 dir = directions[i];
-            draw_line(dc, pos, mouse_world);
             draw_boid(dc, pos, dir, 1);
-            draw_circle(dc, pos, 20);
-            draw_circle(dc, pos, 50);
+
+            // draw debug stuff for the first boid only
+            if(i == 0)
+            {
+                draw_line(dc, pos, mouse_world);
+                draw_circle(dc, pos, 20);
+                draw_circle(dc, pos, 50);
+            }
         }
 
         glfwSwapBuffers(window);

@@ -48,6 +48,15 @@ draw_line(DrawContext* dc, Vec2 start, Vec2 end)
 }
 
 internal void
+draw_bounds(DrawContext* dc, float32 left, float32 right, float32 bottom, float32 top)
+{
+    draw_line(dc, vec2(left, top), vec2(left, bottom));
+    draw_line(dc, vec2(left, bottom), vec2(right, bottom));
+    draw_line(dc, vec2(right, bottom), vec2(right, top));
+    draw_line(dc, vec2(right, top), vec2(left, top));
+}
+
+internal void
 draw_circle(DrawContext* dc, Vec2 position, float32 radius)
 {
     glUseProgram(dc->material_circle.program_id);
