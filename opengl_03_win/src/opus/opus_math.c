@@ -77,6 +77,15 @@ add_vec2(Vec2 a, Vec2 b)
     return result;
 }
 
+internal Vec2 
+add_vec2_f32(Vec2 a, float32 b)
+{
+    Vec2 result;
+    result.x = a.x + b;
+    result.y = a.y + b;
+    return result;
+}
+
 internal Vec4 
 add_vec4(Vec4 a, Vec4 b)
 {
@@ -172,6 +181,15 @@ mul_mat4(Mat4 a, Mat4 b)
     result.columns[1] = linear_combine_v4_m4(b.columns[1], a);
     result.columns[2] = linear_combine_v4_m4(b.columns[2], a);
     result.columns[3] = linear_combine_v4_m4(b.columns[3], a);
+    return result;
+}
+
+internal Vec2 
+div_vec2_f32(Vec2 a, float32 b)
+{
+    Vec2 result;
+    result.x = a.x / b;
+    result.y = a.y / b;
     return result;
 }
 

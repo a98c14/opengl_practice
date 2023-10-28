@@ -16,6 +16,12 @@ typedef struct
 {
     Mat4 projection;
     Mat4 view;
+
+    float32 window_width;
+    float32 window_height;
+
+    float32 world_height;
+    float32 world_width;
 } Camera;
 
 typedef struct
@@ -32,7 +38,7 @@ typedef struct
 } Material;
 
 internal Camera
-camera_new(float32 width, float32 height, float32 near, float32 far);
+camera_new(float32 width, float32 height, float32 near, float32 far, float32 window_width, float32 window_height);
 
 internal uint32
 shader_load(String vertex_shader_text, String fragment_shader_text);

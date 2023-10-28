@@ -1,5 +1,4 @@
 ## To-Do
-- draw line function (create `opus_draw` maybe?)
 - mouse world position support so entities can follow the mouse
 - bounds check at the screen borders
 

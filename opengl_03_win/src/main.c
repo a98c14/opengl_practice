@@ -119,6 +119,9 @@ message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei
 	printf("[GL_%s][%s|%s] %s\n", severity_str, source_str, type_str, message);
 }
 
+#define WINDOW_WIDTH 1920
+#define WINDOW_HEIGHT 1080
+
 int main(void)
 {
     Arena* persistent_arena = make_arena_reserve(mb(16));
@@ -132,7 +135,7 @@ int main(void)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_RESIZABLE, 0);
 
-    GLFWwindow* window = glfwCreateWindow(1920, 1080, "Simple example", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Simple example", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -156,7 +159,9 @@ int main(void)
 
     Geometry geom = geometry_quad_create();
     
-    Camera camera = camera_new(100 * aspect, 100, 1, -1);
+    float32 world_height = 100;
+    float32 world_width = world_height * aspect;
+    Camera camera = camera_new(world_width, world_height, 1, -1, WINDOW_WIDTH, WINDOW_HEIGHT);
     DrawContext* dc = draw_context_new(persistent_arena, &camera);
 
     // Geometry geom = geometry_triangle_create();
@@ -186,6 +191,12 @@ int main(void)
     float32 last_frame_time, dt;
     while (!glfwWindowShouldClose(window))
     {
+        /* calculate mouse world position*/
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+        Vec2 mouse_raw = vec2(xpos, ypos);
+        Vec2 mouse_world = mouse_world_position(mouse_raw, camera);
+        
         last_frame_time = time;
         time = (float32)glfwGetTime();
         dt = time - last_frame_time;
@@ -201,7 +212,7 @@ int main(void)
             positions[i] = add_vec2(positions[i], mul_vec2_f32(directions[i], speeds[i] * dt));
         }
 
-        draw_line(dc, vec2(0, 0), vec2(20, 20));
+        draw_line(dc, vec2(0, 0), mouse_world);
         draw_circle(dc, vec2(0, 0), 10);
         for(int i = 0; i < boid_count; i++)
         {
