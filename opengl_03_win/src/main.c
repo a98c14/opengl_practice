@@ -172,16 +172,25 @@ int main(void)
     Vec2* directions = arena_push_array_zero(persistent_arena, Vec2, boid_count);
     float32* speeds = arena_push_array_zero(persistent_arena, float32, boid_count);
 
+    int32 scouts[] = { 0, 4 };
+
     // init
     for(int i = 0; i < boid_count; i++)
     {
         positions[i] = mul_vec2_f32(starting_positions[i], 30);
-        speeds[i] = 5;
+        speeds[i] = 10;
         directions[i] = vec2_right();
     }
 
     float32 time = (float32)glfwGetTime();
     float32 last_frame_time, dt;
+
+    float32 close_range = 10;
+    float32 visual_range = 25;
+    float32 avoid_factor = 0.05;
+    float32 min_speed = 5;
+    float32 max_speed = 15;
+
     while (!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT);
@@ -202,9 +211,38 @@ int main(void)
             positions[i] = add_vec2(positions[i], mul_vec2_f32(directions[i], speeds[i] * dt));
         }
 
+        for(int i = 0; i < countof(scouts); i++)
+        {
+            int32 boid_index = scouts[i];
+            Vec2 pos = positions[boid_index];
+            Vec2 direction = lerp_vec2(directions[boid_index], norm_vec2(sub_vec2(mouse_world, pos)), dt);
+            directions[boid_index] = direction;
+        }
+
         for(int i = 0; i < boid_count; i++)
         {
-            directions[i] = norm_vec2(sub_vec2(mouse_world, positions[i]));
+            Vec2 pos = positions[i];
+            Vec2 total_avoid_vector = vec2_zero();
+            for(int j = 0; j < boid_count; j++)
+            {
+                if(i == j) continue;
+                Vec2 other_pos = positions[j];
+                float32 dist = dist_vec2(pos, other_pos);
+                if(dist < close_range)
+                {
+                    Vec2 avoid_vector = sub_vec2(pos, other_pos);
+                    total_avoid_vector = add_vec2(total_avoid_vector, avoid_vector);
+                }
+                else if(dist < visual_range)
+                {
+
+                }
+            }
+
+            Vec2 direction = directions[i];
+            direction.x += total_avoid_vector.x * avoid_factor * dt;
+            direction.y += total_avoid_vector.y * avoid_factor * dt;
+            directions[i] = norm_vec2(direction);
         }
 
         float32 padding = 20;
@@ -220,8 +258,8 @@ int main(void)
             if(i == 0)
             {
                 draw_line(dc, pos, mouse_world);
-                draw_circle(dc, pos, 20);
-                draw_circle(dc, pos, 50);
+                draw_circle(dc, pos, close_range);
+                draw_circle(dc, pos, visual_range);
             }
         }
 

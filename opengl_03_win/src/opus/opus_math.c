@@ -12,6 +12,15 @@ vec2(float32 x, float32 y)
 }
 
 internal Vec2 
+vec2_zero()
+{
+    Vec2 result;
+    result.x = 0;
+    result.y = 0;
+    return result;
+}
+
+internal Vec2 
 vec2_one()
 {
     Vec2 result;

@@ -60,7 +60,7 @@ internal void
 draw_circle(DrawContext* dc, Vec2 position, float32 radius)
 {
     glUseProgram(dc->material_circle.program_id);
-    Mat4 transform = transform_quad(position, vec2(radius, radius), 0);
+    Mat4 transform = transform_quad(position, vec2(radius*2, radius*2), 0);
     Mat4 mvp = mul_mat4(dc->camera->view, transform);
     mvp = mul_mat4(dc->camera->projection, mvp);
     glUniform4f(dc->material_line.location_color, 1, 1, 1, 1.0f);
