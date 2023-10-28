@@ -75,7 +75,57 @@ global const Vec2 starting_positions[] =
     { .x=-0.1185,   .y= 0.5081f  },
     { .x=-0.9105,   .y= -0.7117f },
     { .x=0.8809,    .y= 0.2149f  },
-    { .x=-0.3786,   .y= -0.9675f }
+    { .x=-0.3786,   .y= -0.9675f },
+    { .x = 0.9821, .y = 0.9973 },
+    { .x = 0.9169, .y = 0.9720 },
+    { .x = 0.9992, .y = 0.3629 },
+    { .x = 0.2233, .y = 0.7656 },
+    { .x = 0.3926, .y = 0.5233 },
+    { .x = 0.9216, .y = 0.5801 },
+    { .x = 0.4017, .y = 0.6944 },
+    { .x = 0.0575, .y = 0.2465 },
+    { .x = 0.1560, .y = 0.4696 },
+    { .x = 0.5595, .y = 0.4946 },
+    { .x = 0.7011, .y = 0.3239 },
+    { .x = 0.7024, .y = 0.9509 },
+    { .x = 0.9261, .y = 0.8829 },
+    { .x = 0.1655, .y = 0.5544 },
+    { .x = 0.2872, .y = 0.6559 },
+    { .x = 0.8361, .y = 0.5621 },
+    { .x = 0.8289, .y = 0.7005 },
+    { .x = 0.2604, .y = 0.3490 },
+    { .x = 0.2043, .y = 0.6882 },
+    { .x = 0.2554, .y = 0.3434 },
+    { .x = 0.6065, .y = 0.1551 },
+    { .x = 0.6859, .y = 0.4119 },
+    { .x = 0.4084, .y = 0.7319 },
+    { .x = 0.2402, .y = 0.7833 },
+    { .x = 0.8431, .y = 0.4105 },
+    { .x = 0.1467, .y = 0.1153 },
+    { .x = 0.1078, .y = 0.4439 },
+    { .x = 0.5756, .y = 0.7645 },
+    { .x = 0.2515, .y = 0.6287 },
+    { .x = 0.8349, .y = 0.1548 },
+    { .x = 0.4315, .y = 0.9808 },
+    { .x = 0.9450, .y = 0.4149 },
+    { .x = 0.7644, .y = 0.4570 },
+    { .x = 0.6570, .y = 0.0110 },
+    { .x = 0.0371, .y = 0.9018 },
+    { .x = 0.4947, .y = 0.7859 },
+    { .x = 0.4938, .y = 0.1844 },
+    { .x = 0.1619, .y = 0.4844 },
+    { .x = 0.6110, .y = 0.5583 },
+    { .x = 0.9370, .y = 0.9247 },
+    { .x = 0.0271, .y = 0.3874 },
+    { .x = 0.9580, .y = 0.0361 },
+    { .x = 0.6660, .y = 0.1383 },
+    { .x = 0.0761, .y = 0.8316 },
+    { .x = 0.2369, .y = 0.3105 },
+    { .x = 0.5786, .y = 0.0113 },
+    { .x = 0.2560, .y = 0.8140 },
+    { .x = 0.8755, .y = 0.7974 },
+    { .x = 0.7274, .y = 0.0186 },
+    { .x = 0.2147, .y = 0.3525 }
 };
 
 internal void
@@ -167,33 +217,43 @@ int main(void)
     glEnable(GL_ALPHA_TEST);
     glClearColor(12 / 255.0f, 11 / 255.0f, 20 / 255.0f, 1.0f);
 
-    uint32 boid_count = 10;
+    uint32 boid_count = 100;
     Vec2* positions = arena_push_array_zero(persistent_arena, Vec2, boid_count);
     Vec2* directions = arena_push_array_zero(persistent_arena, Vec2, boid_count);
-    float32* speeds = arena_push_array_zero(persistent_arena, float32, boid_count);
+    Vec2* alignment_vectors = arena_push_array_zero(persistent_arena, Vec2, boid_count);
+    Vec2* avoidance_vectors = arena_push_array_zero(persistent_arena, Vec2, boid_count);
+    Vec2* cohesion_vectors = arena_push_array_zero(persistent_arena, Vec2, boid_count);
 
-    int32 scouts[] = { 0, 4 };
+    int32 scouts[] = { 0, 4, 13, 17, 46, 2, 15 };
 
     // init
     for(int i = 0; i < boid_count; i++)
     {
         positions[i] = mul_vec2_f32(starting_positions[i], 30);
-        speeds[i] = 10;
         directions[i] = vec2_right();
     }
 
     float32 time = (float32)glfwGetTime();
     float32 last_frame_time, dt;
 
-    float32 close_range = 10;
-    float32 visual_range = 25;
-    float32 avoid_factor = 0.05;
+    float32 close_range = 5;
+    float32 visual_range = 15;
+    float32 avoid_factor = 0.5;
+    float32 alignment_factor = 0.5;
+    float32 cohesion_factor = 0.05;
     float32 min_speed = 5;
     float32 max_speed = 15;
+
+    float32 padding = 10;
+    float32 bounds_left = -world_width/2+padding;
+    float32 bounds_right = world_width/2-padding;
+    float32 bounds_bottom =  -world_height/2+padding;
+    float32 bounds_top =  world_height/2-padding;
 
     while (!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT);
+        arena_reset(frame_arena);
 
         /* timers */
         last_frame_time = time;
@@ -208,44 +268,97 @@ int main(void)
 
         for(int i = 0; i < boid_count; i++)
         {
-            positions[i] = add_vec2(positions[i], mul_vec2_f32(directions[i], speeds[i] * dt));
+            avoidance_vectors[i] = vec2_zero();
+            cohesion_vectors[i] = vec2_zero();
+            alignment_vectors[i] = vec2_zero();
+            Vec2 group_center = vec2_zero();
+            int32 neighbour_count = 0;
+            for(int j = 0; j < boid_count; j++)
+            {
+                if(i == j) continue;
+                float32 dist = dist_vec2(positions[i], positions[j]);
+                if(dist < close_range)
+                {
+                    Vec2 v = sub_vec2(positions[i], positions[j]);
+                    avoidance_vectors[i] = add_vec2(avoidance_vectors[i], v);
+                } 
+                else if(dist < visual_range)
+                {
+                    alignment_vectors[i] = add_vec2(alignment_vectors[i], directions[j]);
+                    group_center = add_vec2(group_center, positions[j]);
+                    neighbour_count++;
+                }
+            }
+
+            if(neighbour_count > 0)
+            {
+                alignment_vectors[i] = div_vec2_f32(alignment_vectors[i], neighbour_count);
+                cohesion_vectors[i] = sub_vec2(div_vec2_f32(group_center, neighbour_count), positions[i]);
+                // draw_line(dc, positions[i], add_vec2(positions[i], cohesion_vectors[i]));
+            }
+        }
+
+        for(int i = 0; i < boid_count; i++)
+        {
+            Vec2 direction = directions[i];
+            Vec2 avoidance = mul_vec2_f32(avoidance_vectors[i], avoid_factor * dt);
+            Vec2 cohesion = mul_vec2_f32(cohesion_vectors[i], cohesion_factor * dt);
+            Vec2 alignment = sub_vec2(alignment_vectors[i], direction);
+            alignment = mul_vec2_f32(alignment, alignment_factor * dt);
+
+            direction = add_vec2(direction, avoidance);
+            direction = add_vec2(direction, cohesion);
+            direction = add_vec2(direction, alignment);
+            directions[i] = direction;
+        }
+
+        for(int i = 0; i < boid_count; i++)
+        {
+            if(positions[i].x < bounds_left)
+                directions[i].x += fabsf((positions[i].x - bounds_left)) * 10 * dt;
+             
+            if(positions[i].x > bounds_right)
+                directions[i].x -= fabsf((positions[i].x - bounds_right)) * 10 * dt;
+
+            if(positions[i].y < bounds_bottom)
+                directions[i].y += fabsf((positions[i].y - bounds_bottom)) * 10 * dt;
+
+            if(positions[i].y > bounds_top)
+                directions[i].y -= fabsf((positions[i].y - bounds_top)) * 10 * dt;
+        }
+
+        // speed limits
+        for(int i = 0; i < boid_count; i++)
+        {
+            float32 speed = len_vec2(directions[i]);
+            if(speed < min_speed)
+            {
+                float32 new_speed = lerp_f32(speed, min_speed, dt * 8);
+                directions[i] = mul_vec2_f32(div_vec2_f32(directions[i], speed), new_speed);
+            }
+
+            if(speed < max_speed)
+            {
+                float32 new_speed = lerp_f32(speed, max_speed, dt * 8);
+                directions[i] = mul_vec2_f32(div_vec2_f32(directions[i], speed), new_speed);
+            }
+
         }
 
         for(int i = 0; i < countof(scouts); i++)
         {
             int32 boid_index = scouts[i];
             Vec2 pos = positions[boid_index];
-            Vec2 direction = lerp_vec2(directions[boid_index], norm_vec2(sub_vec2(mouse_world, pos)), dt);
-            directions[boid_index] = direction;
+            Vec2 mouse_direction = mul_vec2_f32(norm_vec2(sub_vec2(mouse_world, pos)), dt * 10);
+            directions[boid_index] = add_vec2(directions[boid_index], mouse_direction);
         }
 
+        // update positions
         for(int i = 0; i < boid_count; i++)
         {
-            Vec2 pos = positions[i];
-            Vec2 total_avoid_vector = vec2_zero();
-            for(int j = 0; j < boid_count; j++)
-            {
-                if(i == j) continue;
-                Vec2 other_pos = positions[j];
-                float32 dist = dist_vec2(pos, other_pos);
-                if(dist < close_range)
-                {
-                    Vec2 avoid_vector = sub_vec2(pos, other_pos);
-                    total_avoid_vector = add_vec2(total_avoid_vector, avoid_vector);
-                }
-                else if(dist < visual_range)
-                {
-
-                }
-            }
-
-            Vec2 direction = directions[i];
-            direction.x += total_avoid_vector.x * avoid_factor * dt;
-            direction.y += total_avoid_vector.y * avoid_factor * dt;
-            directions[i] = norm_vec2(direction);
+            positions[i] = add_vec2(positions[i], mul_vec2_f32(directions[i], dt));
         }
 
-        float32 padding = 20;
         draw_bounds(dc, -world_width/2+padding, world_width/2-padding, -world_height/2+padding, world_height/2-padding);
 
         for(int i = 0; i < boid_count; i++)

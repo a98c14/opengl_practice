@@ -213,6 +213,12 @@ div_vec2_f32(Vec2 a, float32 b)
     return result;
 }
 
+internal float32 
+lerp_f32(float32 a, float32 b, float32 t)
+{
+    return (a * (1 - t)) + (b * t);
+}
+
 internal Vec2 
 lerp_vec2(Vec2 a, Vec2 b, float32 t)
 {
