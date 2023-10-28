@@ -22,8 +22,8 @@ void main()
 {
     vec2 uv = v_texcoord;
     uv = uv * 2.0 - 1.0;
-    uv = uv + vec2(0.0, -0.8);
-    float d = sd_triangle_isosceles(uv, vec2(0.8, -1.6));
+    uv = uv + vec2(0.0, 0.8);
+    float d = sd_triangle_isosceles(uv, vec2(0.8, 1.6));
     d = smoothstep(0.0, 0.2, d);
     d = 1 - d;
     color = vec4(d, d, d, d);

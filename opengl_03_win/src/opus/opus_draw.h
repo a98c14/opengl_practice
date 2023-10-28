@@ -23,3 +23,6 @@ draw_context_new(Arena* arena, Camera* camera);
 
 internal void
 draw_line(DrawContext* dc, Vec2 start, Vec2 end);
+
+internal void
+draw_boid(DrawContext* dc, Vec2 pos, Vec2 dir, float32 scale);

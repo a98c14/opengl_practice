@@ -85,7 +85,7 @@ transform_line(Vec2 start, Vec2 end, float32 thickness)
 {
     Vec2 center = lerp_vec2(start, end, 0.5f);
     float32 dist = dist_vec2(end, start);
-    float32 angle = angle_between_vec2(end, start);
+    float32 angle = angle_vec2(sub_vec2(end, start));
     Mat4 translation = mat4_translation(vec3_xy_z(center, 0));
     Mat4 rotation = mat4_rotation(angle);
     Mat4 scale = mat4_scale(vec3(dist, thickness, 0));

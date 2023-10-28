@@ -1,4 +1,5 @@
 #include "opus_math.h"
+#include <corecrt_math.h>
 
 /* Constructors */
 internal Vec2 
@@ -145,6 +146,16 @@ mul_vec2_f32(Vec2 a, float32 b)
     return result;
 }
 
+internal Vec3 
+mul_vec3_f32(Vec3 a, float32 b)
+{
+    Vec3 result;
+    result.x = a.x * b;
+    result.y = a.y * b;
+    result.z = a.z * b;
+    return result;
+}
+
 internal Vec3
 mul_mat3_vec3(Mat3 m, Vec3 v)
 {
@@ -215,6 +226,16 @@ dot_vec3(Vec3 a, Vec3 b)
     return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
+internal Vec2 norm_vec2(Vec2 a)
+{
+    return mul_vec2_f32(a,  1.0f / sqrtf(dot_vec2(a, a)));
+}
+
+internal Vec3 norm_vec3(Vec3 a)
+{
+    return mul_vec3_f32(a,  1.0f / sqrtf(dot_vec3(a, a)));
+}
+
 internal float32 
 lensqr_vec2(Vec2 a)
 {
@@ -234,10 +255,9 @@ dist_vec2(Vec2 a, Vec2 b)
 }
 
 internal float32 
-angle_between_vec2(Vec2 a, Vec2 b)
+angle_vec2(Vec2 v)
 {
     // do we need to normalize the vector?
-    Vec2 v = sub_vec2(b, a);
     Vec2 right = vec2_right();
     float32 dot = dot_vec2(right, v);
     float32 det = right.x * v.y - right.y * v.x;

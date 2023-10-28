@@ -60,10 +60,11 @@ draw_circle(DrawContext* dc, Vec2 position, float32 radius)
 }
 
 internal void
-draw_boid(DrawContext* dc, Vec2 pos, float32 scale)
+draw_boid(DrawContext* dc, Vec2 pos, Vec2 dir, float32 scale)
 {
     glUseProgram(dc->material_boid.program_id);
-    Mat4 transform = transform_quad(pos, vec2(2 * scale, 3 * scale), 0);
+    float32 angle = angle_vec2(dir);
+    Mat4 transform = transform_quad(pos, vec2(2 * scale, 3 * scale), angle + 90);
     Mat4 mvp = mul_mat4(dc->camera->projection, transform);
 
     glUniform4f(dc->material_boid.location_color, 1, 1, 1, 1.0f);

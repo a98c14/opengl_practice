@@ -150,8 +150,6 @@ int main(void)
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(message_callback, 0);
 
-    // Renderer* renderer = renderer_new(window);
-
     int32 width, height;
     glfwGetFramebufferSize(window, &width, &height);
     glViewport(0, 0, width, height);
@@ -179,7 +177,7 @@ int main(void)
     {
         positions[i] = starting_positions[i];
         speeds[i] = 5;
-        directions[i] = vec2_up();
+        directions[i] = vec2_right();
     }
 
     float32 time = (float32)glfwGetTime();
@@ -199,7 +197,6 @@ int main(void)
         Vec2 mouse_raw = vec2(xpos, ypos);
         Vec2 mouse_world = mouse_world_position(mouse_raw, camera);
 
-
         for(int i = 0; i < boid_count; i++)
         {
             positions[i] = add_vec2(positions[i], mul_vec2_f32(directions[i], speeds[i] * dt));
@@ -207,10 +204,17 @@ int main(void)
 
         for(int i = 0; i < boid_count; i++)
         {
+            directions[i] = norm_vec2(sub_vec2(mouse_world, positions[i]));
+        }
+
+        for(int i = 0; i < boid_count; i++)
+        {
             Vec2 pos = positions[i];
+            Vec2 dir = directions[i];
             draw_line(dc, pos, mouse_world);
-            draw_boid(dc, pos, 1);
-            draw_circle(dc, pos, 10);
+            draw_boid(dc, pos, dir, 1);
+            draw_circle(dc, pos, 20);
+            draw_circle(dc, pos, 50);
         }
 
         glfwSwapBuffers(window);
