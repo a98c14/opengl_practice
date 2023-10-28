@@ -1,8 +1,17 @@
 #include "opus_base.h"
 #include "opus_graphics.h"
 
+internal Camera
+camera_new(float32 width, float32 height, float32 near, float32 far)
+{
+    Camera result;
+    result.projection = mat4_ortho(width, height, near, far);
+    result.view = mat4_identity();
+    return result;
+}
+
 internal uint32
-material_new(String vertex_shader_text, String fragment_shader_text)
+shader_load(String vertex_shader_text, String fragment_shader_text)
 {
     GLuint vertex_shader;
     vertex_shader = glCreateShader(GL_VERTEX_SHADER);
@@ -20,4 +29,17 @@ material_new(String vertex_shader_text, String fragment_shader_text)
     glLinkProgram(program);
 
     return program;
+}
+
+internal Material
+material_new(Arena* arena, String vertex_shader_text, String fragment_shader_text)
+{
+    uint32 program = shader_load(vertex_shader_text, fragment_shader_text);
+    int32 mvp_location = glGetUniformLocation(program, "mvp");
+    int32 color_location = glGetUniformLocation(program, "u_color");
+    Material result;
+    result.program_id = program;
+    result.location_model = mvp_location;
+    result.location_color = color_location;
+    return result;
 }

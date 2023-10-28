@@ -14,9 +14,28 @@ typedef struct
 
 typedef struct
 {
+    Mat4 projection;
+    Mat4 view;
+} Camera;
+
+typedef struct
+{
     uint32 index_count;
     uint32 vertex_array_object;
 } Geometry;
 
+typedef struct
+{
+    uint32 program_id;
+    uint32 location_model;
+    uint32 location_color;
+} Material;
+
+internal Camera
+camera_new(float32 width, float32 height, float32 near, float32 far);
+
 internal uint32
-material_new(String vertex_shader_text, String fragment_shader_text);
+shader_load(String vertex_shader_text, String fragment_shader_text);
+
+internal Material
+material_new(Arena* arena, String vertex_shader_text, String fragment_shader_text);

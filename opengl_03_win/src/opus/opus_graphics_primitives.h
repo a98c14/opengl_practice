@@ -1,4 +1,5 @@
 #pragma once
+#include "opus_math.h"
 #include "opus_graphics.h"
 
 const float32 shape_vertices_quad[] =
@@ -34,3 +35,10 @@ geometry_quad_create();
 
 internal Geometry
 geometry_triangle_create();
+
+/* Transforms */
+internal Mat4
+transform_quad(Vec2 position, Vec2 scale, float32 rotation);
+
+internal Mat4
+transform_line(Vec2 start, Vec2 end, float32 thickness);

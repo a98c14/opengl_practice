@@ -151,24 +151,22 @@ int main(void)
 
     int32 width, height;
     glfwGetFramebufferSize(window, &width, &height);
-    float32 aspect = width / (float)height;
     glViewport(0, 0, width, height);
-    Mat4 projection = mat4_ortho(100 * aspect, 100, 1, -1);
-
-    String fragment_shader = file_read_all_as_string(persistent_arena, string("C:\\Users\\selim\\source\\practice\\opengl\\opengl_03_win\\src\\shaders\\basic.frag"));
-    String vertex_shader = file_read_all_as_string(persistent_arena, string("C:\\Users\\selim\\source\\practice\\opengl\\opengl_03_win\\src\\shaders\\basic.vert"));
-    uint32 program = material_new(vertex_shader, fragment_shader);
-    int32 mvp_location = glGetUniformLocation(program, "mvp");
-    int32 color_location = glGetUniformLocation(program, "u_color");
-
+    float32 aspect = width / (float)height;
 
     Geometry geom = geometry_quad_create();
+    
+    Camera camera = camera_new(100 * aspect, 100, 1, -1);
+    DrawContext* dc = draw_context_new(persistent_arena, &camera);
+
     // Geometry geom = geometry_triangle_create();
     // RendererConfiguration config = {0};
     // Renderer* renderer = renderer_new(arena, &config);
     // Camera* camera = camera_new(arena);
     // renderer_set_camera(camera);
-
+    glEnable(GL_BLEND);
+    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+    glEnable(GL_ALPHA_TEST);
     glClearColor(12 / 255.0f, 11 / 255.0f, 20 / 255.0f, 1.0f);
 
     uint32 boid_count = 1;
@@ -180,8 +178,8 @@ int main(void)
     for(int i = 0; i < boid_count; i++)
     {
         positions[i] = starting_positions[i];
-        speeds[i] = 1 + 1.0f * starting_positions[i].x;
-        directions[i] = vec2_right();
+        speeds[i] = 5;
+        directions[i] = vec2_up();
     }
 
     float32 time = (float32)glfwGetTime();
@@ -203,35 +201,11 @@ int main(void)
             positions[i] = add_vec2(positions[i], mul_vec2_f32(directions[i], speeds[i] * dt));
         }
 
-        Vec2 start = vec2(0, 0);
-        Vec2 end = vec2(5, -5);
-        Vec2 center = lerp_vec2(start, end, 0.5f);
-        float32 dist = dist_vec2(end, start);
-        float32 angle = angle_between_vec2(end, start);
-        
-        Mat4 translation = mat4_translation(vec3_xy_z(center, 0));
-        Mat4 rotation = mat4_rotation(angle);
-        Mat4 scale = mat4_scale(vec3(dist, 1, 0));
-        Mat4 transform = mat4_transform(translation, rotation, scale);
-        Mat4 mvp = mul_mat4(projection, transform);
-        glUniform4f(color_location, 1, 1, 1, 1.0f);
-        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, mvp.v);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-        glUseProgram(program);
+        draw_line(dc, vec2(0, 0), vec2(20, 20));
         for(int i = 0; i < boid_count; i++)
         {
             Vec2 pos = positions[i];
-            Mat4 translation = mat4_translation(vec3(pos.x * 3, pos.y * 3, 0));
-            Mat4 rotation = mat4_rotation(0);
-            Mat4 scale = mat4_scale(vec3(1, 1, 0));
-            Mat4 transform = mat4_transform(translation, rotation, scale);
-            Mat4 mvp = mul_mat4(projection, transform);
-
-            float32 color =  i / 50.0f;
-            glUniform4f(color_location, color, color, color, 1.0f);
-            glUniformMatrix4fv(mvp_location, 1, GL_FALSE, mvp.v);
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            draw_boid(dc, pos, 1);
         }
 
         glfwSwapBuffers(window);
