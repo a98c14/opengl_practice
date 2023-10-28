@@ -1,6 +1,7 @@
 ## To-Do
-- mouse world position support so entities can follow the mouse
-- bounds check at the screen borders
+- perf benchmarks & optimization
+- boid coloring?? maybe they can get colors based on their groups
+- 
 
 
 ## Commands
