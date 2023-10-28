@@ -37,9 +37,21 @@ draw_context_new(Arena* arena, Camera* camera)
 internal void
 draw_line(DrawContext* dc, Vec2 start, Vec2 end)
 {
-    float32 thickness = 0.6;
+    float32 thickness = 0.55;
     glUseProgram(dc->material_line.program_id);
     Mat4 transform = transform_line(start, end, thickness);
+    Mat4 mvp = mul_mat4(dc->camera->view, transform);
+    mvp = mul_mat4(dc->camera->projection, mvp);
+    glUniform4f(dc->material_line.location_color, 1, 1, 1, 1.0f);
+    glUniformMatrix4fv(dc->material_line.location_model, 1, GL_FALSE, mvp.v);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+}
+
+internal void
+draw_circle(DrawContext* dc, Vec2 position, float32 radius)
+{
+    glUseProgram(dc->material_circle.program_id);
+    Mat4 transform = transform_quad(position, vec2(radius, radius), 0);
     Mat4 mvp = mul_mat4(dc->camera->view, transform);
     mvp = mul_mat4(dc->camera->projection, mvp);
     glUniform4f(dc->material_line.location_color, 1, 1, 1, 1.0f);

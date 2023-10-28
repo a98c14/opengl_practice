@@ -202,6 +202,7 @@ int main(void)
         }
 
         draw_line(dc, vec2(0, 0), vec2(20, 20));
+        draw_circle(dc, vec2(0, 0), 10);
         for(int i = 0; i < boid_count; i++)
         {
             Vec2 pos = positions[i];
