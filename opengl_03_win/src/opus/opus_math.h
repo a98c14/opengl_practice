@@ -68,17 +68,32 @@ typedef union
 } Mat4;
 
 /* Constructors */
+internal Vec2 vec2(float32 x, float32 y);
 internal Vec2 vec2_right();
 internal Vec3 vec3(float32 x, float32 y, float32 z);
+internal Vec3 vec3_xy_z(Vec2 xy, float32 z);
 internal Vec4 vec4(float32 x, float32 y, float32 z, float32 w);
 
 /* Basic Operations */
 internal Vec2 add_vec2(Vec2 a, Vec2 b);
 internal Vec4 add_vec4(Vec4 a, Vec4 b);
+internal Vec2 sub_vec2(Vec2 a, Vec2 b);
+internal Vec3 sub_vec3(Vec3 a, Vec3 b);
+internal Vec4 sub_vec4(Vec4 a, Vec4 b);
 internal Vec2 mul_vec2_f32(Vec2 a, float32 b);
 internal Mat3 mul_mat3(Mat3 a, Mat3 b);
 internal Vec3 mul_mat3_vec3(Mat3 m, Vec3 v);
 internal Mat4 mul_mat4(Mat4 a, Mat4 b);
+
+internal Vec2 lerp_vec2(Vec2 a, Vec2 b, float32 t);
+
+/* Vector Operations */
+internal float32 dot_vec2(Vec2 a, Vec2 b);
+internal float32 dot_vec3(Vec3 a, Vec3 b);
+internal float32 lensqr_vec2(Vec2 a);
+internal float32 len_vec2(Vec2 a);
+internal float32 dist_vec2(Vec2 a, Vec2 b);
+internal float32 angle_between_vec2(Vec2 a, Vec2 b);
 
 /* Matrix Operations*/
 internal Mat2 mat2_identity(void);

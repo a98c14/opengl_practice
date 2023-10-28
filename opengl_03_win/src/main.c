@@ -26,7 +26,7 @@ key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 
 global const Vec2 starting_positions[] =
 {
-    { .x=-0.2268,   .y= -0.067f  },
+    { .x=-0.0,      .y= -0.0  },
     { .x=-0.9521,   .y= -0.4604f },
     { .x=0,         .y= 0.7251f  },
     { .x=-0.1799,   .y= -0.2773f },
@@ -153,7 +153,7 @@ int main(void)
     glfwGetFramebufferSize(window, &width, &height);
     float32 aspect = width / (float)height;
     glViewport(0, 0, width, height);
-    Mat4 projection = mat4_ortho(10 * aspect, 10, 1, -1);
+    Mat4 projection = mat4_ortho(100 * aspect, 100, 1, -1);
 
     String fragment_shader = file_read_all_as_string(persistent_arena, string("C:\\Users\\selim\\source\\practice\\opengl\\opengl_03_win\\src\\shaders\\basic.frag"));
     String vertex_shader = file_read_all_as_string(persistent_arena, string("C:\\Users\\selim\\source\\practice\\opengl\\opengl_03_win\\src\\shaders\\basic.vert"));
@@ -171,7 +171,7 @@ int main(void)
 
     glClearColor(12 / 255.0f, 11 / 255.0f, 20 / 255.0f, 1.0f);
 
-    uint32 boid_count = 50;
+    uint32 boid_count = 1;
     Vec2* positions = arena_push_array_zero(persistent_arena, Vec2, boid_count);
     Vec2* directions = arena_push_array_zero(persistent_arena, Vec2, boid_count);
     float32* speeds = arena_push_array_zero(persistent_arena, float32, boid_count);
@@ -180,7 +180,7 @@ int main(void)
     for(int i = 0; i < boid_count; i++)
     {
         positions[i] = starting_positions[i];
-        speeds[i] = starting_positions[i].x * 10;
+        speeds[i] = 1 + 1.0f * starting_positions[i].x;
         directions[i] = vec2_right();
     }
 
@@ -194,7 +194,7 @@ int main(void)
         
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // draw_line(renderer, ViewTypeWorld, 10, 20);
+        // draw_line(dc, vec2(10, 20), vec2(20, 30), ColorWhite, 0.2f);
         // draw_triangle(renderer, ViewTypeWorld, 10, 20);
         // draw_quad(renderer, ViewTypeWorld, 30, 20, 20, 20);
 
@@ -203,6 +203,20 @@ int main(void)
             positions[i] = add_vec2(positions[i], mul_vec2_f32(directions[i], speeds[i] * dt));
         }
 
+        Vec2 start = vec2(0, 0);
+        Vec2 end = vec2(5, -5);
+        Vec2 center = lerp_vec2(start, end, 0.5f);
+        float32 dist = dist_vec2(end, start);
+        float32 angle = angle_between_vec2(end, start);
+        
+        Mat4 translation = mat4_translation(vec3_xy_z(center, 0));
+        Mat4 rotation = mat4_rotation(angle);
+        Mat4 scale = mat4_scale(vec3(dist, 1, 0));
+        Mat4 transform = mat4_transform(translation, rotation, scale);
+        Mat4 mvp = mul_mat4(projection, transform);
+        glUniform4f(color_location, 1, 1, 1, 1.0f);
+        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, mvp.v);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         glUseProgram(program);
         for(int i = 0; i < boid_count; i++)
@@ -210,7 +224,7 @@ int main(void)
             Vec2 pos = positions[i];
             Mat4 translation = mat4_translation(vec3(pos.x * 3, pos.y * 3, 0));
             Mat4 rotation = mat4_rotation(0);
-            Mat4 scale = mat4_scale(vec3(.4, .3, 0));
+            Mat4 scale = mat4_scale(vec3(1, 1, 0));
             Mat4 transform = mat4_transform(translation, rotation, scale);
             Mat4 mvp = mul_mat4(projection, transform);
 

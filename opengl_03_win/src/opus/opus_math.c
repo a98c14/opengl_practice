@@ -2,6 +2,15 @@
 
 /* Constructors */
 internal Vec2 
+vec2(float32 x, float32 y)
+{
+    Vec2 result;
+    result.x = x;
+    result.y = y;
+    return result;
+}
+
+internal Vec2 
 vec2_right()
 {
     Vec2 result;
@@ -16,6 +25,15 @@ vec3(float32 x, float32 y, float32 z)
     Vec3 result;
     result.x = x;
     result.y = y;
+    result.z = z;
+    return result;
+}
+
+internal Vec3 
+vec3_xy_z(Vec2 xy, float32 z)
+{
+    Vec3 result;
+    result.xy = xy;
     result.z = z;
     return result;
 }
@@ -55,6 +73,41 @@ add_vec4(Vec4 a, Vec4 b)
 #endif
     return result;
 }
+
+internal Vec2 
+sub_vec2(Vec2 a, Vec2 b)
+{
+    Vec2 result;
+    result.x = a.x - b.x;
+    result.y = a.y - b.y;
+    return result;
+}
+
+internal Vec3 
+sub_vec3(Vec3 a, Vec3 b)
+{
+    Vec3 result;
+    result.x = a.x - b.x;
+    result.y = a.y - b.y;
+    result.z = a.z - b.z;
+    return result;
+}
+
+internal Vec4 
+sub_vec4(Vec4 a, Vec4 b)
+{
+    Vec4 result;
+#ifdef OPUS_USE_SSE
+    result.SSE = _mm_sub_ps(a.SSE, b.SSE);
+#else
+    result.x = a.x - b.x;
+    result.y = a.y - b.y;
+    result.z = a.z - b.z;
+    result.w = a.w - b.w;
+#endif
+    return result;
+}
+
 
 internal Vec2
 mul_vec2_f32(Vec2 a, float32 b)
@@ -102,6 +155,57 @@ mul_mat4(Mat4 a, Mat4 b)
     result.columns[2] = linear_combine_v4_m4(b.columns[2], a);
     result.columns[3] = linear_combine_v4_m4(b.columns[3], a);
     return result;
+}
+
+internal Vec2 
+lerp_vec2(Vec2 a, Vec2 b, float32 t)
+{
+    Vec2 result;
+    result.x = (a.x * (1 - t)) + (b.x * t);
+    result.y = (a.y * (1 - t)) + (b.y * t);
+    return result;
+}
+
+/* Vector Operations */
+internal float32 
+dot_vec2(Vec2 a, Vec2 b)
+{
+    return a.x * b.x + a.y * b.y;
+}
+
+internal float32 
+dot_vec3(Vec3 a, Vec3 b)
+{
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+internal float32 
+lensqr_vec2(Vec2 a)
+{
+    return dot_vec2(a, a);
+}
+
+internal float32 
+len_vec2(Vec2 a)
+{
+    return sqrtf(lensqr_vec2(a));
+}
+
+internal float32 
+dist_vec2(Vec2 a, Vec2 b)
+{
+    return len_vec2(sub_vec2(b, a));
+}
+
+internal float32 
+angle_between_vec2(Vec2 a, Vec2 b)
+{
+    // do we need to normalize the vector?
+    Vec2 v = sub_vec2(b, a);
+    Vec2 right = vec2_right();
+    float32 dot = dot_vec2(right, v);
+    float32 det = right.x * v.y - right.y * v.x;
+    return (float32)atan2(det, dot) * 180.0 / PI_FLOAT32;
 }
 
 /* Matrix Operations */
