@@ -158,17 +158,12 @@ int main(void)
     float32 aspect = width / (float)height;
 
     Geometry geom = geometry_quad_create();
-    
+
     float32 world_height = 100;
     float32 world_width = world_height * aspect;
     Camera camera = camera_new(world_width, world_height, 1, -1, WINDOW_WIDTH, WINDOW_HEIGHT);
     DrawContext* dc = draw_context_new(persistent_arena, &camera);
 
-    // Geometry geom = geometry_triangle_create();
-    // RendererConfiguration config = {0};
-    // Renderer* renderer = renderer_new(arena, &config);
-    // Camera* camera = camera_new(arena);
-    // renderer_set_camera(camera);
     glEnable(GL_BLEND);
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
     glEnable(GL_ALPHA_TEST);
@@ -191,33 +186,31 @@ int main(void)
     float32 last_frame_time, dt;
     while (!glfwWindowShouldClose(window))
     {
-        /* calculate mouse world position*/
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        /* timers */
+        last_frame_time = time;
+        time = (float32)glfwGetTime();
+        dt = time - last_frame_time;
+
+        /* input */
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
         Vec2 mouse_raw = vec2(xpos, ypos);
         Vec2 mouse_world = mouse_world_position(mouse_raw, camera);
-        
-        last_frame_time = time;
-        time = (float32)glfwGetTime();
-        dt = time - last_frame_time;
-        
-        glClear(GL_COLOR_BUFFER_BIT);
 
-        // draw_line(dc, vec2(10, 20), vec2(20, 30), ColorWhite, 0.2f);
-        // draw_triangle(renderer, ViewTypeWorld, 10, 20);
-        // draw_quad(renderer, ViewTypeWorld, 30, 20, 20, 20);
 
         for(int i = 0; i < boid_count; i++)
         {
             positions[i] = add_vec2(positions[i], mul_vec2_f32(directions[i], speeds[i] * dt));
         }
 
-        draw_line(dc, vec2(0, 0), mouse_world);
-        draw_circle(dc, vec2(0, 0), 10);
         for(int i = 0; i < boid_count; i++)
         {
             Vec2 pos = positions[i];
+            draw_line(dc, pos, mouse_world);
             draw_boid(dc, pos, 1);
+            draw_circle(dc, pos, 10);
         }
 
         glfwSwapBuffers(window);
