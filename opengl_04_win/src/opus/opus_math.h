@@ -67,6 +67,14 @@ typedef union
     Vec4 columns[4];
 } Mat4;
 
+/* Misc */
+typedef struct 
+{
+    struct { float32 bottom; float32 left; float32 top; float32 right; };
+    struct { Vec2 bl; Vec2 tr; };
+    Vec4 v;
+} Bounds;
+
 /* Constructors */
 internal Vec2 vec2(float32 x, float32 y);
 internal Vec2 vec2_zero();
