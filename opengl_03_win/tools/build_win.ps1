@@ -3,6 +3,7 @@ $output_path = ".\dist";
 $source_file_path = ".\src\main.c";
 
 $compile_args = @(
+    "/O2",
     "/Zi",
     "/nologo",
     "/Fd:""$output_path\$app_name.pdb""",

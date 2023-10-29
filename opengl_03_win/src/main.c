@@ -114,7 +114,7 @@ int main(void)
     glEnable(GL_ALPHA_TEST);
     glClearColor(12 / 255.0f, 11 / 255.0f, 20 / 255.0f, 1.0f);
 
-    uint32 boid_count = 100;
+    uint32 boid_count = 250;
     Vec2* positions = arena_push_array_zero(persistent_arena, Vec2, boid_count);
     Vec2* directions = arena_push_array_zero(persistent_arena, Vec2, boid_count);
     Vec2* alignment_vectors = arena_push_array_zero(persistent_arena, Vec2, boid_count);
@@ -136,12 +136,12 @@ int main(void)
     float32 time = (float32)glfwGetTime();
     float32 last_frame_time, dt;
 
-    float32 close_range = 3;
-    float32 visual_range = 10;
-    float32 avoid_factor = 0.3;
+    float32 close_range = 2;
+    float32 visual_range = 8;
+    float32 avoid_factor = 1.5;
     float32 alignment_factor = 0.4;
-    float32 cohesion_factor = 0.09;
-    float32 min_speed = 5;
+    float32 cohesion_factor = 0.3;
+    float32 min_speed = 3;
     float32 max_speed = 15;
 
     float32 padding = 10;
