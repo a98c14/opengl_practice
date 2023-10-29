@@ -1,0 +1,8 @@
+#include "opus_memory.c"
+#include "opus_string.c"
+#include "opus_math.c"
+#include "opus_graphics.c"
+#include "opus_graphics_primitives.c"
+#include "opus_file.c"
+#include "opus_draw.c"
+#include "opus_input.c"
