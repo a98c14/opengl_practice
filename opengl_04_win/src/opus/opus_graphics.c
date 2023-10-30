@@ -31,9 +31,8 @@ shader_load(String vertex_shader_text, String fragment_shader_text)
     glAttachShader(program, vertex_shader);
     glAttachShader(program, fragment_shader);
     glLinkProgram(program);
-    // TODO: test these
-    // glDeleteShader(vertex_shader);
-    // glDeleteShader(fragment_shader);
+    glDeleteShader(vertex_shader);
+    glDeleteShader(fragment_shader);
 
     return program;
 }

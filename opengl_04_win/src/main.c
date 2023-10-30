@@ -119,7 +119,7 @@ int main(void)
     float32 padding = 20;
 
     // load texture
-    Texture font_texture = texture_load_from_file(string("C:\\Users\\selim\\source\\practice\\opengl\\opengl_04_win\\assets\\open_sans.png"), 0, 0);
+    Texture font_texture = texture_load_from_file(string("C:\\Users\\selim\\source\\practice\\opengl\\opengl_04_win\\assets\\open_sans.png"), 0, 1);
     GlyphAtlas* atlas = glyph_atlas_load(
         persistent_arena,
         &FONT_OPEN_SANS_ATLAS_INFO,
@@ -165,13 +165,16 @@ int main(void)
         glBindBuffer(GL_UNIFORM_BUFFER, dc->material_text.uniform_buffer_id);
         glBindBufferRange(GL_UNIFORM_BUFFER, BINDING_SLOT_CUSTOM, dc->material_text.uniform_buffer_id, 0, dc->material_text.uniform_data_size);
 
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(font_texture.gl_texture_type, font_texture.gl_texture_id);
+
         ShaderDataText shader_data = {0};
         shader_data.color.r = 1;
         shader_data.color.g = 1;
         shader_data.color.b = 1;
         shader_data.color.a = 1;
 
-        Mat4 transform = transform_quad(vec2_zero(), vec2_one(), 0);
+        Mat4 transform = transform_quad(vec2_zero(), vec2(30, 30), 0);
         Mat4 mvp = mul_mat4(dc->camera->view, transform);
         mvp = mul_mat4(dc->camera->projection, mvp);
 
