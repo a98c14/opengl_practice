@@ -47,3 +47,42 @@ material_new(Arena* arena, String vertex_shader_text, String fragment_shader_tex
     result.location_color = color_location;
     return result;
 }
+
+internal Texture
+texture_load(uint32 width, uint32 height, uint32 channels, uint32 filter, void* data)
+{
+    Texture texture = {0};
+    glGenTextures(1, &texture.gl_texture_id);
+    glBindTexture(GL_TEXTURE_2D, texture.gl_texture_id);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+
+    texture.gl_texture_type = GL_TEXTURE_2D;
+    texture.width = width;
+    texture.height = height;
+    texture.channels = channels;
+    texture.layer_count = 1;
+
+    switch (channels)
+    {
+        case 4:
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+            break;
+        case 3:
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            break;
+        case 2:
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, data);
+            break;
+        case 1:
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, data);
+            break;
+        default:
+            break;
+    }
+
+    return texture;
+}

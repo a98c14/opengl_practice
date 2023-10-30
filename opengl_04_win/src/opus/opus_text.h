@@ -3,6 +3,8 @@
 #include "opus_base.h"
 #include "opus_math.h"
 #include "opus_memory.h"
+#include "opus_string.h"
+#include "opus_graphics.h"
 
 typedef struct
 {
@@ -24,3 +26,14 @@ typedef struct
     float32 underline_y;
     float32 underline_thickness;
 } GlyphAtlasInfo;
+
+typedef struct
+{
+    uint32 glyph_count;
+    const Glyph* glyphs;
+    const GlyphAtlasInfo* atlas_info;
+    Texture texture;
+} GlyphAtlas;
+
+internal GlyphAtlas*
+glyph_atlas_load(Arena* arena, const GlyphAtlasInfo* atlas_info, const Glyph* glyphs, uint32 glyph_count, Texture texture);

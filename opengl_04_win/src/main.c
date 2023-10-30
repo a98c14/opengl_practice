@@ -11,6 +11,8 @@
 #include "opus.h"
 #include "opus.c"
 
+#include "fonts.h"
+
 internal void
 error_callback(int error, const char* description)
 {
@@ -110,12 +112,21 @@ int main(void)
 
     glEnable(GL_BLEND);
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
-    glEnable(GL_ALPHA_TEST);
     glClearColor(12 / 255.0f, 11 / 255.0f, 20 / 255.0f, 1.0f);
 
     float32 time = (float32)glfwGetTime();
     float32 last_frame_time, dt;
     float32 padding = 20;
+
+    // load texture
+    Texture font_texture = texture_load_from_file(string("C:\\Users\\selim\\source\\practice\\opengl\\opengl_04_win\\assets\\open_sans.png"), 0, 0);
+    GlyphAtlas* atlas = glyph_atlas_load(
+        persistent_arena, 
+        &FONT_OPEN_SANS_ATLAS_INFO, 
+        FONT_OPEN_SANS_GLYPHS, 
+        countof(FONT_OPEN_SANS_GLYPHS),
+        font_texture);
+    
 
     while (!glfwWindowShouldClose(window))
     {

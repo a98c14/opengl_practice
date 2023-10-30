@@ -37,6 +37,16 @@ typedef struct
     uint32 location_color;
 } Material;
 
+typedef struct
+{
+    int32 width;
+    int32 height;
+    int32 channels;
+    int32 layer_count;
+    uint32 gl_texture_id;
+    uint32 gl_texture_type;
+} Texture;
+
 internal Camera
 camera_new(float32 width, float32 height, float32 near, float32 far, float32 window_width, float32 window_height);
 
@@ -45,3 +55,6 @@ shader_load(String vertex_shader_text, String fragment_shader_text);
 
 internal Material
 material_new(Arena* arena, String vertex_shader_text, String fragment_shader_text);
+
+internal Texture
+texture_load(uint32 width, uint32 height, uint32 channels, uint32 filter, void* data);

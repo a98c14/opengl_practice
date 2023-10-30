@@ -9,6 +9,7 @@ $compile_args = @(
     "/Fo:""$output_path""\",
     "/I"".\include""",
     "/I"".\src\opus""",
+    "/I"".\src\fonts""",
     ".\lib\glfw3dll.lib",
     ".\lib\glfw3.lib",
     ".\lib\gl.obj",
