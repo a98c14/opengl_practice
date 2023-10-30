@@ -6,7 +6,9 @@ texture_load_from_file(String texture_path, bool32 pixel_perfect, bool32 flip_ve
     stbi_set_flip_vertically_on_load(flip_vertical);
 
     int32 width, height, channels;
-    uint8 *data = stbi_load(texture_path.value, &width, &height, &channels, 0);
+    // uint8 *data = stbi_load(texture_path.value, &width, &height, &channels, 0);
+    uint8 *data = stbi_load("C:/Users/selim/source/practice/opengl/opengl_04_win/assets/open_sans.png", &width, &height, &channels, 0);
+    
     if(!data)
     {
         printf("failed to load texture");

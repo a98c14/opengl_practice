@@ -1,7 +1,6 @@
 #pragma once
 #include <stdio.h>
 #include <stdlib.h>
-#include "stb_image.h"
 #include "opus_base.h"
 #include "opus_memory.h"
 #include "opus_string.h"

@@ -1,4 +1,3 @@
-
 #include <glad/gl.h>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -57,7 +56,7 @@ message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei
 	char* severity_str;
     switch (severity)
     {
-		case GL_DEBUG_SEVERITY_NOTIFICATION: severity_str = "NOTIFICATION"; break;
+		case GL_DEBUG_SEVERITY_NOTIFICATION: return; // severity_str = "NOTIFICATION"; break;
 		case GL_DEBUG_SEVERITY_LOW: severity_str = "LOW"; break;
 		case GL_DEBUG_SEVERITY_MEDIUM: severity_str = "MEDIUM"; break;
 		case GL_DEBUG_SEVERITY_HIGH: severity_str = "HIGH"; break;
@@ -81,6 +80,7 @@ int main(void)
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, 0);
 
     GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Simple example", NULL, NULL);
@@ -108,7 +108,7 @@ int main(void)
     float32 world_height = 100;
     float32 world_width = world_height * aspect;
     Camera camera = camera_new(world_width, world_height, 1, -1, WINDOW_WIDTH, WINDOW_HEIGHT);
-    DrawContext* dc = draw_context_new(persistent_arena, &camera);
+    DrawContext* dc = draw_context_new(persistent_arena, &camera);    
 
     glEnable(GL_BLEND);
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
@@ -121,12 +121,27 @@ int main(void)
     // load texture
     Texture font_texture = texture_load_from_file(string("C:\\Users\\selim\\source\\practice\\opengl\\opengl_04_win\\assets\\open_sans.png"), 0, 0);
     GlyphAtlas* atlas = glyph_atlas_load(
-        persistent_arena, 
-        &FONT_OPEN_SANS_ATLAS_INFO, 
-        FONT_OPEN_SANS_GLYPHS, 
+        persistent_arena,
+        &FONT_OPEN_SANS_ATLAS_INFO,
+        FONT_OPEN_SANS_GLYPHS,
         countof(FONT_OPEN_SANS_GLYPHS),
         font_texture);
-    
+
+    /* Create Global UBO */
+    uint32 global_uniform_buffer_id;
+    glGenBuffers(1, &global_uniform_buffer_id);
+    glBindBuffer(GL_UNIFORM_BUFFER, global_uniform_buffer_id);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(GlobalUniformData), NULL, GL_STATIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    glBindBufferRange(GL_UNIFORM_BUFFER, BINDING_SLOT_GLOBAL, global_uniform_buffer_id, 0, sizeof(GlobalUniformData));
+
+    /* Create Texture UBO */
+    uint32 texture_uniform_buffer_id;
+    glGenBuffers(1, &texture_uniform_buffer_id);
+    glBindBuffer(GL_UNIFORM_BUFFER, texture_uniform_buffer_id);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(TextureUniformData), NULL, GL_STATIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    glBindBufferRange(GL_UNIFORM_BUFFER, BINDING_SLOT_TEXTURE, texture_uniform_buffer_id, 0, sizeof(TextureUniformData));
 
     while (!glfwWindowShouldClose(window))
     {
@@ -144,7 +159,25 @@ int main(void)
         Vec2 mouse_raw = vec2(xpos, ypos);
         Vec2 mouse_world = mouse_world_position(mouse_raw, camera);
 
-        draw_bounds(dc, -world_width/2+padding, world_width/2-padding, -world_height/2+padding, world_height/2-padding);
+        // draw_bounds(dc, -world_width/2+padding, world_width/2-padding, -world_height/2+padding, world_height/2-padding);
+
+        glUseProgram(dc->material_text.gl_program_id);
+        glBindBuffer(GL_UNIFORM_BUFFER, dc->material_text.uniform_buffer_id);
+        glBindBufferRange(GL_UNIFORM_BUFFER, BINDING_SLOT_CUSTOM, dc->material_text.uniform_buffer_id, 0, dc->material_text.uniform_data_size);
+
+        ShaderDataText shader_data = {0};
+        shader_data.color.r = 1;
+        shader_data.color.g = 1;
+        shader_data.color.b = 1;
+        shader_data.color.a = 1;
+
+        Mat4 transform = transform_quad(vec2_zero(), vec2_one(), 0);
+        Mat4 mvp = mul_mat4(dc->camera->view, transform);
+        mvp = mul_mat4(dc->camera->projection, mvp);
+
+        glUniformMatrix4fv(dc->material_text.location_model, 1, GL_FALSE, mvp.v);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, dc->material_text.uniform_data_size, &shader_data);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

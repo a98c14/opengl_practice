@@ -31,20 +31,33 @@ shader_load(String vertex_shader_text, String fragment_shader_text)
     glAttachShader(program, vertex_shader);
     glAttachShader(program, fragment_shader);
     glLinkProgram(program);
+    // TODO: test these
+    // glDeleteShader(vertex_shader);
+    // glDeleteShader(fragment_shader);
 
     return program;
 }
 
 internal Material
-material_new(Arena* arena, String vertex_shader_text, String fragment_shader_text)
+material_new(Arena* arena, String vertex_shader_text, String fragment_shader_text, usize uniform_data_size)
 {
-    uint32 program = shader_load(vertex_shader_text, fragment_shader_text);
-    int32 mvp_location = glGetUniformLocation(program, "mvp");
-    int32 color_location = glGetUniformLocation(program, "u_color");
     Material result;
-    result.program_id = program;
-    result.location_model = mvp_location;
-    result.location_color = color_location;
+    result.gl_program_id = shader_load(vertex_shader_text, fragment_shader_text);
+    result.location_model = glGetUniformLocation(result.gl_program_id, "u_mvp");
+    result.uniform_data_size = uniform_data_size;
+
+    // generate custom shader data UBO
+    glGenBuffers(1, &result.uniform_buffer_id);
+    glBindBuffer(GL_UNIFORM_BUFFER, result.uniform_buffer_id);
+    glBufferData(GL_UNIFORM_BUFFER, uniform_data_size, NULL, GL_STREAM_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    unsigned int global_ubo_index = glGetUniformBlockIndex(result.gl_program_id, "Global");
+    glUniformBlockBinding(result.gl_program_id, global_ubo_index, BINDING_SLOT_GLOBAL);
+
+    unsigned int texture_ubo_index = glGetUniformBlockIndex(result.gl_program_id, "Texture");
+    glUniformBlockBinding(result.gl_program_id, texture_ubo_index, BINDING_SLOT_TEXTURE);
+    
     return result;
 }
 
@@ -56,7 +69,6 @@ texture_load(uint32 width, uint32 height, uint32 channels, uint32 filter, void* 
     glBindTexture(GL_TEXTURE_2D, texture.gl_texture_id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
 

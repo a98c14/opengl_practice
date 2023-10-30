@@ -11,12 +11,18 @@ typedef struct
     Camera* camera;
 
     /* Materials */
+    Material material_text;
     Material material_basic;
     Material material_line;
     Material material_quad;
     Material material_circle;
     Material material_boid;
 } DrawContext;
+
+typedef struct 
+{
+    Vec4 color;
+} ShaderDataText;
 
 internal DrawContext*
 draw_context_new(Arena* arena, Camera* camera);

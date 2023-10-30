@@ -12,8 +12,12 @@
 ### Building GLAD
 ```ps1
 # run at workspace root
-mkdir ./temp/ && pushd ./temp/ && cl /LD ../glad/src/gl.c -I../glad/include && popd;
+mkdir ./temp/;
+pushd ./temp/;
+cl /LD ../glad/src/glad.c -I../glad/include;
+popd;
 ```
+Move the `.obj` file to `lib` folder and move the `.dll` to `dist` folder
 
 ### Creating font texture
 ```ps1
@@ -23,3 +27,6 @@ Example
 ```
 msdf-atlas-gen.exe -font .\open_sans.ttf -fontname open_sans -json open_sans -size 64 -type sdf -format 'png' -imageout .\open_sans.png -pxrange 16
 ```
+
+## Notes
+Defining `STB_IMAGE_IMPLEMENTATION` causes clangd to crash for some reason so it is defined during compilation (with `/D` flag) and not in the code. 

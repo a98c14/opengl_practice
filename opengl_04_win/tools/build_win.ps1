@@ -10,6 +10,7 @@ $compile_args = @(
     "/I"".\include""",
     "/I"".\src\opus""",
     "/I"".\src\fonts""",
+    "/DSTB_IMAGE_IMPLEMENTATION",
     ".\lib\glfw3dll.lib",
     ".\lib\glfw3.lib",
     ".\lib\gl.obj",

@@ -5,5 +5,6 @@
 #include "opus_graphics_primitives.c"
 #include "opus_graphics_utils.c"
 #include "opus_file.c"
+#include "opus_text.c"
 #include "opus_draw.c"
 #include "opus_input.c"
