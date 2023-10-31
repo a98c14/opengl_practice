@@ -12,7 +12,6 @@ typedef struct
 
     /* Materials */
     Material material_text;
-    Material material_text_v2;
     Material material_basic;
     Material material_line;
     Material material_quad;

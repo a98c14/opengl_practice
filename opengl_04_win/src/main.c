@@ -187,9 +187,9 @@ int main(void)
         shader_data.softness = 30;
         shader_data.outline_thickness = 0.2;
         
-        Mat4* models = arena_push_array(frame_arena, Mat4, 50);
-        String str = string("Testing with the boys 123[];l");
-        text_calculate_transforms(atlas, str, 3.5, vec2_zero(), RectAlignmentTypeBottomLeft, models, 0);
+        Mat4* models = arena_push_array(frame_arena, Mat4, 300);
+        String str = string("!\"#$%%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
+        text_calculate_transforms(atlas, str, 3.5, vec2(-100, 0), RectAlignmentTypeBottomLeft, models, 0);
         for(int i = 0; i < str.length; i++)
         {
             Glyph glyph = glyph_get(atlas, str.value[i]);
@@ -199,8 +199,9 @@ int main(void)
             glBufferSubData(GL_UNIFORM_BUFFER, 0, dc->material_text.uniform_data_size, &shader_data);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         }
+        
         String str2 = string_pushf(frame_arena, "Frame: %.4f ms", dt * 1000);
-        text_calculate_transforms(atlas, str2, 3.5, vec2(0, -10), RectAlignmentTypeBottomLeft, models, 0);
+        text_calculate_transforms(atlas, str2, 3.5, vec2(cosf(time * 4), -10 + sinf(time * 10)), RectAlignmentTypeBottomLeft, models, 0);
         for(int i = 0; i < str.length; i++)
         {
             Glyph glyph = glyph_get(atlas, str2.value[i]);
