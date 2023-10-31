@@ -105,17 +105,17 @@ int main(void)
         .window_width = width,
         .window_height = height,
         .world_height = 100,
-        .clear_color = vec4(255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 1.0f)
+        .clear_color = ColorWhite
     };
     Renderer* renderer = renderer_new(persistent_arena, &renderer_configuration);
-    DrawContext* dc = draw_context_new(persistent_arena, &renderer->camera);
+    DrawContext* dc = draw_context_new(persistent_arena, renderer);
 
     float32 time = (float32)glfwGetTime();
     float32 last_frame_time, dt;
     Geometry geometry = geometry_quad_create();
 
     // load texture
-    Texture font_texture = texture_load_from_file(string("..\\assets\\open_sans.png"), 0, 1);
+    TextureIndex font_texture = texture_new_from_file(renderer, string("..\\assets\\open_sans.png"), 0, 1);
     GlyphAtlas* atlas = glyph_atlas_load(
         persistent_arena,
         &FONT_OPEN_SANS_ATLAS_INFO,
@@ -139,19 +139,6 @@ int main(void)
         Vec2 mouse_raw = vec2(xpos, ypos);
         Vec2 mouse_world = mouse_world_position(mouse_raw, renderer->camera);
 
-        TextureUniformData texture_data = {0};
-        texture_data.size.x = atlas->texture.width;
-        texture_data.size.y = atlas->texture.height;
-        glBindBuffer(GL_UNIFORM_BUFFER, renderer->texture_uniform_buffer_id);
-        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(TextureUniformData), &texture_data);
-
-        glUseProgram(dc->material_text.gl_program_id);
-        glBindBuffer(GL_UNIFORM_BUFFER, dc->material_text.uniform_buffer_id);
-        glBindBufferRange(GL_UNIFORM_BUFFER, BINDING_SLOT_CUSTOM, dc->material_text.uniform_buffer_id, 0, dc->material_text.uniform_data_size);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(font_texture.gl_texture_type, font_texture.gl_texture_id);
-
         ShaderDataText shader_data = {0};
         shader_data.color.r = 0;
         shader_data.color.g = 0;
@@ -165,31 +152,29 @@ int main(void)
         shader_data.softness = 30;
         shader_data.outline_thickness = 0.2;
 
-        Mat4* models = arena_push_array(frame_arena, Mat4, 300);
         String str = string("!\"#$%%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
-        text_calculate_transforms(atlas, str, 3.5, vec2(-100, 0), RectAlignmentTypeBottomLeft, models, 0);
+        DrawBuffer draw_buffer = renderer_buffer_request(renderer, FRAME_BUFFER_INDEX_DEFAULT, dc->material_text, ViewTypeWorld, font_texture, str.length);
+        text_calculate_transforms(atlas, str, 3.5, vec2(-100, 0), RectAlignmentTypeBottomLeft, draw_buffer.model_buffer, 0);
+        ShaderDataText* shader_data_buffer = (ShaderDataText*)draw_buffer.uniform_data_buffer;
         for(int i = 0; i < str.length; i++)
         {
             Glyph glyph = glyph_get(atlas, str.value[i]);
             shader_data.glyph_bounds = glyph.atlas_bounds.v;
-            Mat4 mvp = mat4_mvp(models[i], dc->camera->view, dc->camera->projection);
-            glUniformMatrix4fv(dc->material_text.location_model, 1, GL_FALSE, mvp.v);
-            glBufferSubData(GL_UNIFORM_BUFFER, 0, dc->material_text.uniform_data_size, &shader_data);
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            memcpy(&shader_data_buffer[i], &shader_data, sizeof(ShaderDataText));
         }
 
         String str2 = string_pushf(frame_arena, "Frame: %.4f ms", dt * 1000);
-        text_calculate_transforms(atlas, str2, 3.5, vec2(cosf(time * 4), -10 + sinf(time * 10)), RectAlignmentTypeBottomLeft, models, 0);
-        for(int i = 0; i < str.length; i++)
+        DrawBuffer draw_buffer2 = renderer_buffer_request(renderer, FRAME_BUFFER_INDEX_DEFAULT, dc->material_text, ViewTypeWorld, font_texture, str2.length);
+        text_calculate_transforms(atlas, str2, 3.5, vec2(cosf(time * 4), -10 + sinf(time * 10)), RectAlignmentTypeBottomLeft, draw_buffer2.model_buffer, 0);
+        shader_data_buffer = (ShaderDataText*)draw_buffer2.uniform_data_buffer;
+        for(int i = 0; i < str2.length; i++)
         {
             Glyph glyph = glyph_get(atlas, str2.value[i]);
             shader_data.glyph_bounds = glyph.atlas_bounds.v;
-            Mat4 mvp = mat4_mvp(models[i], dc->camera->view, dc->camera->projection);
-            glUniformMatrix4fv(dc->material_text.location_model, 1, GL_FALSE, mvp.v);
-            glBufferSubData(GL_UNIFORM_BUFFER, 0, dc->material_text.uniform_data_size, &shader_data);
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            memcpy(&shader_data_buffer[i], &shader_data, sizeof(ShaderDataText));
         }
 
+        renderer_render(renderer, dt);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }

@@ -13,3 +13,4 @@
 #include "opus_text.h"
 #include "opus_draw.h"
 #include "opus_input.h"
+#include "opus_color.h"

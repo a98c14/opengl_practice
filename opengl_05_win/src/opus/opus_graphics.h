@@ -27,7 +27,7 @@ typedef int8 TextureIndex;
 typedef int8 MaterialIndex;
 typedef int16 MaterialDrawBufferIndex;
 #define TEXTURE_INDEX_NULL 0
-#define TEXTURE_NULL 0
+#define FRAME_BUFFER_INDEX_DEFAULT 0
 #define MATERIAL_DRAW_BUFFER_EMPTY_KEY -1
 #define MATERIAL_DRAW_BUFFER_MAX_PROBE 5
 
@@ -55,6 +55,14 @@ typedef struct
 
 typedef struct
 {
+    uint8 r;
+    uint8 g;
+    uint8 b;
+    uint8 a;
+} Color;
+
+typedef struct
+{
     uint32 index_count;
     uint32 vertex_array_object;
 } Geometry;
@@ -69,11 +77,12 @@ typedef struct
 
     uint32 location_model;
     uint32 location_shader;
+    uint32 location_texture;
 } Material;
 
 typedef struct
 {
-    Vec4   clear_color;
+    Vec4 clear_color;
     uint32 width;
     uint32 height;
     uint32 buffer_id;
@@ -176,6 +185,7 @@ typedef struct
     uint32 texture_uniform_buffer_id;
 
     Camera camera;
+    float32 timer;
     RendererDrawState* draw_state;
 
     // resources
@@ -195,7 +205,7 @@ typedef struct
     uint32 window_height;
 
     float32 world_height;
-    Vec4 clear_color;
+    Color clear_color;
 } RendererConfiguration;
 
 internal Renderer*
@@ -210,14 +220,29 @@ camera_new(float32 width, float32 height, float32 near, float32 far, float32 win
 internal uint32
 shader_load(String vertex_shader_text, String fragment_shader_text);
 
-internal Material
-material_new(Arena* arena, String vertex_shader_text, String fragment_shader_text, usize uniform_data_size);
+internal MaterialIndex
+material_new(Renderer* renderer, String vertex_shader_text, String fragment_shader_text, usize uniform_data_size);
 
-internal Texture
-texture_load(uint32 width, uint32 height, uint32 channels, uint32 filter, void* data);
+internal TextureIndex
+texture_new(Renderer* renderer, uint32 width, uint32 height, uint32 channels, uint32 filter, void* data);
 
 internal MaterialDrawBuffer* 
 renderer_get_material_buffer(Renderer* renderer, ViewType view_type, FrameBufferIndex layer, TextureIndex texture, MaterialIndex material_index);
 
 internal DrawBuffer 
 renderer_buffer_request(Renderer* renderer, FrameBufferIndex layer, MaterialIndex material_index, ViewType view_type, TextureIndex texture, uint32 count);
+
+internal void
+frame_buffer_begin(FrameBuffer* frame_buffer);
+
+internal FrameBufferIndex
+renderer_frame_buffer_init(Renderer* renderer, uint32 width, uint32 height, uint32 filter, Color clear_color);
+
+internal Vec4
+color_to_vec4(Color color);
+
+internal void 
+renderer_render(Renderer* renderer, float32 dt);
+
+internal void
+texture_shader_data_set(Renderer* renderer, const Texture* texture);

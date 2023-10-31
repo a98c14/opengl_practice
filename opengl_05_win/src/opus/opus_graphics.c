@@ -9,10 +9,8 @@ renderer_new(Arena* arena, RendererConfiguration* configuration)
     renderer->arena         = arena;
     renderer->window_width  = configuration->window_width;
     renderer->window_height = configuration->window_height;
-    renderer->draw_state    = renderer_draw_state_new(arena);
 
     glViewport(0, 0, renderer->window_width, renderer->window_height);
-
     float32 aspect = renderer->window_width / (float)renderer->window_height;
     float32 world_height = configuration->world_height;
     float32 world_width = world_height * aspect;
@@ -20,7 +18,8 @@ renderer_new(Arena* arena, RendererConfiguration* configuration)
 
     glEnable(GL_BLEND);
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
-    glClearColor(configuration->clear_color.r, configuration->clear_color.g, configuration->clear_color.b, configuration->clear_color.a);
+    Vec4 clear_color = color_to_vec4(configuration->clear_color);
+    glClearColor(clear_color.r, clear_color.g, clear_color.b, clear_color.a);
 
     /* Create Global UBO */
     glGenBuffers(1, &renderer->global_uniform_buffer_id);
@@ -35,6 +34,21 @@ renderer_new(Arena* arena, RendererConfiguration* configuration)
     glBufferData(GL_UNIFORM_BUFFER, sizeof(TextureUniformData), NULL, GL_STATIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     glBindBufferRange(GL_UNIFORM_BUFFER, BINDING_SLOT_TEXTURE, renderer->texture_uniform_buffer_id, 0, sizeof(TextureUniformData));
+
+    /* Draw State Setup */
+    renderer->draw_state = renderer_draw_state_new(arena);
+
+    // Reserve the first slot for NULL texture
+    renderer->texture_count += 1;
+
+    // Initialize default frame buffer
+    renderer->frame_buffer_count += 1;
+    FrameBuffer* frame_buffer = &renderer->frame_buffers[FRAME_BUFFER_INDEX_DEFAULT];
+    frame_buffer->texture_index = TEXTURE_INDEX_NULL;
+    frame_buffer->buffer_id = 0;
+    frame_buffer->clear_color = clear_color;
+    frame_buffer->width = configuration->window_width;
+    frame_buffer->height = configuration->window_height;
 
     return renderer;
 }
@@ -88,45 +102,51 @@ shader_load(String vertex_shader_text, String fragment_shader_text)
     return program;
 }
 
-internal Material
-material_new(Arena* arena, String vertex_shader_text, String fragment_shader_text, usize uniform_data_size)
+internal MaterialIndex
+material_new(Renderer* renderer, String vertex_shader_text, String fragment_shader_text, usize uniform_data_size)
 {
-    Material result;
-    result.gl_program_id = shader_load(vertex_shader_text, fragment_shader_text);
-    result.location_model = glGetUniformLocation(result.gl_program_id, "u_mvp");
-    result.uniform_data_size = uniform_data_size;
+    MaterialIndex material_index = renderer->material_count;
+    renderer->material_count++;
+    Material* result = &renderer->materials[material_index];
+    result->gl_program_id = shader_load(vertex_shader_text, fragment_shader_text);
+    result->location_model = glGetUniformLocation(result->gl_program_id, "u_mvp");
+    result->location_texture = glGetUniformLocation(result->gl_program_id, "u_main_texture");
+    result->uniform_data_size = uniform_data_size;
+    result->is_initialized = 1;
 
     // generate custom shader data UBO
-    glGenBuffers(1, &result.uniform_buffer_id);
-    glBindBuffer(GL_UNIFORM_BUFFER, result.uniform_buffer_id);
+    glGenBuffers(1, &result->uniform_buffer_id);
+    glBindBuffer(GL_UNIFORM_BUFFER, result->uniform_buffer_id);
     glBufferData(GL_UNIFORM_BUFFER, uniform_data_size, NULL, GL_STREAM_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    unsigned int global_ubo_index = glGetUniformBlockIndex(result.gl_program_id, "Global");
-    glUniformBlockBinding(result.gl_program_id, global_ubo_index, BINDING_SLOT_GLOBAL);
+    unsigned int global_ubo_index = glGetUniformBlockIndex(result->gl_program_id, "Global");
+    glUniformBlockBinding(result->gl_program_id, global_ubo_index, BINDING_SLOT_GLOBAL);
 
-    unsigned int texture_ubo_index = glGetUniformBlockIndex(result.gl_program_id, "Texture");
-    glUniformBlockBinding(result.gl_program_id, texture_ubo_index, BINDING_SLOT_TEXTURE);
+    unsigned int texture_ubo_index = glGetUniformBlockIndex(result->gl_program_id, "Texture");
+    glUniformBlockBinding(result->gl_program_id, texture_ubo_index, BINDING_SLOT_TEXTURE);
 
-    return result;
+    return material_index;
 }
 
-internal Texture
-texture_load(uint32 width, uint32 height, uint32 channels, uint32 filter, void* data)
+internal TextureIndex
+texture_new(Renderer* renderer, uint32 width, uint32 height, uint32 channels, uint32 filter, void* data)
 {
-    Texture texture = {0};
-    glGenTextures(1, &texture.gl_texture_id);
-    glBindTexture(GL_TEXTURE_2D, texture.gl_texture_id);
+    TextureIndex texture_index = renderer->texture_count;
+    renderer->texture_count++;
+    Texture* texture = &renderer->textures[texture_index];
+    glGenTextures(1, &texture->gl_texture_id);
+    glBindTexture(GL_TEXTURE_2D, texture->gl_texture_id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
 
-    texture.gl_texture_type = GL_TEXTURE_2D;
-    texture.width = width;
-    texture.height = height;
-    texture.channels = channels;
-    texture.layer_count = 1;
+    texture->gl_texture_type = GL_TEXTURE_2D;
+    texture->width = width;
+    texture->height = height;
+    texture->channels = channels;
+    texture->layer_count = 1;
 
     switch (channels)
     {
@@ -146,7 +166,7 @@ texture_load(uint32 width, uint32 height, uint32 channels, uint32 filter, void* 
             break;
     }
 
-    return texture;
+    return texture_index;
 }
 
 internal MaterialDrawBuffer*
@@ -275,4 +295,145 @@ renderer_buffer_request(Renderer* renderer, FrameBufferIndex layer, MaterialInde
     buffer->element_count += count;
     Assert(result.capacity > 0, "[ERROR]: Material draw buffer is at maximum capacity, can not reserve more elements");
     return result;
+}
+
+internal void
+frame_buffer_begin(FrameBuffer* frame_buffer)
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer->buffer_id);
+    glViewport(0, 0, frame_buffer->width, frame_buffer->height);
+    glClearColor(frame_buffer->clear_color.x, frame_buffer->clear_color.y, frame_buffer->clear_color.z, frame_buffer->clear_color.w);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+internal FrameBufferIndex
+renderer_frame_buffer_init(Renderer* renderer, uint32 width, uint32 height, uint32 filter, Color clear_color)
+{
+    TextureIndex texture_index = texture_new(renderer, width, height, 4, filter, NULL);
+
+    uint32 fbo;
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderer->textures[texture_index].gl_texture_id, 0);
+
+    // create render buffer
+    uint32 rbo;
+    glGenRenderbuffers(1, &rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        printf("[ERROR]: frame_buffer is not complete");
+    }
+
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // init frame buffer
+    FrameBufferIndex layer_index = renderer->frame_buffer_count;
+    FrameBuffer* frame_buffer = &renderer->frame_buffers[layer_index];
+    frame_buffer->buffer_id = fbo;
+    frame_buffer->texture_index = texture_index;
+    frame_buffer->width = width;
+    frame_buffer->height = height;
+    frame_buffer->clear_color = color_to_vec4(clear_color);
+    renderer->frame_buffer_count++;
+
+    return layer_index;
+}
+
+internal Vec4
+color_to_vec4(Color c)
+{
+    return (Vec4){ .r = c.r / 255.0F, .g = c.g / 255.0F, .b = c.b / 255.0F, .a = c.a / 255.0F };
+}
+
+internal void 
+renderer_render(Renderer* renderer, float32 dt)
+{
+    Camera* camera = &renderer->camera;
+    RendererDrawState* state = renderer->draw_state;
+    renderer->timer += dt;
+
+    /* setup global shader data */
+    GlobalUniformData global_shader_data = {0};
+    global_shader_data.time = renderer->timer;
+    glBindBuffer(GL_UNIFORM_BUFFER, renderer->global_uniform_buffer_id);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(GlobalUniformData), &global_shader_data);
+
+    // TODO(selim): Actually geometries should be in draw buffers as well but since I only use 
+    // quads its not necessary for now
+    // glBindVertexArray(renderer->quad_vao);
+
+    /* Layer */
+    for(int layer_index = 0; layer_index < state->layer_count; layer_index++)
+    {
+        LayerDrawBuffer* layer_draw_buffer = &state->layer_draw_buffers[layer_index];
+        FrameBuffer* frame_buffer = &renderer->frame_buffers[layer_draw_buffer->layer_index];
+        frame_buffer_begin(frame_buffer);
+
+        /* View */
+        for(int view_type_index = 0; view_type_index < ViewTypeCOUNT; view_type_index++)
+        {
+            ViewDrawBuffer* view_draw_buffer = &layer_draw_buffer->view_buffers[view_type_index];
+            // Mat4 view_matrix = view_draw_buffer->view_type == ViewTypeWorld ? camera->view : mat4_identity();
+
+            /* Texture */
+            for(int texture_index = 0; texture_index < view_draw_buffer->texture_count; texture_index++)
+            {
+                TextureDrawBuffer* texture_draw_buffer = &view_draw_buffer->texture_draw_buffers[texture_index];
+                if(texture_draw_buffer->texture_index != TEXTURE_INDEX_NULL)
+                {
+                    Texture* texture = &renderer->textures[texture_draw_buffer->texture_index];
+                    glActiveTexture(GL_TEXTURE0);
+                    glBindTexture(texture->gl_texture_type, texture->gl_texture_id);
+                    texture_shader_data_set(renderer, texture);
+                }
+
+                // material
+                for(int material_index = 0; material_index < texture_draw_buffer->material_count; material_index++)
+                {
+                    MaterialDrawBufferIndex material_draw_buffer_index = texture_draw_buffer->material_buffer_indices[material_index];
+                    MaterialDrawBuffer* material_draw_buffer = &state->material_draw_buffers[material_draw_buffer_index];
+                    Material* material = &renderer->materials[material_draw_buffer->material_index];
+
+                    glUseProgram(material->gl_program_id);
+                    glUniform1i(material->location_texture, 0);
+
+                    // models
+                    glBindBuffer(GL_UNIFORM_BUFFER, material->uniform_buffer_id);
+                    glBindBufferRange(GL_UNIFORM_BUFFER, BINDING_SLOT_CUSTOM, material->uniform_buffer_id, 0, material->uniform_data_size);
+
+                    for(int element_index = 0; element_index < material_draw_buffer->element_count; element_index++)
+                    {
+                        void* shader_data = ((uint8*)material_draw_buffer->shader_data_buffer + element_index * material->uniform_data_size);
+                        glBufferSubData(GL_UNIFORM_BUFFER, 0, material->uniform_data_size, shader_data);
+
+                        Mat4 model = material_draw_buffer->model_buffer[element_index];
+                        Mat4 mvp = mul_mat4(camera->view, model);
+                        mvp = mul_mat4(camera->projection, mvp);
+                        glUniformMatrix4fv(material->location_model, 1, GL_FALSE, mvp.v);
+                        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+                    }
+                    
+                    material_draw_buffer->element_count = 0;
+                }
+            }
+        }
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+internal void
+texture_shader_data_set(Renderer* renderer, const Texture* texture)
+{
+    TextureUniformData shader_data = {0};
+    shader_data.layer_count = texture->layer_count;
+    shader_data.size = (Vec2){ .x = (float32)texture->width, .y = (float32)texture->height };
+    glBindBuffer(GL_UNIFORM_BUFFER, renderer->texture_uniform_buffer_id);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(TextureUniformData), &shader_data);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
