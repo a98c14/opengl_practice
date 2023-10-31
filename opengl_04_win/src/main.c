@@ -179,17 +179,17 @@ int main(void)
         shader_data.color.g = 0;
         shader_data.color.b = 0;
         shader_data.color.a = 1;
-        shader_data.outline_color.r = 0;
+        shader_data.outline_color.r = 1;
         shader_data.outline_color.g = 0;
         shader_data.outline_color.b = 0;
         shader_data.outline_color.a = 0;
-        shader_data.u_thickness = 0.50;
+        shader_data.thickness = 0.50;
         shader_data.softness = 30;
-        shader_data.outline_thickness = 0.1;
+        shader_data.outline_thickness = 0.2;
         
-        Mat4* models = arena_push_array(frame_arena, Mat4, 20);
+        Mat4* models = arena_push_array(frame_arena, Mat4, 50);
         String str = string("Testing with the boys 123[];l");
-        Rect bounds = text_calculate_transforms(atlas, str, 1.5, vec2_zero(), RectAlignmentTypeBottomLeft, models, 0);
+        text_calculate_transforms(atlas, str, 3.5, vec2_zero(), RectAlignmentTypeBottomLeft, models, 0);
         for(int i = 0; i < str.length; i++)
         {
             Glyph glyph = glyph_get(atlas, str.value[i]);
@@ -199,31 +199,17 @@ int main(void)
             glBufferSubData(GL_UNIFORM_BUFFER, 0, dc->material_text.uniform_data_size, &shader_data);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         }
-
-        // Vec2 pos = vec2(-world_width/2+5, -world_height/2 + 3);
-        // for(int32 x = 0; x < 20; x++)
-        // {
-        //     if(x == 10)
-        //     {
-        //         glUseProgram(dc->material_text_v2.gl_program_id);
-        //     }
-        //     pos.x += 7;
-        //     pos.y = -world_height/2 + 3;
-        //     for(int32 y = 0; y <= 20; y++)
-        //     {
-        //         pos.y += 1 + y / 4.0;
-                
-        //         Vec2 default_size = vec2(glyph.plane_bounds.right - glyph.plane_bounds.left, glyph.plane_bounds.top - glyph.plane_bounds.bottom);
-        //         Vec2 scaled_size = mul_vec2_f32(default_size, 0.5 + y/4.0f);
-
-                
-        //         Mat4 transform = transform_quad(pos, scaled_size, 0);
-
-        //         mvp = mul_mat4(dc->camera->projection, mvp);
-
-        //     }
-        // }
-
+        String str2 = string_pushf(frame_arena, "Frame: %.4f ms", dt * 1000);
+        text_calculate_transforms(atlas, str2, 3.5, vec2(0, -10), RectAlignmentTypeBottomLeft, models, 0);
+        for(int i = 0; i < str.length; i++)
+        {
+            Glyph glyph = glyph_get(atlas, str2.value[i]);
+            shader_data.glyph_bounds = glyph.atlas_bounds.v;
+            Mat4 mvp = mat4_mvp(models[i], dc->camera->view, dc->camera->projection);
+            glUniformMatrix4fv(dc->material_text.location_model, 1, GL_FALSE, mvp.v);
+            glBufferSubData(GL_UNIFORM_BUFFER, 0, dc->material_text.uniform_data_size, &shader_data);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        }
 
         glfwSwapBuffers(window);
         glfwPollEvents();

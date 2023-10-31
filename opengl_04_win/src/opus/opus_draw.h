@@ -28,7 +28,7 @@ typedef struct
     /** Softness of the glyph edges. Recommended value: 30 */
     float32 softness;
     /** Thickness of the glyph. Recommended value: 0.5, Values outside of the range 0.4 and 0.9 are not really usable */
-    float u_thickness;
+    float32 thickness;
     /** Outline thickness. Should be between 0 and 0.5 */
     float32 outline_thickness;
 } ShaderDataText;
