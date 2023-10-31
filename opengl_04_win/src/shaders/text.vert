@@ -17,7 +17,12 @@ layout (std140, binding = 1) uniform Texture
 
 layout (std140, binding = 2) uniform Custom
 {
+    vec4 u_glyph_bounds;
     vec4 u_color;
+    vec4 u_outline_color;
+    float u_softness;
+    float u_thickness;
+    float u_outline_thickness;
 };
 
 uniform mat4 u_mvp;
@@ -29,5 +34,9 @@ out vec2 v_tex_coord;
 void main() 
 {
     gl_Position = u_mvp * vec4(a_pos, 1.0);
-    v_tex_coord = a_tex_coord;
+    float w = u_glyph_bounds.z - u_glyph_bounds.x;
+    float h = u_glyph_bounds.w - u_glyph_bounds.y;
+    float x = ((a_tex_coord.x * w) + u_glyph_bounds.x) / texture_size.x;
+    float y = ((a_tex_coord.y * h) + u_glyph_bounds.y) / texture_size.y;
+    v_tex_coord = vec2(x, y);
 }

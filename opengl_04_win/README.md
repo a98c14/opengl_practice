@@ -1,7 +1,8 @@
 # Text Rendering Practice
 
 ## To-Do
-- Text rendering
+- send glyph data to shader
+- send texture data (width etc.) to shader 
 
 ## Commands
 ### Build & Run

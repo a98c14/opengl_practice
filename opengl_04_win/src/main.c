@@ -112,7 +112,9 @@ int main(void)
 
     glEnable(GL_BLEND);
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
-    glClearColor(12 / 255.0f, 11 / 255.0f, 20 / 255.0f, 1.0f);
+    // glClearColor(12 / 255.0f, 11 / 255.0f, 20 / 255.0f, 1.0f);
+    glClearColor(255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 1.0f);
+
 
     float32 time = (float32)glfwGetTime();
     float32 last_frame_time, dt;
@@ -159,7 +161,11 @@ int main(void)
         Vec2 mouse_raw = vec2(xpos, ypos);
         Vec2 mouse_world = mouse_world_position(mouse_raw, camera);
 
-        // draw_bounds(dc, -world_width/2+padding, world_width/2-padding, -world_height/2+padding, world_height/2-padding);
+        TextureUniformData texture_data = {0};
+        texture_data.size.x = atlas->texture.width;
+        texture_data.size.y = atlas->texture.height;
+        glBindBuffer(GL_UNIFORM_BUFFER, texture_uniform_buffer_id);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(TextureUniformData), &texture_data);
 
         glUseProgram(dc->material_text.gl_program_id);
         glBindBuffer(GL_UNIFORM_BUFFER, dc->material_text.uniform_buffer_id);
@@ -168,19 +174,47 @@ int main(void)
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(font_texture.gl_texture_type, font_texture.gl_texture_id);
 
-        ShaderDataText shader_data = {0};
-        shader_data.color.r = 1;
-        shader_data.color.g = 1;
-        shader_data.color.b = 1;
-        shader_data.color.a = 1;
+        Vec2 pos = vec2(-world_width/2+5, -world_height/2 + 3);
+        for(int32 x = 0; x < 20; x++)
+        {
+            if(x == 10)
+            {
+                glUseProgram(dc->material_text_v2.gl_program_id);
+            }
+            pos.x += 7;
+            pos.y = -world_height/2 + 3;
+            for(int32 y = 0; y <= 20; y++)
+            {
+                pos.y += 1 + y / 4.0;
+                Glyph glyph = atlas->glyphs['a' + x - 32];
+                ShaderDataText shader_data = {0};
+                shader_data.color.r = 0;
+                shader_data.color.g = 0;
+                shader_data.color.b = 0;
+                shader_data.color.a = 1;
+                shader_data.outline_color.r = 0;
+                shader_data.outline_color.g = 0;
+                shader_data.outline_color.b = 0;
+                shader_data.outline_color.a = 0;
+                shader_data.u_thickness = 0.50;
+                shader_data.softness = 30;
+                shader_data.outline_thickness = 0.1;
+                shader_data.glyph_bounds = glyph.atlas_bounds.v;
 
-        Mat4 transform = transform_quad(vec2_zero(), vec2(30, 30), 0);
-        Mat4 mvp = mul_mat4(dc->camera->view, transform);
-        mvp = mul_mat4(dc->camera->projection, mvp);
+                Vec2 default_size = vec2(glyph.plane_bounds.right - glyph.plane_bounds.left, glyph.plane_bounds.top - glyph.plane_bounds.bottom);
+                Vec2 scaled_size = mul_vec2_f32(default_size, 0.5 + y/4.0f);
 
-        glUniformMatrix4fv(dc->material_text.location_model, 1, GL_FALSE, mvp.v);
-        glBufferSubData(GL_UNIFORM_BUFFER, 0, dc->material_text.uniform_data_size, &shader_data);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+                
+                Mat4 transform = transform_quad(pos, scaled_size, 0);
+                Mat4 mvp = mul_mat4(dc->camera->view, transform);
+                mvp = mul_mat4(dc->camera->projection, mvp);
+
+                glUniformMatrix4fv(dc->material_text.location_model, 1, GL_FALSE, mvp.v);
+                glBufferSubData(GL_UNIFORM_BUFFER, 0, dc->material_text.uniform_data_size, &shader_data);
+                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            }
+        }
+
 
         glfwSwapBuffers(window);
         glfwPollEvents();

@@ -37,6 +37,12 @@ draw_context_new(Arena* arena, Camera* camera)
         file_read_all_as_string(arena, string("C:\\Users\\selim\\source\\practice\\opengl\\opengl_04_win\\src\\shaders\\text.frag")),
         sizeof(ShaderDataText));
 
+    draw_context->material_text_v2 = material_new(
+        arena, 
+        file_read_all_as_string(arena, string("C:\\Users\\selim\\source\\practice\\opengl\\opengl_04_win\\src\\shaders\\text.vert")),
+        file_read_all_as_string(arena, string("C:\\Users\\selim\\source\\practice\\opengl\\opengl_04_win\\src\\shaders\\text_v2.frag")),
+        sizeof(ShaderDataText));
+
     return draw_context;
 }
 

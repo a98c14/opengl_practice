@@ -68,9 +68,9 @@ typedef union
 } Mat4;
 
 /* Misc */
-typedef struct 
+typedef union 
 {
-    struct { float32 bottom; float32 left; float32 top; float32 right; };
+    struct { float32 left; float32 bottom; float32 right; float32 top; };
     struct { Vec2 bl; Vec2 tr; };
     Vec4 v;
 } Bounds;
