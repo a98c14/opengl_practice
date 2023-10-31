@@ -175,6 +175,7 @@ typedef struct
     uint32 global_uniform_buffer_id;
     uint32 texture_uniform_buffer_id;
 
+    Camera camera;
     RendererDrawState* draw_state;
 
     // resources
@@ -187,6 +188,21 @@ typedef struct
     uint8 material_count;
     Material materials[MATERIAL_CAPACITY];
 } Renderer;
+
+typedef struct
+{
+    uint32 window_width;
+    uint32 window_height;
+
+    float32 world_height;
+    Vec4 clear_color;
+} RendererConfiguration;
+
+internal Renderer*
+renderer_new(Arena* arena, RendererConfiguration* configuration);
+
+internal RendererDrawState* 
+renderer_draw_state_new(Arena* arena);
 
 internal Camera
 camera_new(float32 width, float32 height, float32 near, float32 far, float32 window_width, float32 window_height);
@@ -201,7 +217,7 @@ internal Texture
 texture_load(uint32 width, uint32 height, uint32 channels, uint32 filter, void* data);
 
 internal MaterialDrawBuffer* 
-renderer_get_material_buffer(const Renderer* renderer, ViewType view_type, FrameBufferIndex layer, TextureIndex texture, MaterialIndex material_index);
+renderer_get_material_buffer(Renderer* renderer, ViewType view_type, FrameBufferIndex layer, TextureIndex texture, MaterialIndex material_index);
 
 internal DrawBuffer 
-renderer_buffer_request(const Renderer* renderer, FrameBufferIndex layer, MaterialIndex material_index, ViewType view_type, TextureIndex texture, uint32 count);
+renderer_buffer_request(Renderer* renderer, FrameBufferIndex layer, MaterialIndex material_index, ViewType view_type, TextureIndex texture, uint32 count);

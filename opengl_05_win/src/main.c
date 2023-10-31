@@ -100,49 +100,28 @@ int main(void)
 
     int32 width, height;
     glfwGetFramebufferSize(window, &width, &height);
-    glViewport(0, 0, width, height);
-    float32 aspect = width / (float)height;
 
-    Geometry geom = geometry_quad_create();
-
-    float32 world_height = 100;
-    float32 world_width = world_height * aspect;
-    Camera camera = camera_new(world_width, world_height, 1, -1, WINDOW_WIDTH, WINDOW_HEIGHT);
-    DrawContext* dc = draw_context_new(persistent_arena, &camera);    
-
-    glEnable(GL_BLEND);
-    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
-    // glClearColor(12 / 255.0f, 11 / 255.0f, 20 / 255.0f, 1.0f);
-    glClearColor(255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 1.0f);
+    RendererConfiguration renderer_configuration = {
+        .window_width = width,
+        .window_height = height,
+        .world_height = 100,
+        .clear_color = vec4(255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 1.0f)
+    };
+    Renderer* renderer = renderer_new(persistent_arena, &renderer_configuration);
+    DrawContext* dc = draw_context_new(persistent_arena, &renderer->camera);
 
     float32 time = (float32)glfwGetTime();
     float32 last_frame_time, dt;
-    float32 padding = 20;
+    Geometry geometry = geometry_quad_create();
 
     // load texture
-    Texture font_texture = texture_load_from_file(string("C:\\Users\\selim\\source\\practice\\opengl\\opengl_04_win\\assets\\open_sans.png"), 0, 1);
+    Texture font_texture = texture_load_from_file(string("..\\assets\\open_sans.png"), 0, 1);
     GlyphAtlas* atlas = glyph_atlas_load(
         persistent_arena,
         &FONT_OPEN_SANS_ATLAS_INFO,
         FONT_OPEN_SANS_GLYPHS,
         countof(FONT_OPEN_SANS_GLYPHS),
         font_texture);
-
-    /* Create Global UBO */
-    uint32 global_uniform_buffer_id;
-    glGenBuffers(1, &global_uniform_buffer_id);
-    glBindBuffer(GL_UNIFORM_BUFFER, global_uniform_buffer_id);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(GlobalUniformData), NULL, GL_STATIC_DRAW);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    glBindBufferRange(GL_UNIFORM_BUFFER, BINDING_SLOT_GLOBAL, global_uniform_buffer_id, 0, sizeof(GlobalUniformData));
-
-    /* Create Texture UBO */
-    uint32 texture_uniform_buffer_id;
-    glGenBuffers(1, &texture_uniform_buffer_id);
-    glBindBuffer(GL_UNIFORM_BUFFER, texture_uniform_buffer_id);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(TextureUniformData), NULL, GL_STATIC_DRAW);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    glBindBufferRange(GL_UNIFORM_BUFFER, BINDING_SLOT_TEXTURE, texture_uniform_buffer_id, 0, sizeof(TextureUniformData));
 
     while (!glfwWindowShouldClose(window))
     {
@@ -158,12 +137,12 @@ int main(void)
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
         Vec2 mouse_raw = vec2(xpos, ypos);
-        Vec2 mouse_world = mouse_world_position(mouse_raw, camera);
+        Vec2 mouse_world = mouse_world_position(mouse_raw, renderer->camera);
 
         TextureUniformData texture_data = {0};
         texture_data.size.x = atlas->texture.width;
         texture_data.size.y = atlas->texture.height;
-        glBindBuffer(GL_UNIFORM_BUFFER, texture_uniform_buffer_id);
+        glBindBuffer(GL_UNIFORM_BUFFER, renderer->texture_uniform_buffer_id);
         glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(TextureUniformData), &texture_data);
 
         glUseProgram(dc->material_text.gl_program_id);
@@ -185,7 +164,7 @@ int main(void)
         shader_data.thickness = 0.50;
         shader_data.softness = 30;
         shader_data.outline_thickness = 0.2;
-        
+
         Mat4* models = arena_push_array(frame_arena, Mat4, 300);
         String str = string("!\"#$%%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
         text_calculate_transforms(atlas, str, 3.5, vec2(-100, 0), RectAlignmentTypeBottomLeft, models, 0);
@@ -198,7 +177,7 @@ int main(void)
             glBufferSubData(GL_UNIFORM_BUFFER, 0, dc->material_text.uniform_data_size, &shader_data);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         }
-        
+
         String str2 = string_pushf(frame_arena, "Frame: %.4f ms", dt * 1000);
         text_calculate_transforms(atlas, str2, 3.5, vec2(cosf(time * 4), -10 + sinf(time * 10)), RectAlignmentTypeBottomLeft, models, 0);
         for(int i = 0; i < str.length; i++)

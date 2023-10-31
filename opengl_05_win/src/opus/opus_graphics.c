@@ -2,6 +2,56 @@
 #include "opus_graphics.h"
 #include "opus_hash.h"
 
+internal Renderer*
+renderer_new(Arena* arena, RendererConfiguration* configuration)
+{
+    Renderer* renderer      = arena_push_struct_zero(arena, Renderer);
+    renderer->arena         = arena;
+    renderer->window_width  = configuration->window_width;
+    renderer->window_height = configuration->window_height;
+    renderer->draw_state    = renderer_draw_state_new(arena);
+
+    glViewport(0, 0, renderer->window_width, renderer->window_height);
+
+    float32 aspect = renderer->window_width / (float)renderer->window_height;
+    float32 world_height = configuration->world_height;
+    float32 world_width = world_height * aspect;
+    renderer->camera = camera_new(world_width, world_height, 1, -1, renderer->window_width, renderer->window_height);
+
+    glEnable(GL_BLEND);
+    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+    glClearColor(configuration->clear_color.r, configuration->clear_color.g, configuration->clear_color.b, configuration->clear_color.a);
+
+    /* Create Global UBO */
+    glGenBuffers(1, &renderer->global_uniform_buffer_id);
+    glBindBuffer(GL_UNIFORM_BUFFER, renderer->global_uniform_buffer_id);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(GlobalUniformData), NULL, GL_STATIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    glBindBufferRange(GL_UNIFORM_BUFFER, BINDING_SLOT_GLOBAL, renderer->global_uniform_buffer_id, 0, sizeof(GlobalUniformData));
+
+    /* Create Texture UBO */
+    glGenBuffers(1, &renderer->texture_uniform_buffer_id);
+    glBindBuffer(GL_UNIFORM_BUFFER, renderer->texture_uniform_buffer_id);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(TextureUniformData), NULL, GL_STATIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    glBindBufferRange(GL_UNIFORM_BUFFER, BINDING_SLOT_TEXTURE, renderer->texture_uniform_buffer_id, 0, sizeof(TextureUniformData));
+
+    return renderer;
+}
+
+internal RendererDrawState*
+renderer_draw_state_new(Arena* arena)
+{
+    RendererDrawState* draw_state = arena_push_struct_zero(arena, RendererDrawState);
+    draw_state->material_draw_buffers = arena_push_array_zero(arena, MaterialDrawBuffer, MATERIAL_DRAW_BUFFER_CAPACITY);
+    for(int i = 0; i < MATERIAL_DRAW_BUFFER_CAPACITY; i++)
+    {
+        draw_state->material_draw_buffers[i].key = MATERIAL_DRAW_BUFFER_EMPTY_KEY;
+    }
+
+    return draw_state;
+}
+
 internal Camera
 camera_new(float32 width, float32 height, float32 near, float32 far, float32 window_width, float32 window_height)
 {
@@ -100,7 +150,7 @@ texture_load(uint32 width, uint32 height, uint32 channels, uint32 filter, void* 
 }
 
 internal MaterialDrawBuffer*
-renderer_get_material_buffer(const Renderer* renderer, ViewType view_type, FrameBufferIndex layer, TextureIndex texture, MaterialIndex material_index)
+renderer_get_material_buffer(Renderer* renderer, ViewType view_type, FrameBufferIndex layer, TextureIndex texture, MaterialIndex material_index)
 {
     uint64 key = ((uint64)layer << 24) + ((uint64)view_type << 16) + ((uint64)texture << 8) + ((uint64)material_index << 0);
     MaterialDrawBufferIndex index = hash_uint64(key) % MATERIAL_DRAW_BUFFER_CAPACITY;
@@ -211,7 +261,7 @@ renderer_get_material_buffer(const Renderer* renderer, ViewType view_type, Frame
 
 /* queues N elements from underlying draw buffer and returns the addresses */
 internal DrawBuffer
-renderer_buffer_request(const Renderer* renderer, FrameBufferIndex layer, MaterialIndex material_index, ViewType view_type, TextureIndex texture, uint32 count)
+renderer_buffer_request(Renderer* renderer, FrameBufferIndex layer, MaterialIndex material_index, ViewType view_type, TextureIndex texture, uint32 count)
 {
     Assert(count > 0, "[ERROR] Requested render buffer can not have 0 size");
 
