@@ -1,6 +1,8 @@
 #include "opus_memory.c"
+#include "opus_log.c"
 #include "opus_string.c"
 #include "opus_math.c"
+#include "opus_hash.c"
 #include "opus_graphics.c"
 #include "opus_graphics_math.c"
 #include "opus_graphics_primitives.c"

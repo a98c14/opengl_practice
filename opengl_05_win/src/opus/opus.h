@@ -1,8 +1,10 @@
 #pragma once
 
 #include "opus_memory.h"
+#include "opus_log.h"
 #include "opus_string.h"
 #include "opus_math.h"
+#include "opus_hash.h"
 #include "opus_graphics.h"
 #include "opus_graphics_math.h"
 #include "opus_graphics_primitives.h"
