@@ -8,6 +8,16 @@
 # include <xmmintrin.h>
 #endif
 
+/* Macros */
+#ifndef min
+    #define min(a, b) (((a) < (b))?(a):(b))
+#endif
+#ifndef max
+    #define max(a, b) (((a) > (b))?(a):(b))
+#endif
+#define mix(a, b, t) ((a * (1.0-t) + b * t))
+#define clamp(a, x, b) (((x) < (a))?(a):((b)<(x))?(b):(x))
+
 /* Constants */
 global float32 EPSILON_FLOAT32 = 1.1920929e-7f;
 global float32 PI_FLOAT32      = 3.14159265359f;
@@ -74,6 +84,13 @@ typedef union
     struct { Vec2 bl; Vec2 tr; };
     Vec4 v;
 } Bounds;
+
+typedef union
+{
+    struct { float32 x; float32 y; float32 w; float32 h; };
+    struct { Vec2 center; Vec2 size; };
+    Vec4 v;
+} Rect;
 
 /* Constructors */
 internal Vec2 vec2(float32 x, float32 y);
