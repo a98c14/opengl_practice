@@ -11,12 +11,12 @@ typedef struct
     Camera* camera;
 
     /* Materials */
-    Material material_text;
-    Material material_basic;
-    Material material_line;
-    Material material_quad;
-    Material material_circle;
-    Material material_boid;
+    MaterialIndex material_text;
+    MaterialIndex material_basic;
+    MaterialIndex material_line;
+    MaterialIndex material_quad;
+    MaterialIndex material_circle;
+    MaterialIndex material_boid;
 } DrawContext;
 
 typedef struct 
@@ -30,10 +30,11 @@ typedef struct
     float32 thickness;
     /** Outline thickness. Should be between 0 and 0.5 */
     float32 outline_thickness;
+    float32 _;
 } ShaderDataText;
 
 internal DrawContext*
-draw_context_new(Arena* arena, Camera* camera);
+draw_context_new(Arena* arena, Renderer* renderer);
 
 internal void
 draw_line(DrawContext* dc, Vec2 start, Vec2 end);

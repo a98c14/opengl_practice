@@ -27,7 +27,6 @@ arena_release(Arena *arena)
 	free(arena);
 }
 
-// TODO(selim): add arena alignment stuff if needed. [reference](https://www.youtube.com/watch?v=L79vSP8yV2g)
 internal void* 
 arena_push(Arena* arena, uint64 size)
 {

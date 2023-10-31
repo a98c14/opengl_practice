@@ -1,10 +1,9 @@
 #include "opus_draw.h"
 
 internal DrawContext*
-draw_context_new(Arena* arena, Camera* camera)
+draw_context_new(Arena* arena, Renderer* renderer)
 {
     DrawContext* draw_context = arena_push_struct_zero(arena, DrawContext);
-    draw_context->camera = camera;
 
     // draw_context->material_basic = material_new(
     //     arena, 
@@ -32,7 +31,7 @@ draw_context_new(Arena* arena, Camera* camera)
     //     file_read_all_as_string(arena, string("C:\\Users\\selim\\source\\practice\\opengl\\opengl_03_win\\src\\shaders\\circle.frag")));
 
     draw_context->material_text = material_new(
-        arena, 
+        renderer, 
         file_read_all_as_string(arena, string("..\\src\\shaders\\text.vert")),
         file_read_all_as_string(arena, string("..\\src\\shaders\\text.frag")),
         sizeof(ShaderDataText));

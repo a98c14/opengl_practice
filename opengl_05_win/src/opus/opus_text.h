@@ -59,14 +59,14 @@ typedef struct
     uint32 glyph_count;
     const Glyph* glyphs;
     const GlyphAtlasInfo* atlas_info;
-    Texture texture;
+    TextureIndex texture;
 } GlyphAtlas;
 
 internal Glyph
 glyph_get(GlyphAtlas* atlas, char c);
 
 internal GlyphAtlas*
-glyph_atlas_load(Arena* arena, const GlyphAtlasInfo* atlas_info, const Glyph* glyphs, uint32 glyph_count, Texture texture);
+glyph_atlas_load(Arena* arena, const GlyphAtlasInfo* atlas_info, const Glyph* glyphs, uint32 glyph_count, TextureIndex texture);
 
 internal Rect
 text_calculate_bounds(GlyphAtlas* atlas, String str, float32 size_in_pixels);

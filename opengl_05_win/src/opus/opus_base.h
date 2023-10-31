@@ -26,6 +26,8 @@
 #define Assert(condition, message)
 #endif
 
+#define align_up_pow2(x, p) (((x) + (p) - 1)&~((p) - 1))
+
 #define kb(x) ((x) << 10)
 #define mb(x) ((x) << 20)
 #define gb(x) ((x) << 30)

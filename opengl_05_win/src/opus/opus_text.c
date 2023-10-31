@@ -7,7 +7,7 @@ glyph_get(GlyphAtlas* atlas, char c)
 }
 
 internal GlyphAtlas*
-glyph_atlas_load(Arena* arena, const GlyphAtlasInfo* atlas_info, const Glyph* glyphs, uint32 glyph_count, Texture texture)
+glyph_atlas_load(Arena* arena, const GlyphAtlasInfo* atlas_info, const Glyph* glyphs, uint32 glyph_count, TextureIndex texture)
 {
     GlyphAtlas* atlas = arena_push_struct_zero(arena, GlyphAtlas);
     atlas->glyphs = glyphs;
