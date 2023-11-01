@@ -47,6 +47,27 @@ arena_push_zero(Arena* arena, uint64 size)
 	return result;
 }
 
+internal void* 
+arena_push_aligned(Arena* arena, uint64 size, uint8 alignment)
+{
+	void* result = 0;
+	if (arena->pos + size <= arena->cap) 
+	{
+		arena->pos += arena->pos % alignment != 0 ? alignment - (arena->pos % alignment) : 0;
+		result = ((uint8*)arena) + arena->pos;
+		arena->pos += size;
+	}
+	return result;
+}
+
+internal void* 
+arena_push_zero_aligned(Arena* arena, uint64 size, uint8 alignment)
+{
+	void* result = arena_push_aligned(arena, size, alignment);
+	memset(result, 0, size);
+	return result;
+}
+
 internal void
 arena_pop(Arena *arena, uint64 size)
 {

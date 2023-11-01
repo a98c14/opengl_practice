@@ -167,9 +167,8 @@ typedef struct
 
 typedef struct
 {
-    int32 capacity;
     Mat4* model_buffer;
-
+     int32 capacity;
     uint32 uniform_data_size;
     void* uniform_data_buffer;
 } DrawBuffer;
@@ -190,13 +189,13 @@ typedef struct
 
     // resources
     uint32 frame_buffer_count;
-    FrameBuffer frame_buffers[LAYER_CAPACITY];
+    FrameBuffer* frame_buffers;
 
     uint32 texture_count;
-    Texture textures[TEXTURE_CAPACITY];
+    Texture* textures;
 
     uint8 material_count;
-    Material materials[MATERIAL_CAPACITY];
+    Material* materials;
 } Renderer;
 
 typedef struct

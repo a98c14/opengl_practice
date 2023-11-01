@@ -140,14 +140,8 @@ int main(void)
         Vec2 mouse_world = mouse_world_position(mouse_raw, renderer->camera);
 
         ShaderDataText shader_data = {0};
-        shader_data.color.r = 0;
-        shader_data.color.g = 0;
-        shader_data.color.b = 0;
-        shader_data.color.a = 1;
-        shader_data.outline_color.r = 1;
-        shader_data.outline_color.g = 0;
-        shader_data.outline_color.b = 0;
-        shader_data.outline_color.a = 0;
+        shader_data.color = color_to_vec4(ColorBlack);
+        shader_data.outline_color = color_to_vec4(ColorInvisible);
         shader_data.thickness = 0.50;
         shader_data.softness = 30;
         shader_data.outline_thickness = 0.2;

@@ -9,6 +9,9 @@ renderer_new(Arena* arena, RendererConfiguration* configuration)
     renderer->arena         = arena;
     renderer->window_width  = configuration->window_width;
     renderer->window_height = configuration->window_height;
+    renderer->frame_buffers = arena_push_array_zero_aligned(arena, FrameBuffer, LAYER_CAPACITY, 16);
+    renderer->materials = arena_push_array_zero(arena, Material, MATERIAL_CAPACITY);
+    renderer->textures = arena_push_array_zero(arena, Texture, TEXTURE_CAPACITY);
 
     glViewport(0, 0, renderer->window_width, renderer->window_height);
     float32 aspect = renderer->window_width / (float)renderer->window_height;
