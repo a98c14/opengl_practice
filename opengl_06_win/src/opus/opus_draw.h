@@ -4,10 +4,13 @@
 #include "opus_math.h"
 #include "opus_graphics.h"
 #include "opus_graphics_primitives.h"
+#include "opus_graphics_math.h"
 #include "opus_file.h"
+#include "opus_color.h"
 
 typedef struct
 {
+    Renderer* renderer;
     Camera* camera;
 
     /* Materials */
@@ -32,6 +35,11 @@ typedef struct
     float32 outline_thickness;
     float32 _;
 } ShaderDataText;
+
+typedef struct 
+{
+    Vec4 color;
+} ShaderDataLine;
 
 internal DrawContext*
 draw_context_new(Arena* arena, Renderer* renderer);

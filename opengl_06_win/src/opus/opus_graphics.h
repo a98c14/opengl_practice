@@ -122,6 +122,7 @@ typedef struct
 {
     uint64 key;
     MaterialIndex material_index;
+    // TODO(selim): add stencil stuff here directly. no need for a separate buffer
 
     uint32 element_count;
     Mat4* model_buffer;
@@ -168,7 +169,7 @@ typedef struct
 typedef struct
 {
     Mat4* model_buffer;
-     int32 capacity;
+    int32 capacity;
     uint32 uniform_data_size;
     void* uniform_data_buffer;
 } DrawBuffer;

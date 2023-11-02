@@ -123,6 +123,12 @@ int main(void)
         countof(FONT_OPEN_SANS_GLYPHS),
         font_texture);
 
+    float32 padding = 10;
+    float32 bounds_left = -renderer->camera.world_width/2+padding;
+    float32 bounds_right = renderer->camera.world_width/2-padding;
+    float32 bounds_bottom = -renderer->camera.world_height/2+padding;
+    float32 bounds_top = renderer->camera.world_height/2-padding;
+
     while (!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT);
@@ -138,6 +144,8 @@ int main(void)
         glfwGetCursorPos(window, &xpos, &ypos);
         Vec2 mouse_raw = vec2(xpos, ypos);
         Vec2 mouse_world = mouse_world_position(mouse_raw, renderer->camera);
+
+        draw_bounds(dc, bounds_left, bounds_right, bounds_bottom, bounds_top);
 
         ShaderDataText shader_data = {0};
         shader_data.color = color_to_vec4(ColorBlack);

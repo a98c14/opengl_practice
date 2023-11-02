@@ -1,18 +1,33 @@
-#version 430
+#version 430 core
 
 layout(location = 0) in vec3 a_pos;
 layout(location = 1) in vec3 a_color;
 layout(location = 2) in vec2 a_tex_coord;
 
-uniform mat4 mvp;
-uniform vec4 u_color;
-
-out vec4 v_color;
-out vec2 v_texcoord;
-
-void main()
+layout (std140, binding = 0) uniform Global
 {
-    gl_Position = mvp * vec4(a_pos, 1.0);
-    v_color = vec4(a_color, 1.0);
-    v_texcoord = a_tex_coord;
+    vec4 g_time;
+};
+
+layout (std140, binding = 1) uniform Texture
+{
+    vec2 texture_size;
+    float texture_layer_count;
+};
+
+layout (std140, binding = 2) uniform Custom
+{
+    vec4 u_color;
+};
+
+uniform mat4 u_mvp;
+uniform sampler2D u_main_texture;
+
+/* Vertex Data */
+out vec2 v_tex_coord;
+
+void main() 
+{
+    gl_Position = u_mvp * vec4(a_pos, 1.0);
+    v_tex_coord = a_tex_coord;
 }

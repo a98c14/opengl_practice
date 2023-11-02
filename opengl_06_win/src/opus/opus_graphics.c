@@ -60,7 +60,7 @@ internal RendererDrawState*
 renderer_draw_state_new(Arena* arena)
 {
     RendererDrawState* draw_state = arena_push_struct_zero(arena, RendererDrawState);
-    draw_state->material_draw_buffers = arena_push_array_zero(arena, MaterialDrawBuffer, MATERIAL_DRAW_BUFFER_CAPACITY);
+    draw_state->material_draw_buffers = arena_push_array_zero_aligned(arena, MaterialDrawBuffer, MATERIAL_DRAW_BUFFER_CAPACITY, 16);
     for(int i = 0; i < MATERIAL_DRAW_BUFFER_CAPACITY; i++)
     {
         draw_state->material_draw_buffers[i].key = MATERIAL_DRAW_BUFFER_EMPTY_KEY;
