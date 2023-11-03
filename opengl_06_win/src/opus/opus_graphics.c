@@ -5,7 +5,7 @@
 internal Renderer*
 renderer_new(Arena* arena, RendererConfiguration* configuration)
 {
-    Renderer* renderer      = arena_push_struct_zero(arena, Renderer);
+    Renderer* renderer      = arena_push_struct_zero_aligned(arena, Renderer, 16);
     renderer->arena         = arena;
     renderer->window_width  = configuration->window_width;
     renderer->window_height = configuration->window_height;
@@ -17,6 +17,7 @@ renderer_new(Arena* arena, RendererConfiguration* configuration)
     float32 aspect = renderer->window_width / (float)renderer->window_height;
     float32 world_height = configuration->world_height;
     float32 world_width = world_height * aspect;
+
     renderer->camera = camera_new(world_width, world_height, 1, -1, renderer->window_width, renderer->window_height);
 
     glEnable(GL_BLEND);
@@ -196,8 +197,8 @@ renderer_get_material_buffer(Renderer* renderer, ViewType view_type, FrameBuffer
             buffer->key = key;
             buffer->element_count = 0;
             buffer->material_index = material_index;
-            buffer->model_buffer = arena_push_array_zero(renderer->arena, Mat4, MATERIAL_DRAW_BUFFER_ELEMENT_CAPACITY);
-            buffer->shader_data_buffer = arena_push_zero(renderer->arena, MATERIAL_DRAW_BUFFER_ELEMENT_CAPACITY * material->uniform_data_size);
+            buffer->model_buffer = arena_push_array_zero_aligned(renderer->arena, Mat4, MATERIAL_DRAW_BUFFER_ELEMENT_CAPACITY, 16);
+            buffer->shader_data_buffer = arena_push_zero_aligned(renderer->arena, MATERIAL_DRAW_BUFFER_ELEMENT_CAPACITY * material->uniform_data_size, 16);
 
             // find layer buffer
             int32 layer_buffer_index = -1;

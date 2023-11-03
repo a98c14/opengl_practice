@@ -11,6 +11,6 @@
 #include "opus_graphics_utils.h"
 #include "opus_file.h"
 #include "opus_text.h"
-#include "opus_draw.h"
 #include "opus_input.h"
 #include "opus_color.h"
+#include "engine_draw.h"

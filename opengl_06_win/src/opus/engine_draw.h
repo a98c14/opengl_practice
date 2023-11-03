@@ -5,8 +5,11 @@
 #include "opus_graphics.h"
 #include "opus_graphics_primitives.h"
 #include "opus_graphics_math.h"
+#include "opus_graphics_utils.h"
 #include "opus_file.h"
 #include "opus_color.h"
+#include "opus_text.h"
+#include "fonts.h"
 
 typedef struct
 {
@@ -20,6 +23,9 @@ typedef struct
     MaterialIndex material_quad;
     MaterialIndex material_circle;
     MaterialIndex material_boid;
+
+    /* Font */
+    GlyphAtlas* font_open_sans;
 } DrawContext;
 
 typedef struct 
@@ -41,11 +47,30 @@ typedef struct
     Vec4 color;
 } ShaderDataLine;
 
+typedef struct 
+{
+    Vec4 color;
+} ShaderDataCircle;
+
+typedef struct 
+{
+    Vec4 color;
+} ShaderDataBoid;
+
 internal DrawContext*
 draw_context_new(Arena* arena, Renderer* renderer);
 
 internal void
-draw_line(DrawContext* dc, Vec2 start, Vec2 end);
+draw_line(DrawContext* dc, Vec2 start, Vec2 end, Color color);
 
 internal void
-draw_bounds(DrawContext* dc, float32 left, float32 right, float32 bottom, float32 top);
+draw_bounds(DrawContext* dc, float32 left, float32 right, float32 bottom, float32 top, Color color);
+
+internal void
+draw_text(DrawContext* dc, Vec2 pos, String str);
+
+internal void
+draw_circle(DrawContext* dc, Vec2 position, float32 radius, Color color);
+
+internal void
+draw_boid(DrawContext* dc, Vec2 position, float32 size, Color color);

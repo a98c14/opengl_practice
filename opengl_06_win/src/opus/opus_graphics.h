@@ -24,7 +24,7 @@ enum
 typedef int8 ViewType;
 typedef int8 FrameBufferIndex;
 typedef int8 TextureIndex;
-typedef int8 MaterialIndex;
+typedef int32 MaterialIndex;
 typedef int16 MaterialDrawBufferIndex;
 #define TEXTURE_INDEX_NULL 0
 #define FRAME_BUFFER_INDEX_DEFAULT 0
@@ -122,8 +122,6 @@ typedef struct
 {
     uint64 key;
     MaterialIndex material_index;
-    // TODO(selim): add stencil stuff here directly. no need for a separate buffer
-
     uint32 element_count;
     Mat4* model_buffer;
     void* shader_data_buffer;

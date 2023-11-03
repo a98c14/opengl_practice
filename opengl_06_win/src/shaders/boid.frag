@@ -28,12 +28,25 @@ in vec2 v_tex_coord;
 
 out vec4 color;
 
+float sd_triangle_isosceles(in vec2 p, in vec2 q)
+{
+    p.x = abs(p.x);
+    vec2 a = p - q*clamp( dot(p,q)/dot(q,q), 0.0, 1.0 );
+    vec2 b = p - q*vec2( clamp( p.x/q.x, 0.0, 1.0 ), 1.0 );
+    float s = -sign( q.y );
+    vec2 d = min(vec2(dot(a,a), s*(p.x*q.y-p.y*q.x) ),
+                 vec2(dot(b,b), s*(p.y-q.y)));
+    return -sqrt(d.x)*sign(d.y);
+}
+
 void main() {
-    float softness = 3;
+    float smoothness = 3;
+    vec2 dxy = fwidth(v_tex_coord);
     vec2 uv = v_tex_coord;
     uv = uv * 2.0 - 1.0;
-    vec2 dp = fwidth(uv);
-    softness *= dp.x;
-    float d = smoothstep(1 - softness * 2, 1 - softness, length(uv)) - smoothstep(1 - softness, 1.0, length(uv));
+    uv = uv + vec2(0.0, 0.8);
+    float d = sd_triangle_isosceles(uv, vec2(0.8, 1.6));
+    d = smoothstep(0.0, dxy.x * smoothness, d);
+    d = 1 - d;
     color = vec4(u_color.xyz, d * u_color.a);
 }

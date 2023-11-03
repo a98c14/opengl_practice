@@ -1,16 +1,5 @@
-#include <glad/gl.h>
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
-
-// #include "linmath.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
-
-#include "opus.h"
-#include "opus.c"
-
-#include "fonts.h"
+#include "boids.h"
+#include "boids.c"
 
 internal void
 error_callback(int error, const char* description)
@@ -83,7 +72,7 @@ int main(void)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, 0);
 
-    GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Simple example", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Simple Example", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -94,7 +83,6 @@ int main(void)
     glfwMakeContextCurrent(window);
     gladLoadGL(glfwGetProcAddress);
     glfwSwapInterval(1);
-
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(message_callback, 0);
 
@@ -108,20 +96,12 @@ int main(void)
         .clear_color = ColorWhite
     };
     Renderer* renderer = renderer_new(persistent_arena, &renderer_configuration);
+
     DrawContext* dc = draw_context_new(persistent_arena, renderer);
 
     float32 time = (float32)glfwGetTime();
     float32 last_frame_time, dt;
     Geometry geometry = geometry_quad_create();
-
-    // load texture
-    TextureIndex font_texture = texture_new_from_file(renderer, string("..\\assets\\open_sans.png"), 0, 1);
-    GlyphAtlas* atlas = glyph_atlas_load(
-        persistent_arena,
-        &FONT_OPEN_SANS_ATLAS_INFO,
-        FONT_OPEN_SANS_GLYPHS,
-        countof(FONT_OPEN_SANS_GLYPHS),
-        font_texture);
 
     float32 padding = 10;
     float32 bounds_left = -renderer->camera.world_width/2+padding;
@@ -145,37 +125,13 @@ int main(void)
         Vec2 mouse_raw = vec2(xpos, ypos);
         Vec2 mouse_world = mouse_world_position(mouse_raw, renderer->camera);
 
-        draw_bounds(dc, bounds_left, bounds_right, bounds_bottom, bounds_top);
-
-        ShaderDataText shader_data = {0};
-        shader_data.color = color_to_vec4(ColorBlack);
-        shader_data.outline_color = color_to_vec4(ColorInvisible);
-        shader_data.thickness = 0.50;
-        shader_data.softness = 30;
-        shader_data.outline_thickness = 0.2;
-
+        draw_bounds(dc, bounds_left, bounds_right, bounds_bottom, bounds_top, ColorBlack);
+        draw_circle(dc, vec2(10, 0), 10, ColorBlack);
+        draw_boid(dc, vec2(10, 20), 2, ColorBlack);
         String str = string("!\"#$%%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
-        DrawBuffer draw_buffer = renderer_buffer_request(renderer, FRAME_BUFFER_INDEX_DEFAULT, dc->material_text, ViewTypeWorld, font_texture, str.length);
-        text_calculate_transforms(atlas, str, 3.5, vec2(-100, 0), RectAlignmentTypeBottomLeft, draw_buffer.model_buffer, 0);
-        ShaderDataText* shader_data_buffer = (ShaderDataText*)draw_buffer.uniform_data_buffer;
-        for(int i = 0; i < str.length; i++)
-        {
-            Glyph glyph = glyph_get(atlas, str.value[i]);
-            shader_data.glyph_bounds = glyph.atlas_bounds.v;
-            memcpy(&shader_data_buffer[i], &shader_data, sizeof(ShaderDataText));
-        }
-
-        String str2 = string_pushf(frame_arena, "Frame: %.4f ms", dt * 1000);
-        DrawBuffer draw_buffer2 = renderer_buffer_request(renderer, FRAME_BUFFER_INDEX_DEFAULT, dc->material_text, ViewTypeWorld, font_texture, str2.length);
-        text_calculate_transforms(atlas, str2, 3.5, vec2(cosf(time * 4), -10 + sinf(time * 10)), RectAlignmentTypeBottomLeft, draw_buffer2.model_buffer, 0);
-        shader_data_buffer = (ShaderDataText*)draw_buffer2.uniform_data_buffer;
-        for(int i = 0; i < str2.length; i++)
-        {
-            Glyph glyph = glyph_get(atlas, str2.value[i]);
-            shader_data.glyph_bounds = glyph.atlas_bounds.v;
-            memcpy(&shader_data_buffer[i], &shader_data, sizeof(ShaderDataText));
-        }
-
+        draw_text(dc, vec2(-100, 0), str);
+        String fps_str = string_pushf(frame_arena, "Frame: %.4f ms", dt * 1000);
+        draw_text(dc, vec2(cosf(time * 4), -10 + sinf(time * 10)), fps_str);
         renderer_render(renderer, dt);
         glfwSwapBuffers(window);
         glfwPollEvents();
