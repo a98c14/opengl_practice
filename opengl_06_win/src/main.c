@@ -60,7 +60,7 @@ message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei
 
 int main(void)
 {
-    Arena* persistent_arena = make_arena_reserve(mb(16));
+    Arena* persistent_arena = make_arena_reserve(mb(128));
     Arena* frame_arena = make_arena_reserve(mb(16));
 
     glfwSetErrorCallback(error_callback);
@@ -109,6 +109,25 @@ int main(void)
     float32 bounds_bottom = -renderer->camera.world_height/2+padding;
     float32 bounds_top = renderer->camera.world_height/2-padding;
 
+    float32 close_range = 2;
+    float32 visual_range = 7;
+    float32 avoid_factor = 2;
+    float32 alignment_factor = 1.0;
+    float32 cohesion_factor = 0.5;
+    float32 min_speed = 3;
+    float32 max_speed = 15;
+
+    uint32 boid_count = 1;
+    Vec2* positions = arena_push_array_zero(persistent_arena, Vec2, boid_count);
+    Vec2* directions = arena_push_array_zero(persistent_arena, Vec2, boid_count);
+    Vec2* alignment_vectors = arena_push_array_zero(persistent_arena, Vec2, boid_count);
+    Vec2* avoidance_vectors = arena_push_array_zero(persistent_arena, Vec2, boid_count);
+    Vec2* cohesion_vectors = arena_push_array_zero(persistent_arena, Vec2, boid_count);
+    int32 scouts[] = { 0, 4, 13, 17, 46, 2, 15 };
+
+    BoidBucketHashMap* hash_map = boid_bucket_new(persistent_arena, renderer->camera.world_width, renderer->camera.world_height, visual_range);
+    
+
     while (!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT);
@@ -126,12 +145,40 @@ int main(void)
         Vec2 mouse_world = mouse_world_position(mouse_raw, renderer->camera);
 
         draw_bounds(dc, bounds_left, bounds_right, bounds_bottom, bounds_top, ColorBlack);
-        draw_circle(dc, vec2(10, 0), 10, ColorBlack);
-        draw_boid(dc, vec2(10, 20), 2, ColorBlack);
-        String str = string("!\"#$%%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
-        draw_text(dc, vec2(-100, 0), str);
-        String fps_str = string_pushf(frame_arena, "Frame: %.4f ms", dt * 1000);
-        draw_text(dc, vec2(cosf(time * 4), -10 + sinf(time * 10)), fps_str);
+
+        // fill buckets 
+        for(int i = 0; i < boid_count; i++)
+        {
+            insert_to_bucket(hash_map, positions[i], i);
+        }
+
+        // color buckets
+        for(int i = 0; i < boid_count; i++)
+        {
+            BoidBucket* bucket = get_bucket(hash_map, positions[i]);
+            draw_text(dc, vec2(-20, -20), string_pushf(frame_arena, "X: %d, Y: %d", bucket->x, bucket->y));
+            float32 x = bucket->x * hash_map->cell_size;
+            float32 y = bucket->y * hash_map->cell_size;
+            draw_bounds(dc, x, x+visual_range, y, y+visual_range, ColorGreenPastel);
+        }
+
+        // draw boids
+        for(int i = 0; i < boid_count; i++)
+        {
+            draw_boid(dc, positions[i], vec2(5, 2), 2, ColorBlack);
+            draw_circle(dc, positions[i], 10, ColorBlack);
+        }
+
+        for(int i = 0; i < boid_count; i++)
+        {
+            positions[i].x += 5 * dt;
+            positions[i].y += 2 * dt;
+        }
+
+        // String str = string("!\"#$%%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
+        // draw_text(dc, vec2(-100, 0), str);
+        // String fps_str = string_pushf(frame_arena, "Frame: %.4f ms", dt * 1000);
+        // draw_text(dc, vec2(cosf(time * 4), -10 + sinf(time * 10)), fps_str);
         renderer_render(renderer, dt);
         glfwSwapBuffers(window);
         glfwPollEvents();

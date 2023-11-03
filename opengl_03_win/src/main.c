@@ -120,7 +120,6 @@ int main(void)
     Vec2* alignment_vectors = arena_push_array_zero(persistent_arena, Vec2, boid_count);
     Vec2* avoidance_vectors = arena_push_array_zero(persistent_arena, Vec2, boid_count);
     Vec2* cohesion_vectors = arena_push_array_zero(persistent_arena, Vec2, boid_count);
-
     int32 scouts[] = { 0, 4, 13, 17, 46, 2, 15 };
 
     // init
@@ -194,7 +193,6 @@ int main(void)
             {
                 alignment_vectors[i] = div_vec2_f32(alignment_vectors[i], neighbour_count);
                 cohesion_vectors[i] = sub_vec2(div_vec2_f32(group_center, neighbour_count), positions[i]);
-                // draw_line(dc, positions[i], add_vec2(positions[i], cohesion_vectors[i]));
             }
         }
 

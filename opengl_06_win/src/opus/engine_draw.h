@@ -73,4 +73,4 @@ internal void
 draw_circle(DrawContext* dc, Vec2 position, float32 radius, Color color);
 
 internal void
-draw_boid(DrawContext* dc, Vec2 position, float32 size, Color color);
+draw_boid(DrawContext* dc, Vec2 position, Vec2 direction, float32 size, Color color);
