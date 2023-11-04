@@ -61,7 +61,7 @@ message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei
 int main(void)
 {
     Arena* persistent_arena = make_arena_reserve(mb(128));
-    Arena* frame_arena = make_arena_reserve(mb(16));
+    Arena* frame_arena = make_arena_reserve(mb(128));
 
     glfwSetErrorCallback(error_callback);
     if (!glfwInit())
@@ -99,7 +99,7 @@ int main(void)
 
     DrawContext* dc = draw_context_new(persistent_arena, renderer);
 
-    float32 time = (float32)glfwGetTime();
+    float32 frame_time = (float32)glfwGetTime();
     float32 last_frame_time, dt;
     Geometry geometry = geometry_quad_create();
 
@@ -112,12 +112,12 @@ int main(void)
     float32 close_range = 2;
     float32 visual_range = 7;
     float32 avoid_factor = 2;
-    float32 alignment_factor = 1.0;
+    float32 alignment_factor = 0.1;
     float32 cohesion_factor = 0.5;
     float32 min_speed = 3;
     float32 max_speed = 15;
 
-    uint32 boid_count = 1;
+    uint32 boid_count = 1000;
     Vec2* positions = arena_push_array_zero(persistent_arena, Vec2, boid_count);
     Vec2* directions = arena_push_array_zero(persistent_arena, Vec2, boid_count);
     Vec2* alignment_vectors = arena_push_array_zero(persistent_arena, Vec2, boid_count);
@@ -125,18 +125,26 @@ int main(void)
     Vec2* cohesion_vectors = arena_push_array_zero(persistent_arena, Vec2, boid_count);
     int32 scouts[] = { 0, 4, 13, 17, 46, 2, 15 };
 
-    BoidBucketHashMap* hash_map = boid_bucket_new(persistent_arena, renderer->camera.world_width, renderer->camera.world_height, visual_range);
-    
+
+    srand(time(NULL));
+    for(int i = 0; i < boid_count; i++)
+    {
+        float32 x = ((rand() % 10000) / 10000.0f) * 2 - 1;
+        float32 y = ((rand() % 10000) / 10000.0f) * 2 - 1;
+        positions[i] = mul_vec2_f32(vec2(x, y), 30);
+        directions[i] = vec2_right();
+    }
 
     while (!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT);
         arena_reset(frame_arena);
 
+        BoidBucketHashMap* hash_map = boid_bucket_new(frame_arena, renderer->camera.world_width, renderer->camera.world_height, visual_range);
         /* timers */
-        last_frame_time = time;
-        time = (float32)glfwGetTime();
-        dt = time - last_frame_time;
+        last_frame_time = frame_time;
+        frame_time = (float32)glfwGetTime();
+        dt = frame_time - last_frame_time;
 
         /* input */
         double xpos, ypos;
@@ -152,33 +160,122 @@ int main(void)
             insert_to_bucket(hash_map, positions[i], i);
         }
 
-        // color buckets
         for(int i = 0; i < boid_count; i++)
         {
-            BoidBucket* bucket = get_bucket(hash_map, positions[i]);
-            draw_text(dc, vec2(-20, -20), string_pushf(frame_arena, "X: %d, Y: %d", bucket->x, bucket->y));
-            float32 x = bucket->x * hash_map->cell_size;
-            float32 y = bucket->y * hash_map->cell_size;
-            draw_bounds(dc, x, x+visual_range, y, y+visual_range, ColorGreenPastel);
+            avoidance_vectors[i] = vec2_zero();
+            cohesion_vectors[i] = vec2_zero();
+            alignment_vectors[i] = vec2_zero();
+            Vec2 group_center = vec2_zero();
+            int32 neighbour_count = 0;
+            if(i == 0)
+            {
+                draw_circle(dc, positions[i], visual_range*2, ColorBlack);
+            }
+            for(int y = -1; y <= 1; y++)
+            {
+                for(int x = -1; x <= 1; x++)
+                {
+                    float32 cell_x = positions[i].x + x * hash_map->cell_size;
+                    float32 cell_y = positions[i].y + y * hash_map->cell_size;
+                    BoidBucket* bucket = get_bucket(hash_map, vec2(cell_x, cell_y));
+                    for(int j = 0; j < bucket->boid_count; j++)
+                    {
+                        int32 index = bucket->boid_indices[j];
+                        if(i == index) continue;
+
+                        float32 dist = dist_vec2(positions[i], positions[index]);
+                        if(dist < close_range)
+                        {
+                            Vec2 v = sub_vec2(positions[i], positions[index]);
+                            avoidance_vectors[i] = add_vec2(avoidance_vectors[i], v);
+                        } 
+                        else if(dist < visual_range)
+                        {
+                            alignment_vectors[i] = add_vec2(alignment_vectors[i], directions[index]);
+                            group_center = add_vec2(group_center, positions[index]);
+                            neighbour_count++;
+                        }
+                    }
+
+                    if(i == 0)
+                    {
+                        float32 bucket_x = bucket->x*hash_map->cell_size;
+                        float32 bucket_y = bucket->y*hash_map->cell_size;
+                        draw_bounds(dc, bucket_x, bucket_x+hash_map->cell_size, bucket_y, bucket_y+hash_map->cell_size, ColorGreenPastel);
+                    }
+                }
+            }
+
+            if(neighbour_count > 0)
+            {
+                alignment_vectors[i] = div_vec2_f32(alignment_vectors[i], neighbour_count);
+                cohesion_vectors[i] = sub_vec2(div_vec2_f32(group_center, neighbour_count), positions[i]);
+            }
+        }
+
+        for(int i = 0; i < boid_count; i++)
+        {
+            Vec2 direction = directions[i];
+            Vec2 avoidance = mul_vec2_f32(avoidance_vectors[i], avoid_factor * dt);
+            Vec2 cohesion = mul_vec2_f32(cohesion_vectors[i], cohesion_factor * dt);
+            Vec2 alignment = sub_vec2(alignment_vectors[i], direction);
+            alignment = mul_vec2_f32(alignment, alignment_factor * dt);
+
+            direction = add_vec2(direction, avoidance);
+            direction = add_vec2(direction, cohesion);
+            direction = add_vec2(direction, alignment);
+            directions[i] = direction;
+        }
+
+        // directions
+        for(int i = 0; i < boid_count; i++)
+        {
+            if(positions[i].x < bounds_left)
+                directions[i].x += fabsf((positions[i].x - bounds_left)) * 10 * dt;
+             
+            if(positions[i].x > bounds_right)
+                directions[i].x -= fabsf((positions[i].x - bounds_right)) * 10 * dt;
+
+            if(positions[i].y < bounds_bottom)
+                directions[i].y += fabsf((positions[i].y - bounds_bottom)) * 10 * dt;
+
+            if(positions[i].y > bounds_top)
+                directions[i].y -= fabsf((positions[i].y - bounds_top)) * 10 * dt;
+        }
+
+        // speed limits
+        for(int i = 0; i < boid_count; i++)
+        {
+            float32 speed = len_vec2(directions[i]);
+            if(speed < min_speed)
+            {
+                float32 new_speed = lerp_f32(speed, min_speed, dt * 8);
+                directions[i] = mul_vec2_f32(div_vec2_f32(directions[i], speed), new_speed);
+            }
+
+            if(speed < max_speed)
+            {
+                float32 new_speed = lerp_f32(speed, max_speed, dt * 8);
+                directions[i] = mul_vec2_f32(div_vec2_f32(directions[i], speed), new_speed);
+            }
+        }
+
+        for(int i = 0; i < boid_count; i++)
+        {
+            positions[i] = add_vec2(positions[i], mul_vec2_f32(directions[i], dt));
         }
 
         // draw boids
         for(int i = 0; i < boid_count; i++)
         {
-            draw_boid(dc, positions[i], vec2(5, 2), 2, ColorBlack);
-            draw_circle(dc, positions[i], 10, ColorBlack);
-        }
-
-        for(int i = 0; i < boid_count; i++)
-        {
-            positions[i].x += 5 * dt;
-            positions[i].y += 2 * dt;
+            draw_boid(dc, positions[i], directions[i], 1, ColorBlack);
         }
 
         // String str = string("!\"#$%%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
         // draw_text(dc, vec2(-100, 0), str);
-        // String fps_str = string_pushf(frame_arena, "Frame: %.4f ms", dt * 1000);
-        // draw_text(dc, vec2(cosf(time * 4), -10 + sinf(time * 10)), fps_str);
+        float32 end_time = (float32)glfwGetTime();
+        String fps_str = string_pushf(frame_arena, "%.4f ms", (end_time - frame_time) * 1000);
+        draw_text(dc, vec2(-renderer->camera.world_width / 2.0f + 1, renderer->camera.world_height / 2.0f - 3), fps_str);
         renderer_render(renderer, dt);
         glfwSwapBuffers(window);
         glfwPollEvents();

@@ -20,20 +20,23 @@ boid_bucket_new(Arena* arena, float32 width, float32 height, float32 visual_rang
 internal BoidBucket*
 get_bucket(BoidBucketHashMap* hash_map, Vec2 pos)
 {
-    int32 bucket_x = (int32)(pos.x / hash_map->cell_size);
-    int32 bucket_y = (int32)(pos.y / hash_map->cell_size);
+    int32 bucket_x = (int32)(pos.x / hash_map->cell_size) + (pos.x > 0 ? 0 : -1);
+    int32 bucket_y = (int32)(pos.y / hash_map->cell_size) + (pos.y > 0 ? 0 : -1);
     int64 key = ((int64)bucket_x << 32) + ((int64)bucket_y);
     int32 index = hash_uint64(key) % hash_map->bucket_count;
     BoidBucket* bucket = &hash_map->buckets[index];
+    uint32 probe_count = 0;
     while(bucket->key != key && bucket->key != -1)
     {
-        index++;    
+        index++;
         bucket = &hash_map->buckets[index];
+        probe_count++;
+        Assert(probe_count < 3, "Probe count exceeded maximum");
     }
 
     // initialize bucket if this is the first time
     // it is being fetched
-    if(bucket->key == -1) 
+    if(bucket->key == -1)
     {
         bucket->x = bucket_x;
         bucket->y = bucket_y;

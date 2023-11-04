@@ -240,7 +240,6 @@ int main(void)
                 float32 new_speed = lerp_f32(speed, max_speed, dt * 8);
                 directions[i] = mul_vec2_f32(div_vec2_f32(directions[i], speed), new_speed);
             }
-
         }
 
         for(int i = 0; i < countof(scouts); i++)

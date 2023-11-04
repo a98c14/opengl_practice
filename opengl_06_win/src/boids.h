@@ -10,7 +10,6 @@
 
 #include "opus.h"
 #include "opus.c"
-
 #include "fonts.h"
 
 #define BUCKET_BOID_CAPACITY 4096

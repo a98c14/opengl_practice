@@ -17,8 +17,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/Users/selim/source/practice/opengl/opengl_03_win/src",
-      "program": "c:/Users/selim/source/practice/opengl/opengl_03_win/src/build/Debug/outDebug",
+      "cwd": "c:/Users/selim/source/practice/opengl/opengl_03_win/src/opus",
+      "program": "c:/Users/selim/source/practice/opengl/opengl_03_win/src/opus/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
