@@ -12,7 +12,7 @@
 #include "opus.c"
 #include "fonts.h"
 
-#define BUCKET_BOID_CAPACITY 4096
+#define BUCKET_BOID_CAPACITY 128
 
 typedef struct 
 {
@@ -29,6 +29,7 @@ typedef struct
     float32 cell_size;
     uint32 bucket_count;
     BoidBucket* buckets;
+    Arena* arena;
 } BoidBucketHashMap;
 
 internal BoidBucketHashMap*

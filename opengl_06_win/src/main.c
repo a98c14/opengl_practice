@@ -61,7 +61,7 @@ message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei
 int main(void)
 {
     Arena* persistent_arena = make_arena_reserve(mb(128));
-    Arena* frame_arena = make_arena_reserve(mb(128));
+    Arena* frame_arena = make_arena_reserve(mb(64));
 
     glfwSetErrorCallback(error_callback);
     if (!glfwInit())
@@ -109,11 +109,11 @@ int main(void)
     float32 bounds_bottom = -renderer->camera.world_height/2+padding;
     float32 bounds_top = renderer->camera.world_height/2-padding;
 
-    float32 close_range = 2;
-    float32 visual_range = 7;
-    float32 avoid_factor = 2;
-    float32 alignment_factor = 0.1;
-    float32 cohesion_factor = 0.5;
+    float32 close_range = 1.3;
+    float32 visual_range = 4;
+    float32 avoid_factor = 3.2;
+    float32 alignment_factor = 1.2;
+    float32 cohesion_factor = 0.6;
     float32 min_speed = 3;
     float32 max_speed = 15;
 
@@ -268,7 +268,7 @@ int main(void)
         // draw boids
         for(int i = 0; i < boid_count; i++)
         {
-            draw_boid(dc, positions[i], directions[i], 1, ColorBlack);
+            draw_boid(dc, positions[i], directions[i], 0.6f, ColorBlack);
         }
 
         // String str = string("!\"#$%%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");

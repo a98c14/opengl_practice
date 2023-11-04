@@ -9,10 +9,10 @@ boid_bucket_new(Arena* arena, float32 width, float32 height, float32 visual_rang
     hash_map->bucket_count = bucket_count_x * bucket_count_y;
     hash_map->cell_size = visual_range;
     hash_map->buckets = arena_push_array_zero(arena, BoidBucket, hash_map->bucket_count);
+    hash_map->arena = arena;
     for(int i = 0; i < hash_map->bucket_count; i++)
     {
         hash_map->buckets[i].key = -1;
-        hash_map->buckets[i].boid_indices = arena_push_array(arena, int32, BUCKET_BOID_CAPACITY);
     }
     return hash_map;
 }
@@ -31,7 +31,7 @@ get_bucket(BoidBucketHashMap* hash_map, Vec2 pos)
         index++;
         bucket = &hash_map->buckets[index];
         probe_count++;
-        Assert(probe_count < 3, "Probe count exceeded maximum");
+        if(probe_count > 3) log_info("probe count exceeded maximum");
     }
 
     // initialize bucket if this is the first time
@@ -41,6 +41,8 @@ get_bucket(BoidBucketHashMap* hash_map, Vec2 pos)
         bucket->x = bucket_x;
         bucket->y = bucket_y;
         bucket->key = key;
+        bucket->boid_count = 0;
+        bucket->boid_indices = arena_push_array(hash_map->arena, int32, BUCKET_BOID_CAPACITY);
     }
     return bucket;
 }
@@ -51,4 +53,5 @@ insert_to_bucket(BoidBucketHashMap* hash_map, Vec2 pos, uint16 boid_index)
     BoidBucket* bucket = get_bucket(hash_map, pos);
     bucket->boid_indices[bucket->boid_count] = boid_index;
     bucket->boid_count++;
+    Assert(bucket->boid_count < BUCKET_BOID_CAPACITY, "Bucket overflow");
 }
