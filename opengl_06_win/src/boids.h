@@ -12,7 +12,7 @@
 #include "opus.c"
 #include "fonts.h"
 
-#define BUCKET_BOID_CAPACITY 128
+#define BUCKET_BOID_CAPACITY 256
 
 typedef struct 
 {

@@ -60,8 +60,8 @@ message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei
 
 int main(void)
 {
-    Arena* persistent_arena = make_arena_reserve(mb(128));
-    Arena* frame_arena = make_arena_reserve(mb(64));
+    Arena* persistent_arena = make_arena_reserve(mb(256));
+    Arena* frame_arena = make_arena_reserve(mb(128));
 
     glfwSetErrorCallback(error_callback);
     if (!glfwInit())
@@ -117,14 +117,13 @@ int main(void)
     float32 min_speed = 3;
     float32 max_speed = 15;
 
-    uint32 boid_count = 1000;
+    uint32 boid_count = 2000;
     Vec2* positions = arena_push_array_zero(persistent_arena, Vec2, boid_count);
     Vec2* directions = arena_push_array_zero(persistent_arena, Vec2, boid_count);
     Vec2* alignment_vectors = arena_push_array_zero(persistent_arena, Vec2, boid_count);
     Vec2* avoidance_vectors = arena_push_array_zero(persistent_arena, Vec2, boid_count);
     Vec2* cohesion_vectors = arena_push_array_zero(persistent_arena, Vec2, boid_count);
     int32 scouts[] = { 0, 4, 13, 17, 46, 2, 15 };
-
 
     srand(time(NULL));
     for(int i = 0; i < boid_count; i++)
