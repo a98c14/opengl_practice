@@ -109,15 +109,15 @@ int main(void)
     float32 bounds_bottom = -renderer->camera.world_height/2+padding;
     float32 bounds_top = renderer->camera.world_height/2-padding;
 
-    float32 close_range = 1.3;
-    float32 visual_range = 4;
-    float32 avoid_factor = 3.2;
-    float32 alignment_factor = 1.2;
-    float32 cohesion_factor = 0.6;
-    float32 min_speed = 3;
-    float32 max_speed = 15;
+    float32 close_range = 3;
+    float32 visual_range = 6;
+    float32 avoid_factor = 7;
+    float32 alignment_factor = 1.9;
+    float32 cohesion_factor = 0.8;
+    float32 min_speed = 2;
+    float32 max_speed = 20;
 
-    uint32 boid_count = 2000;
+    uint32 boid_count = 100;
     Vec2* positions = arena_push_array_zero(persistent_arena, Vec2, boid_count);
     Vec2* directions = arena_push_array_zero(persistent_arena, Vec2, boid_count);
     Vec2* alignment_vectors = arena_push_array_zero(persistent_arena, Vec2, boid_count);
@@ -131,7 +131,7 @@ int main(void)
         float32 x = ((rand() % 10000) / 10000.0f) * 2 - 1;
         float32 y = ((rand() % 10000) / 10000.0f) * 2 - 1;
         positions[i] = mul_vec2_f32(vec2(x, y), 30);
-        directions[i] = vec2_right();
+        directions[i] = mul_vec2_f32(vec2(x, y), 30);
     }
 
     while (!glfwWindowShouldClose(window))
@@ -144,7 +144,8 @@ int main(void)
         last_frame_time = frame_time;
         frame_time = (float32)glfwGetTime();
         dt = frame_time - last_frame_time;
-
+        // dt *= 0.5;
+        
         /* input */
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
@@ -153,10 +154,20 @@ int main(void)
 
         draw_bounds(dc, bounds_left, bounds_right, bounds_bottom, bounds_top, ColorBlack);
 
+
+        uint16* boid_bucket_indices = arena_push_array(frame_arena, uint16, boid_count);
+        BoidBucketLookupArray* boid_lookup_buckets = arena_push_array(frame_arena, BoidBucketLookupArray, boid_count);
+        calculate_bucket_indices(frame_arena, hash_map, positions, boid_bucket_indices, boid_lookup_buckets, boid_count);
+
         // fill buckets 
         for(int i = 0; i < boid_count; i++)
         {
-            insert_to_bucket(hash_map, positions[i], i);
+            uint16 bucket_index = boid_bucket_indices[i];
+            BoidBucket* bucket = &hash_map->buckets[bucket_index];
+            bucket->boid_indices[bucket->boid_count] = i;
+            bucket->boid_positions[bucket->boid_count] = positions[i];
+            bucket->boid_directions[bucket->boid_count] = directions[i];
+            bucket->boid_count++;
         }
 
         for(int i = 0; i < boid_count; i++)
@@ -166,42 +177,60 @@ int main(void)
             alignment_vectors[i] = vec2_zero();
             Vec2 group_center = vec2_zero();
             int32 neighbour_count = 0;
+
             if(i == 0)
             {
                 draw_circle(dc, positions[i], visual_range*2, ColorBlack);
             }
-            for(int y = -1; y <= 1; y++)
-            {
-                for(int x = -1; x <= 1; x++)
-                {
-                    float32 cell_x = positions[i].x + x * hash_map->cell_size;
-                    float32 cell_y = positions[i].y + y * hash_map->cell_size;
-                    BoidBucket* bucket = get_bucket(hash_map, vec2(cell_x, cell_y));
-                    for(int j = 0; j < bucket->boid_count; j++)
-                    {
-                        int32 index = bucket->boid_indices[j];
-                        if(i == index) continue;
 
-                        float32 dist = dist_vec2(positions[i], positions[index]);
-                        if(dist < close_range)
+            BoidBucketLookupArray* lookup_buckets = &boid_lookup_buckets[i];
+            for(int j = 0; j < lookup_buckets->bucket_count; j++)
+            {
+                uint16 bucket_index = lookup_buckets->buckets[j];
+                BoidBucket* bucket = &hash_map->buckets[bucket_index];
+                for(int k = 0; k < bucket->boid_count; k++)
+                {
+                    int32 index = bucket->boid_indices[k];
+                    if(i == index) continue;
+
+                    
+
+                    if(dot_vec2(norm_vec2(directions[i]), norm_vec2(sub_vec2(bucket->boid_positions[k], positions[i]))) < -0.4) continue;
+
+                    float32 dist = dist_vec2(positions[i], bucket->boid_positions[k]);
+                    if(dist < close_range)
+                    {
+                        Vec2 avoidance_vector = sub_vec2(positions[i], bucket->boid_positions[k]);
+                        avoidance_vectors[i] = add_vec2(avoidance_vectors[i], avoidance_vector);
+
+                        if(i == 0)
                         {
-                            Vec2 v = sub_vec2(positions[i], positions[index]);
-                            avoidance_vectors[i] = add_vec2(avoidance_vectors[i], v);
-                        } 
-                        else if(dist < visual_range)
+                            draw_line(dc, positions[i], bucket->boid_positions[k], ColorRed500);
+                        }
+                    } 
+                    else if(dist < visual_range)
+                    {
+                        alignment_vectors[i] = add_vec2(alignment_vectors[i], bucket->boid_directions[k]);
+                        group_center = add_vec2(group_center, bucket->boid_positions[k]);
+                        neighbour_count++;
+
+                        if(i == 0)
                         {
-                            alignment_vectors[i] = add_vec2(alignment_vectors[i], directions[index]);
-                            group_center = add_vec2(group_center, positions[index]);
-                            neighbour_count++;
+                            draw_line(dc, positions[i], bucket->boid_positions[k], ColorGreenPastel);
                         }
                     }
 
-                    if(i == 0)
+                    if(i == 0 && dist < visual_range)
                     {
-                        float32 bucket_x = bucket->x*hash_map->cell_size;
-                        float32 bucket_y = bucket->y*hash_map->cell_size;
-                        draw_bounds(dc, bucket_x, bucket_x+hash_map->cell_size, bucket_y, bucket_y+hash_map->cell_size, ColorGreenPastel);
+                        draw_line(dc, bucket->boid_positions[k], add_vec2(bucket->boid_positions[k], div_vec2_f32(bucket->boid_directions[k], 2)), ColorShadow);
                     }
+                }
+
+                if(i == 0)
+                {
+                    float32 bucket_x = bucket->x*hash_map->cell_size;
+                    float32 bucket_y = bucket->y*hash_map->cell_size;
+                    draw_bounds(dc, bucket_x, bucket_x+hash_map->cell_size, bucket_y, bucket_y+hash_map->cell_size, ColorGreenPastel);
                 }
             }
 
@@ -267,7 +296,7 @@ int main(void)
         // draw boids
         for(int i = 0; i < boid_count; i++)
         {
-            draw_boid(dc, positions[i], directions[i], 0.6f, ColorBlack);
+            draw_boid(dc, positions[i], directions[i], 1.2f, ColorBlack);
         }
 
         // String str = string("!\"#$%%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");

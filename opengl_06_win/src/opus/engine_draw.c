@@ -55,7 +55,7 @@ draw_context_new(Arena* arena, Renderer* renderer)
 internal void
 draw_line(DrawContext* dc, Vec2 start, Vec2 end, Color color)
 {
-    float32 thickness = 0.55;
+    float32 thickness = 0.45;
     DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, FRAME_BUFFER_INDEX_DEFAULT, dc->material_line, ViewTypeWorld, TEXTURE_INDEX_NULL, 1);
     draw_buffer.model_buffer[0] = transform_line(start, end, thickness);
     ((ShaderDataLine*)draw_buffer.uniform_data_buffer)[0].color = color_to_vec4(color);
