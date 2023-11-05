@@ -109,13 +109,14 @@ int main(void)
     float32 bounds_bottom = -renderer->camera.world_height/2+padding;
     float32 bounds_top = renderer->camera.world_height/2-padding;
 
-    float32 close_range = 3;
-    float32 visual_range = 6;
-    float32 avoid_factor = 7;
-    float32 alignment_factor = 1.9;
-    float32 cohesion_factor = 0.8;
+    float32 close_range = 1.6;
+    float32 visual_range = 8;
+    float32 avoid_factor = 20;
+    float32 alignment_factor = 1.4;
+    float32 cohesion_factor = 1.0;
     float32 min_speed = 2;
-    float32 max_speed = 20;
+    float32 max_speed = 25;
+    float32 sight_range = -0.2;
 
     uint32 boid_count = 100;
     Vec2* positions = arena_push_array_zero(persistent_arena, Vec2, boid_count);
@@ -152,7 +153,7 @@ int main(void)
         Vec2 mouse_raw = vec2(xpos, ypos);
         Vec2 mouse_world = mouse_world_position(mouse_raw, renderer->camera);
 
-        draw_bounds(dc, bounds_left, bounds_right, bounds_bottom, bounds_top, ColorBlack);
+        draw_bounds(dc, bounds_left, bounds_right, bounds_bottom, bounds_top, ColorRed400);
 
 
         uint16* boid_bucket_indices = arena_push_array(frame_arena, uint16, boid_count);
@@ -195,7 +196,7 @@ int main(void)
 
                     
 
-                    if(dot_vec2(norm_vec2(directions[i]), norm_vec2(sub_vec2(bucket->boid_positions[k], positions[i]))) < -0.4) continue;
+                    if(dot_vec2(norm_vec2(directions[i]), norm_vec2(sub_vec2(bucket->boid_positions[k], positions[i]))) < sight_range) continue;
 
                     float32 dist = dist_vec2(positions[i], bucket->boid_positions[k]);
                     if(dist < close_range)
@@ -294,7 +295,8 @@ int main(void)
         }
 
         // draw boids
-        for(int i = 0; i < boid_count; i++)
+        draw_boid(dc, positions[0], directions[0], 1.2f, ColorRed400);
+        for(int i = 1; i < boid_count; i++)
         {
             draw_boid(dc, positions[i], directions[i], 1.2f, ColorBlack);
         }
