@@ -34,10 +34,10 @@ calculate_bucket_indices(Arena* scratch_arena, BoidBucketHashMap* hash_map, Vec2
         int16 bucket_y = (int16)(pos.y / hash_map->cell_size) + (pos.y > 0 ? 0 : -1);
 
         // lookup bucket range
-        int16 min_bucket_x = (int16)((pos.x - hash_map->cell_size) / hash_map->cell_size) + (pos.x > 0 ? 0 : -1);
-        int16 max_bucket_x = (int16)((pos.x + hash_map->cell_size) / hash_map->cell_size) + (pos.x > 0 ? 0 : -1);
-        int16 min_bucket_y = (int16)((pos.y - hash_map->cell_size) / hash_map->cell_size) + (pos.y > 0 ? 0 : -1);
-        int16 max_bucket_y = (int16)((pos.y + hash_map->cell_size) / hash_map->cell_size) + (pos.y > 0 ? 0 : -1);
+        int16 min_bucket_x = (int16)((pos.x - hash_map->cell_size) / hash_map->cell_size) + (pos.x - hash_map->cell_size > 0 ? 0 : -1);
+        int16 max_bucket_x = (int16)((pos.x + hash_map->cell_size) / hash_map->cell_size) + (pos.x + hash_map->cell_size > 0 ? 0 : -1);
+        int16 min_bucket_y = (int16)((pos.y - hash_map->cell_size) / hash_map->cell_size) + (pos.y - hash_map->cell_size > 0 ? 0 : -1);
+        int16 max_bucket_y = (int16)((pos.y + hash_map->cell_size) / hash_map->cell_size) + (pos.y + hash_map->cell_size > 0 ? 0 : -1);
 
         BoidBucketLookupArray* lookup_bucket = &out_lookup_buckets[i];
         int8 lookup_bucket_count = (1 + max_bucket_x - min_bucket_x) * (1 + max_bucket_y - min_bucket_y);

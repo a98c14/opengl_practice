@@ -193,9 +193,6 @@ int main(void)
                 {
                     int32 index = bucket->boid_indices[k];
                     if(i == index) continue;
-
-                    
-
                     if(dot_vec2(norm_vec2(directions[i]), norm_vec2(sub_vec2(bucket->boid_positions[k], positions[i]))) < sight_range) continue;
 
                     float32 dist = dist_vec2(positions[i], bucket->boid_positions[k]);
