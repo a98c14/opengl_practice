@@ -13,7 +13,7 @@ key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 
 int main(void)
 {
-    /* Initialization */
+    /* initialization */
     Arena* persistent_arena = make_arena_reserve(mb(256));
     Arena* frame_arena = make_arena_reserve(mb(128));
     Window* window = window_create(persistent_arena, WINDOW_WIDTH, WINDOW_HEIGHT, "Simple Example", key_callback);
@@ -27,15 +27,24 @@ int main(void)
     DrawContext* dc = draw_context_new(persistent_arena, renderer);
     EngineTime time = engine_time_new();
 
-    /* Main Loop */
+    /* application state */
+    Vec2 circle_pos = vec2_zero();
+
+    /* main loop */
     while (!glfwWindowShouldClose(window->glfw_window))
     {
+        /* frame: init */
         arena_reset(frame_arena);
         time = engine_get_time(time);
         InputMouse mouse = input_mouse_get(window, renderer->camera);
-        draw_circle(dc, vec2_zero(), 10, ColorWhite);
-        draw_circle_filled(dc, vec2(20, 0), 10, ColorWhite);
 
+        /* frame: update */
+        draw_circle(dc, vec2_zero(), 10, ColorWhite);
+        draw_circle_filled(dc, circle_pos, 10, ColorWhite);
+        circle_pos = lerp_vec2(circle_pos, mouse.world, time.dt * 8.0f);
+
+        
+        /* frame: render */
         renderer_render(renderer, time.dt);
         window_update(window);
     }
