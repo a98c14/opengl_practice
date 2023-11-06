@@ -18,6 +18,7 @@ layout (std140, binding = 1) uniform Texture
 layout (std140, binding = 2) uniform Custom
 {
     vec4 u_color;
+    float u_fill_ratio;
 };
 
 uniform mat4 u_mvp;

@@ -35,12 +35,11 @@ int main(void)
 
     while (!glfwWindowShouldClose(window->glfw_window))
     {
-        glClear(GL_COLOR_BUFFER_BIT);
         arena_reset(frame_arena);
         time = engine_get_time(time);
         InputMouse mouse = input_mouse_get(window, renderer->camera);
-
-        draw_line(dc, vec2(10, 10), vec2(20, 20), ColorWhite);
+        draw_circle(dc, vec2_zero(), 10, ColorWhite);
+        draw_circle_filled(dc, vec2(20, 0), 10, ColorWhite);
 
         renderer_render(renderer, time.dt);
         window_update(window);

@@ -18,6 +18,7 @@ layout (std140, binding = 1) uniform Texture
 layout (std140, binding = 2) uniform Custom
 {
     vec4 u_color;
+    float u_fill_ratio;
 };
 
 uniform mat4 u_mvp;
@@ -34,6 +35,6 @@ void main() {
     uv = uv * 2.0 - 1.0;
     vec2 dp = fwidth(uv);
     softness *= dp.x;
-    float d = smoothstep(1 - softness * 2, 1 - softness, length(uv)) - smoothstep(1 - softness, 1.0, length(uv));
+    float d = smoothstep((1 - u_fill_ratio) - softness * 2, (1 - u_fill_ratio) - softness, length(uv)) - smoothstep(1 - softness, 1.0, length(uv));
     color = vec4(u_color.xyz, d * u_color.a);
 }
