@@ -51,7 +51,7 @@ renderer_new(Arena* arena, RendererConfiguration* configuration)
     frame_buffer->clear_color = clear_color;
     frame_buffer->width = configuration->window_width;
     frame_buffer->height = configuration->window_height;
-
+    log_debug("renderer created");
     return renderer;
 }
 

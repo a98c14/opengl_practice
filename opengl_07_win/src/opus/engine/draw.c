@@ -48,7 +48,7 @@ draw_context_new(Arena* arena, Renderer* renderer)
         FONT_OPEN_SANS_GLYPHS,
         countof(FONT_OPEN_SANS_GLYPHS),
         font_texture);
-
+    log_debug("initialized draw context");
     return draw_context;
 }
 
