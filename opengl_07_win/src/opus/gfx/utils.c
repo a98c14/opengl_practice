@@ -10,7 +10,7 @@ texture_new_from_file(Renderer* renderer, String texture_path, bool32 pixel_perf
     
     if(!data)
     {
-        printf("failed to load texture");
+        log_error("failed to load texture");
         return 0;
     }
 

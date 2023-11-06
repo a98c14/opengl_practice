@@ -17,21 +17,21 @@ int main(void)
     Arena* frame_arena = make_arena_reserve(mb(128));
 
     Window* window = window_create(persistent_arena, WINDOW_WIDTH, WINDOW_HEIGHT, "Simple Example", key_callback);
-    log_info("window created");
+    log_debug("window created");
     RendererConfiguration renderer_configuration = {
         .window_width = WINDOW_WIDTH,
         .window_height = WINDOW_HEIGHT,
         .world_height = 100,
-        .clear_color = ColorWhite
+        .clear_color = ColorSlate900
     };
     Renderer* renderer = renderer_new(persistent_arena, &renderer_configuration);
     renderer_enable_debug();
-    log_info("renderer created");
+    log_debug("renderer created");
 
     Geometry geometry = geometry_quad_create();
     DrawContext* dc = draw_context_new(persistent_arena, renderer);
     EngineTime time = engine_time_new();
-    log_info("intialized draw context");
+    log_debug("initialized draw context");
 
     while (!glfwWindowShouldClose(window->glfw_window))
     {
@@ -39,6 +39,8 @@ int main(void)
         arena_reset(frame_arena);
         time = engine_get_time(time);
         InputMouse mouse = input_mouse_get(window, renderer->camera);
+
+        draw_line(dc, vec2(10, 10), vec2(20, 20), ColorWhite);
 
         renderer_render(renderer, time.dt);
         window_update(window);
