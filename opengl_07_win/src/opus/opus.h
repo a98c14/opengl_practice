@@ -1,7 +1,9 @@
 #pragma once
 
+#include <core/log.h>
+#include <core/asserts.h>
+
 #include "opus_memory.h"
-#include "opus_log.h"
 #include "opus_string.h"
 #include "opus_math.h"
 #include "opus_hash.h"
@@ -14,4 +16,4 @@
 #include "opus_text.h"
 #include "opus_input.h"
 #include "opus_color.h"
-#include "engine_draw.h"
+#include <engine/draw.h>

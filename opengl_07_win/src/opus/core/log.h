@@ -1,6 +1,7 @@
 #pragma once
 
 #include "opus_base.h"
+#include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
 #include <vadefs.h>
@@ -61,3 +62,6 @@ log_shutdown();
 #else
 #define log_trace(message, ...)
 #endif
+
+internal void
+log_assertion_failure(const char* expr, const char* message, const char* file, int32 line);

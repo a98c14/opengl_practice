@@ -2,10 +2,10 @@
 #include <glad/gl.h>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
+#include <core/log.h>
 #include "opus_base.h"
 #include "opus_string.h"
 #include "opus_math.h"
-#include "opus_log.h"
 
 /* Constants */ 
 #define MATERIAL_CAPACITY 32

@@ -1,4 +1,4 @@
-#include "opus_log.h"
+#include "log.h"
 
 internal void 
 log_output(LogLevel level, const char* message, ...)
@@ -27,4 +27,10 @@ internal bool32 log_initialize()
 internal void
 log_shutdown()
 {
+}
+
+internal void
+log_assertion_failure(const char* expr, const char* message, const char* file, int32 line)
+{
+    log_output(LogLevelFatal, "Assertion Failure: %s, message: '%s', in file %s, line: %d\n", expr, message, file, line);
 }

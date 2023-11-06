@@ -13,19 +13,8 @@
 #define countof(a) (sizeof(a) / sizeof(*(a)))
 #define lengthof(s) (countof(s) - 1)
 
-#define ENABLE_ASSERT 1
 #define stringify(value) #value
 #define statement(statement) do{ statement }while(0)
-
-#if ENABLE_ASSERT
-#include <stdio.h>
-#include <stdlib.h>
-#define assert_break() (abort())
-#define Assert(condition, message) statement(if (!(condition)){ printf("Assert(%s) | %s\n\tat %s:%d \n", #condition, message, __FILE__, __LINE__); assert_break(); })
-#else
-#define Assert(condition, message)
-#endif
-
 #define align_up_pow2(x, p) (((x) + (p) - 1)&~((p) - 1))
 
 #define kb(x) ((x) << 10)

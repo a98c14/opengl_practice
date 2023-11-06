@@ -1,5 +1,7 @@
+
+#include <core/log.c>
+
 #include "opus_memory.c"
-#include "opus_log.c"
 #include "opus_string.c"
 #include "opus_math.c"
 #include "opus_hash.c"
@@ -11,4 +13,4 @@
 #include "opus_file.c"
 #include "opus_text.c"
 #include "opus_input.c"
-#include "engine_draw.c"
+#include <engine/draw.c>

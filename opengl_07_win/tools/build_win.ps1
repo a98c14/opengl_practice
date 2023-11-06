@@ -10,7 +10,6 @@ $compile_args = @(
     "/Fo:""$output_path""\",
     "/I"".\include""",
     "/I"".\src\opus""",
-    "/I"".\src\engine""",
     "/I"".\src\fonts""",
     "/DSTB_IMAGE_IMPLEMENTATION",
     ".\lib\glfw3dll.lib",
