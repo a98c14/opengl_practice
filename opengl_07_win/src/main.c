@@ -1,11 +1,5 @@
-#include "opus.h"
-#include "opus.c"
-
-internal void
-error_callback(int error, const char* description)
-{
-    fprintf(stderr, "[ERROR] %s\n", description);
-}
+#include <opus.h>
+#include <opus.c>
 
 internal void
 key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -21,78 +15,35 @@ int main(void)
 {
     Arena* persistent_arena = make_arena_reserve(mb(256));
     Arena* frame_arena = make_arena_reserve(mb(128));
-    log_info("Initialized arenas");
 
-    if(GL_ARB_direct_state_access)
-    {
-        log_info("We have direct state access");
-    }
-
-    glfwSetErrorCallback(error_callback);
-    if (!glfwInit())
-        exit(EXIT_FAILURE);
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_RESIZABLE, 0);
-
-    GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Simple Example", NULL, NULL);
-    if (!window)
-    {
-        glfwTerminate();
-        exit(EXIT_FAILURE);
-    }
-
-    glfwSetKeyCallback(window, key_callback);
-    glfwMakeContextCurrent(window);
-    gladLoadGL(glfwGetProcAddress);
-    glfwSwapInterval(0);
-    glEnable(GL_DEBUG_OUTPUT);
-
-    int32 width, height;
-    glfwGetFramebufferSize(window, &width, &height);
-
+    Window* window = window_create(persistent_arena, WINDOW_WIDTH, WINDOW_HEIGHT, "Simple Example", key_callback);
+    log_info("window created");
     RendererConfiguration renderer_configuration = {
-        .window_width = width,
-        .window_height = height,
+        .window_width = WINDOW_WIDTH,
+        .window_height = WINDOW_HEIGHT,
         .world_height = 100,
         .clear_color = ColorWhite
     };
     Renderer* renderer = renderer_new(persistent_arena, &renderer_configuration);
     renderer_enable_debug();
-    
-    DrawContext* dc = draw_context_new(persistent_arena, renderer);
+    log_info("renderer created");
 
-    float32 frame_time = (float32)glfwGetTime();
-    float32 last_frame_time, dt;
     Geometry geometry = geometry_quad_create();
+    DrawContext* dc = draw_context_new(persistent_arena, renderer);
+    EngineTime time = engine_time_new();
+    log_info("intialized draw context");
 
-    srand(time(NULL));
-    while (!glfwWindowShouldClose(window))
+    while (!glfwWindowShouldClose(window->glfw_window))
     {
         glClear(GL_COLOR_BUFFER_BIT);
         arena_reset(frame_arena);
+        time = engine_get_time(time);
+        InputMouse mouse = input_mouse_get(window, renderer->camera);
 
-        /* timers */
-        last_frame_time = frame_time;
-        frame_time = (float32)glfwGetTime();
-        dt = frame_time - last_frame_time;
-        
-        /* input */
-        double xpos, ypos;
-        glfwGetCursorPos(window, &xpos, &ypos);
-        Vec2 mouse_raw = vec2(xpos, ypos);
-        Vec2 mouse_world = mouse_world_position(mouse_raw, renderer->camera);
-
-
-        renderer_render(renderer, dt);
-        glfwSwapBuffers(window);
-        glfwPollEvents();
+        renderer_render(renderer, time.dt);
+        window_update(window);
     }
 
-    glfwDestroyWindow(window);
-
-    glfwTerminate();
-    exit(EXIT_SUCCESS);
+    window_destroy(window);
+    return 0;
 }

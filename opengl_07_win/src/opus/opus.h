@@ -19,3 +19,5 @@
 #include <engine/input.h>
 #include <engine/color.h>
 #include <engine/draw.h>
+#include <engine/window.h>
+#include <engine/time.h>

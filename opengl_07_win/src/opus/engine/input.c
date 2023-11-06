@@ -10,3 +10,15 @@ mouse_world_position(Vec2 raw_mouse_pos, Camera camera)
     mouse_world.y *= camera.world_height;
     return mouse_world;
 }
+
+internal InputMouse
+input_mouse_get(Window* window, Camera camera)
+{
+    InputMouse result = {0};
+    glfwGetCursorPos(window->glfw_window, &result.raw_x, &result.raw_y);
+    Vec2 mouse_raw = vec2(result.raw_x, result.raw_y);
+    result.world = mouse_world_position(mouse_raw, camera);
+    // TODO: calculate mouse screen position
+    result.screen = vec2_zero(); 
+    return result;
+}

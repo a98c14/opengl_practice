@@ -3,6 +3,7 @@
 internal void
 renderer_enable_debug()
 {
+    glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(renderer_debug_message_callback, 0);
 }
 

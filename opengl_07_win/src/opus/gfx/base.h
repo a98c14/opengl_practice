@@ -1,12 +1,11 @@
 #pragma once
 #include <glad/gl.h>
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
 #include <core/log.h>
 #include <core/defines.h>
 #include <core/strings.h>
 #include <core/math.h>
 #include <core/hash.h>
+#include <core/asserts.h>
 
 /* Constants */ 
 #define MATERIAL_CAPACITY 32
