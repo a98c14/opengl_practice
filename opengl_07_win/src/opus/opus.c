@@ -3,9 +3,9 @@
 #include <core/memory.c>
 #include <core/strings.c>
 #include <core/math.c>
+#include <core/hash.c>
 #include <core/file.c>
 
-#include <core/hash.c>
 #include <gfx/base.c>
 #include <gfx/math.c>
 #include <gfx/primitives.c>

@@ -43,7 +43,6 @@ int main(void)
         draw_circle_filled(dc, circle_pos, 10, ColorWhite);
         circle_pos = lerp_vec2(circle_pos, mouse.world, time.dt * 8.0f);
 
-        
         /* frame: render */
         renderer_render(renderer, time.dt);
         window_update(window);
