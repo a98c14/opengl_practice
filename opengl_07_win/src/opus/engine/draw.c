@@ -73,10 +73,10 @@ draw_bounds(DrawContext* dc, float32 left, float32 right, float32 bottom, float3
 }
 
 internal void
-draw_text(DrawContext* dc, Vec2 pos, String str)
+draw_text(DrawContext* dc, Vec2 pos, String str, Color color)
 {
     ShaderDataText shader_data = {0};
-    shader_data.color = color_to_vec4(ColorBlack);
+    shader_data.color = color_to_vec4(color);
     shader_data.outline_color = color_to_vec4(ColorInvisible);
     shader_data.thickness = 0.50;
     shader_data.softness = 30;

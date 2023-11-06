@@ -42,6 +42,7 @@ int main(void)
         draw_circle(dc, vec2_zero(), 10, ColorWhite);
         draw_circle_filled(dc, circle_pos, 10, ColorWhite);
         circle_pos = lerp_vec2(circle_pos, mouse.world, time.dt * 8.0f);
+        draw_text(dc, vec2(0, -20), string_pushf(frame_arena, "Sample Text. FPS: %d", (int)(1 / time.dt)), ColorWhite);
 
         /* frame: render */
         renderer_render(renderer, time.dt);

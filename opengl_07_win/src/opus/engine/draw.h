@@ -71,7 +71,7 @@ internal void
 draw_bounds(DrawContext* dc, float32 left, float32 right, float32 bottom, float32 top, Color color);
 
 internal void
-draw_text(DrawContext* dc, Vec2 pos, String str);
+draw_text(DrawContext* dc, Vec2 pos, String str, Color color);
 
 internal void
 draw_circle(DrawContext* dc, Vec2 position, float32 radius, Color color);
