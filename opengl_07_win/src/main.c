@@ -1,5 +1,5 @@
-#include "boids.h"
-#include "boids.c"
+#include "opus.h"
+#include "opus.c"
 
 internal void
 error_callback(int error, const char* description)
@@ -14,47 +14,6 @@ key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
-internal void
-message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, GLchar const* message, void const* user_param)
-{
-	char* source_str;
-    switch (source)
-    {
-		case GL_DEBUG_SOURCE_API: source_str = "API"; break;
-		case GL_DEBUG_SOURCE_WINDOW_SYSTEM: source_str = "WINDOW SYSTEM"; break;
-		case GL_DEBUG_SOURCE_SHADER_COMPILER: source_str = "SHADER COMPILER"; break;
-		case GL_DEBUG_SOURCE_THIRD_PARTY: source_str = "THIRD PARTY"; break;
-		case GL_DEBUG_SOURCE_APPLICATION: source_str = "APPLICATION"; break;
-		case GL_DEBUG_SOURCE_OTHER: source_str = "OTHER"; break;
-        default: source_str = "NO_SOURCE"; break;
-    }
-
-	char* type_str;
-    switch (type)
-    {
-		case GL_DEBUG_TYPE_ERROR: type_str = "ERROR"; break;
-		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: type_str = "DEPRECATED_BEHAVIOR"; break;
-		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: type_str = "UNDEFINED_BEHAVIOR"; break;
-		case GL_DEBUG_TYPE_PORTABILITY: type_str = "PORTABILITY"; break;
-		case GL_DEBUG_TYPE_PERFORMANCE: type_str = "PERFORMANCE"; break;
-		case GL_DEBUG_TYPE_MARKER: type_str = "MARKER"; break;
-		case GL_DEBUG_TYPE_OTHER: type_str = "OTHER"; break;
-        default: type_str = "NO_TYPE"; break;
-    }
-
-	char* severity_str;
-    switch (severity)
-    {
-		case GL_DEBUG_SEVERITY_NOTIFICATION: return; // severity_str = "NOTIFICATION"; break;
-		case GL_DEBUG_SEVERITY_LOW: severity_str = "LOW"; break;
-		case GL_DEBUG_SEVERITY_MEDIUM: severity_str = "MEDIUM"; break;
-		case GL_DEBUG_SEVERITY_HIGH: severity_str = "HIGH"; break;
-        default: severity_str = "NO_SEVERITY"; break;
-    }
-
-	printf("[GL_%s][%s|%s] %s\n", severity_str, source_str, type_str, message);
-}
-
 #define WINDOW_WIDTH 1920
 #define WINDOW_HEIGHT 1080
 
@@ -62,6 +21,7 @@ int main(void)
 {
     Arena* persistent_arena = make_arena_reserve(mb(256));
     Arena* frame_arena = make_arena_reserve(mb(128));
+    log_info("Initialized arenas");
 
     if(GL_ARB_direct_state_access)
     {
@@ -89,7 +49,6 @@ int main(void)
     gladLoadGL(glfwGetProcAddress);
     glfwSwapInterval(0);
     glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(message_callback, 0);
 
     int32 width, height;
     glfwGetFramebufferSize(window, &width, &height);
@@ -101,6 +60,8 @@ int main(void)
         .clear_color = ColorWhite
     };
     Renderer* renderer = renderer_new(persistent_arena, &renderer_configuration);
+    renderer_enable_debug();
+    
     DrawContext* dc = draw_context_new(persistent_arena, renderer);
 
     float32 frame_time = (float32)glfwGetTime();
