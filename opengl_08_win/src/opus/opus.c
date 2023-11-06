@@ -5,6 +5,7 @@
 #include <core/math.c>
 #include <core/hash.c>
 #include <core/file.c>
+#include <core/datetime.c>
 
 #include <gfx/base.c>
 #include <gfx/math.c>

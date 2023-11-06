@@ -14,6 +14,7 @@ key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 int main(void)
 {
     /* initialization */
+    logger_init();
     Arena* persistent_arena = make_arena_reserve(mb(256));
     Arena* frame_arena = make_arena_reserve(mb(128));
     Window* window = window_create(persistent_arena, WINDOW_WIDTH, WINDOW_HEIGHT, "Simple Example", key_callback);
@@ -22,7 +23,7 @@ int main(void)
         .window_height = WINDOW_HEIGHT,
         .world_height = 100,
         .clear_color = ColorSlate900
-    };    
+    };
     Renderer* renderer = renderer_new(persistent_arena, &renderer_configuration);
     DrawContext* dc = draw_context_new(persistent_arena, renderer);
     EngineTime time = engine_time_new();
@@ -50,5 +51,6 @@ int main(void)
     }
 
     window_destroy(window);
+    logger_flush();
     return 0;
 }

@@ -5,6 +5,8 @@
 #define global static
 #define local static
 #define internal static
+#define true 1
+#define false 0
 
 /* Macros */
 #define array_count(a) (sizeof(a)/sizeof(*(a)))

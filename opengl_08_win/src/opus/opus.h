@@ -8,6 +8,7 @@
 #include <core/math.h>
 #include <core/hash.h>
 #include <core/file.h>
+#include <core/datetime.h>
 
 #include <gfx/base.h>
 #include <gfx/math.h>

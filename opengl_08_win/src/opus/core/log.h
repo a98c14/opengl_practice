@@ -1,12 +1,17 @@
 #pragma once
 
 #include "defines.h"
+#include "asserts.h"
+#include "datetime.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
 #include <vadefs.h>
 
+#define LOG_TO_FILE 1
+#define LOG_TO_CONSOLE 1
 #define LOG_MESSAGE_SIZE_LIMIT 32000
+
 #define LOG_WARN_ENABLED 1
 #define LOG_INFO_ENABLED 1
 #define LOG_DEBUG_ENABLED 1
@@ -26,10 +31,10 @@ internal void
 log_output(LogLevel level, const char* message, ...);
 
 internal bool32
-log_initialize();
+logger_init();
 
 internal void
-log_shutdown();
+logger_flush();
 
 #ifndef log_fatal
 #define log_fatal(message, ...) log_output(LogLevelFatal, message, ##__VA_ARGS__);
