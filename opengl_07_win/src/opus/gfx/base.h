@@ -3,9 +3,10 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <core/log.h>
-#include "opus_base.h"
-#include "opus_string.h"
-#include "opus_math.h"
+#include <core/defines.h>
+#include <core/strings.h>
+#include <core/math.h>
+#include <core/hash.h>
 
 /* Constants */ 
 #define MATERIAL_CAPACITY 32

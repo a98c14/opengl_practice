@@ -1,6 +1,6 @@
 #pragma once
-#include "opus_math.h"
-#include "opus_graphics.h"
+#include <core/math.h>
+#include "base.h"
 
 const float32 shape_vertices_quad[] =
 {

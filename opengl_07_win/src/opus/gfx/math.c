@@ -1,4 +1,4 @@
-#include "opus_graphics_math.h"
+#include "math.h"
 
 internal Mat4
 mat4_mvp(Mat4 model, Mat4 view, Mat4 projection)

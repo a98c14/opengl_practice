@@ -3,9 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "opus_base.h"
-#include "opus_memory.h"
-#include "opus_string.h"
+#include "defines.h"
+#include "memory.h"
+#include "strings.h"
 
 #ifdef _WIN32
 #include <direct.h>

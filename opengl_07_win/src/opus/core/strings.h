@@ -3,9 +3,8 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <vadefs.h>
-
-#include "opus_base.h"
-#include "opus_memory.h"
+#include "defines.h"
+#include "memory.h"
 
 #define string(s) (String){(char*)s, lengthof(s)}
 

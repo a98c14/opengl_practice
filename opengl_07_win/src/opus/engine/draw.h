@@ -1,15 +1,15 @@
 #pragma once
 
-#include "opus_base.h"
-#include "opus_math.h"
-#include "opus_graphics.h"
-#include "opus_graphics_primitives.h"
-#include "opus_graphics_math.h"
-#include "opus_graphics_utils.h"
-#include "opus_file.h"
-#include "opus_color.h"
-#include "opus_text.h"
-#include "fonts.h"
+#include <core/defines.h>
+#include <core/math.h>
+#include <core/file.h>
+#include <gfx/base.h>
+#include <gfx/primitives.h>
+#include <gfx/math.h>
+#include <gfx/utils.h>
+#include <fonts.h>
+#include "color.h"
+#include "text.h"
 
 typedef struct
 {

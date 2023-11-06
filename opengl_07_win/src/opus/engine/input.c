@@ -1,4 +1,4 @@
-#include "opus_input.h"
+#include "input.h"
 
 internal Vec2
 mouse_world_position(Vec2 raw_mouse_pos, Camera camera)

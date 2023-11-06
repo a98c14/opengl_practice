@@ -1,7 +1,7 @@
 #pragma once
 
-#include "opus_base.h"
-#include "opus_graphics.h"
+#include <core/defines.h>
+#include "base.h"
 
 internal void
 renderer_enable_debug();

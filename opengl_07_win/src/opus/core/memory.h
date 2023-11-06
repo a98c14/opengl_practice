@@ -1,5 +1,7 @@
 #pragma once
-#include "opus_base.h"
+#include <stdlib.h>
+#include <string.h>
+#include "defines.h"
 
 /* Arena Functions */
 #define DEFAULT_RESERVE_SIZE mb(256)

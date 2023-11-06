@@ -1,4 +1,4 @@
-#include "opus_text.h"
+#include "text.h"
 
 internal Glyph
 glyph_get(GlyphAtlas* atlas, char c)

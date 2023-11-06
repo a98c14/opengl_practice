@@ -1,4 +1,4 @@
-#include "opus_graphics_utils.h"
+#include "utils.h"
 
 internal TextureIndex
 texture_new_from_file(Renderer* renderer, String texture_path, bool32 pixel_perfect, bool32 flip_vertical)

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "opus_base.h"
+#include "defines.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>

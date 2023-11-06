@@ -23,11 +23,9 @@ int main(void)
     Arena* frame_arena = make_arena_reserve(mb(128));
     log_info("Initialized arenas");
 
-    xassert(0, "come on man");
-
     if(GL_ARB_direct_state_access)
     {
-        printf("We have direct state access\n");
+        log_info("We have direct state access");
     }
 
     glfwSetErrorCallback(error_callback);

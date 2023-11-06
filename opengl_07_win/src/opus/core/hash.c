@@ -1,4 +1,4 @@
-#include "opus_hash.h"
+#include "hash.h"
 
 internal uint32 
 hash_uint64(uint64 value)

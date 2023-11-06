@@ -1,5 +1,5 @@
 #pragma once
-#include "opus_graphics.h"
+#include <gfx/base.h>
 
 const Color ColorButtonInactive      =  { .r = 0x9e, .g = 0xa8, .b = 0xad, .a =0xff };
 const Color ColorButtonInactiveHover =  { .r = 0x7f, .g = 0x8a, .b = 0x94, .a =0xff };

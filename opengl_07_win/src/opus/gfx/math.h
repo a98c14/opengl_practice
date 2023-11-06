@@ -1,7 +1,5 @@
 #pragma once
-// TODO(selim): Rename this file to `opus_math_graphics`
-
-#include "opus_math.h"
+#include <core/math.h>
 
 internal Mat4
 mat4_mvp(Mat4 model, Mat4 view, Mat4 projection);

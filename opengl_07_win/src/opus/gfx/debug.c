@@ -1,4 +1,4 @@
-#include "opus_graphics_debug.h"
+#include "debug.h"
 
 internal void
 renderer_enable_debug()

@@ -2,13 +2,12 @@
 
 #include <string.h>
 
-#include "opus_base.h"
-#include "opus_math.h"
-#include "opus_memory.h"
-#include "opus_string.h"
-#include "opus_graphics.h"
-#include "opus_graphics_math.h"
-
+#include <core/defines.h>
+#include <core/math.h>
+#include <core/memory.h>
+#include <core/strings.h>
+#include <gfx/base.h>
+#include <gfx/math.h>
 
 typedef enum
 {

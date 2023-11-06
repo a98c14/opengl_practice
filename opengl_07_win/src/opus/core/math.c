@@ -1,5 +1,4 @@
-#include "opus_math.h"
-#include <corecrt_math.h>
+#include "math.h"
 
 /* Constructors */
 internal Vec2 

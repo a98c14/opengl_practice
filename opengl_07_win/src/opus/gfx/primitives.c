@@ -1,4 +1,4 @@
-#include "opus_graphics_primitives.h"
+#include "primitives.h"
 
 internal Geometry
 geometry_quad_create()

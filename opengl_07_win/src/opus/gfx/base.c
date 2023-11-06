@@ -1,6 +1,4 @@
-#include "opus_base.h"
-#include "opus_graphics.h"
-#include "opus_hash.h"
+#include "base.h"
 
 internal Renderer*
 renderer_new(Arena* arena, RendererConfiguration* configuration)

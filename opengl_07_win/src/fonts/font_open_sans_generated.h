@@ -1,8 +1,8 @@
 #pragma once
 
-#include "opus_base.h"
-#include "opus_math.h"
-#include "opus_text.h"
+#include <core/defines.h>
+#include <core/math.h>
+#include <engine/text.h>
 
 global const GlyphAtlasInfo FONT_OPEN_SANS_ATLAS_INFO =
 {

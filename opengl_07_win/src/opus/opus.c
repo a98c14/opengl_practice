@@ -1,16 +1,17 @@
 
 #include <core/log.c>
+#include <core/memory.c>
+#include <core/strings.c>
+#include <core/math.c>
+#include <core/file.c>
 
-#include "opus_memory.c"
-#include "opus_string.c"
-#include "opus_math.c"
-#include "opus_hash.c"
-#include "opus_graphics.c"
-#include "opus_graphics_math.c"
-#include "opus_graphics_primitives.c"
-#include "opus_graphics_utils.c"
-#include "opus_graphics_debug.c"
-#include "opus_file.c"
-#include "opus_text.c"
-#include "opus_input.c"
+#include <core/hash.c>
+#include <gfx/base.c>
+#include <gfx/math.c>
+#include <gfx/primitives.c>
+#include <gfx/utils.c>
+#include <gfx/debug.c>
+
+#include <engine/text.c>
+#include <engine/input.c>
 #include <engine/draw.c>
