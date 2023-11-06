@@ -189,7 +189,7 @@ renderer_get_material_buffer(Renderer* renderer, ViewType view_type, FrameBuffer
         // if the slot is empty and we are still in probe range, initialize the buffer
         if(buffer->key == MATERIAL_DRAW_BUFFER_EMPTY_KEY)
         {
-            log_info("initializing material buffer. material: %d, layer: %d, texture: %d, view: %d", material_index, layer, texture, view_type);
+            log_debug("initializing material buffer. material: %d, layer: %d, texture: %d, view: %d", material_index, layer, texture, view_type);
             const Material* material = &renderer->materials[material_index];
             xassert(material->is_initialized, "[ERROR]: Material isn't initialized");
             buffer->key = key;
