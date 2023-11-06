@@ -5,6 +5,8 @@ draw_context_new(Arena* arena, Renderer* renderer)
 {
     DrawContext* draw_context = arena_push_struct_zero(arena, DrawContext);
     draw_context->renderer = renderer;
+    
+    draw_context->geometry_quad = geometry_quad_create();
 
     // draw_context->material_basic = material_new(
     //     arena,

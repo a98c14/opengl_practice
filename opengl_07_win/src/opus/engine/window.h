@@ -4,6 +4,7 @@
 #include <core/defines.h>
 #include <core/asserts.h>
 #include <gfx/base.h>
+#include <gfx/debug.h>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>

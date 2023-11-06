@@ -13,6 +13,7 @@ key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 
 int main(void)
 {
+    /* Initialization */
     Arena* persistent_arena = make_arena_reserve(mb(256));
     Arena* frame_arena = make_arena_reserve(mb(128));
     Window* window = window_create(persistent_arena, WINDOW_WIDTH, WINDOW_HEIGHT, "Simple Example", key_callback);
@@ -21,12 +22,12 @@ int main(void)
         .window_height = WINDOW_HEIGHT,
         .world_height = 100,
         .clear_color = ColorSlate900
-    };
+    };    
     Renderer* renderer = renderer_new(persistent_arena, &renderer_configuration);
-    renderer_enable_debug();
-    Geometry geometry = geometry_quad_create();
     DrawContext* dc = draw_context_new(persistent_arena, renderer);
     EngineTime time = engine_time_new();
+
+    /* Main Loop */
     while (!glfwWindowShouldClose(window->glfw_window))
     {
         arena_reset(frame_arena);
@@ -34,8 +35,6 @@ int main(void)
         InputMouse mouse = input_mouse_get(window, renderer->camera);
         draw_circle(dc, vec2_zero(), 10, ColorWhite);
         draw_circle_filled(dc, vec2(20, 0), 10, ColorWhite);
-
-
 
         renderer_render(renderer, time.dt);
         window_update(window);

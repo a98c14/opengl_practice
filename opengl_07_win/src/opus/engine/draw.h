@@ -16,6 +16,9 @@ typedef struct
     Renderer* renderer;
     Camera* camera;
 
+    /* Geometries */
+    Geometry geometry_quad;
+
     /* Materials */
     MaterialIndex material_text;
     MaterialIndex material_basic;
