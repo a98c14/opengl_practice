@@ -138,9 +138,7 @@ material_new(Renderer* renderer, String vertex_shader_text, String fragment_shad
         glBindBuffer(GL_UNIFORM_BUFFER, result->uniform_buffer_id);
         glBufferData(GL_UNIFORM_BUFFER, uniform_data_size, NULL, GL_STREAM_DRAW);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
-        result->location_model = glGetUniformLocation(result->gl_program_id, "u_mvp");
-        result->uniform_buffer_id = glGetUniformBlockIndex(result->gl_program_id, "Custom");
-        glUniformBlockBinding(result->gl_program_id, result->uniform_buffer_id, BINDING_SLOT_UBO_CUSTOM);
+        result->location_model = glGetUniformLocation(result->gl_program_id, "u_mvp");        
     }
 
     unsigned int global_ubo_index = glGetUniformBlockIndex(result->gl_program_id, "Global");
