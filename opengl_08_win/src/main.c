@@ -49,7 +49,7 @@ int main(void)
         int32 min_x = -200;
         int32 max_x = 200;
         uint32 instance_count = (max_x - min_x)*(max_y - min_y);
-        DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, FRAME_BUFFER_INDEX_DEFAULT, dc->material_circle, ViewTypeWorld, TEXTURE_INDEX_NULL, instance_count);
+        DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, FRAME_BUFFER_INDEX_DEFAULT, dc->material_circle_instanced, ViewTypeWorld, TEXTURE_INDEX_NULL, instance_count);
         int32 draw_index = 0;
         for(int y = min_y; y < max_y; y++)
         {

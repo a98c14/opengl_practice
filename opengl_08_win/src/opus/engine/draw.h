@@ -27,6 +27,8 @@ typedef struct
     MaterialIndex material_circle;
     MaterialIndex material_boid;
 
+    MaterialIndex material_circle_instanced;
+
     /* Font */
     GlyphAtlas* font_open_sans;
 } DrawContext;

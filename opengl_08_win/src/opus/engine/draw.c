@@ -37,6 +37,13 @@ draw_context_new(Arena* arena, Renderer* renderer)
         file_read_all_as_string(arena, string("..\\src\\shaders\\circle.vert")),
         file_read_all_as_string(arena, string("..\\src\\shaders\\circle.frag")),
         sizeof(ShaderDataCircle), 
+        false);
+
+    draw_context->material_circle_instanced = material_new(
+        renderer,
+        file_read_all_as_string(arena, string("..\\src\\shaders\\circle_instanced.vert")),
+        file_read_all_as_string(arena, string("..\\src\\shaders\\circle_instanced.frag")),
+        sizeof(ShaderDataCircle), 
         true);
 
     draw_context->material_text = material_new(
