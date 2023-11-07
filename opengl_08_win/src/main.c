@@ -44,10 +44,10 @@ int main(void)
 
         /* frame: update */
         Profiler update = profiler_begin(string("Update"));
-        int32 min_y = -2;
-        int32 max_y = 2;
-        int32 min_x = -2;
-        int32 max_x = 2;
+        int32 min_y = -100;
+        int32 max_y = 100;
+        int32 min_x = -200;
+        int32 max_x = 200;
         uint32 instance_count = (max_x - min_x)*(max_y - min_y);
         DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, FRAME_BUFFER_INDEX_DEFAULT, dc->material_circle_instanced, ViewTypeWorld, TEXTURE_INDEX_NULL, instance_count);
         int32 draw_index = 0;
