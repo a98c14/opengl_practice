@@ -1,8 +1,7 @@
 # Renderer 
 
-## To-Do
-- send glyph data to shader
-- send texture data (width etc.) to shader 
+## Base
+80k instance = 40ms render, 7ms update
 
 ## Commands
 ### Build & Run

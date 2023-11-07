@@ -37,6 +37,13 @@ renderer_new(Arena* arena, RendererConfiguration* configuration)
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     glBindBufferRange(GL_UNIFORM_BUFFER, BINDING_SLOT_TEXTURE, renderer->texture_uniform_buffer_id, 0, sizeof(TextureUniformData));
 
+     /* Create MVP SSBO */
+    glGenBuffers(1, &renderer->mvp_ssbo_id);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, renderer->mvp_ssbo_id);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Mat4) * MATERIAL_DRAW_BUFFER_ELEMENT_CAPACITY, 0, GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_SLOT_SSBO_MVP, renderer->mvp_ssbo_id);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
     /* Draw State Setup */
     renderer->draw_state = renderer_draw_state_new(arena);
 
@@ -118,9 +125,10 @@ material_new(Renderer* renderer, String vertex_shader_text, String fragment_shad
 
     // generate custom shader data UBO
     glGenBuffers(1, &result->uniform_buffer_id);
-    glBindBuffer(GL_UNIFORM_BUFFER, result->uniform_buffer_id);
-    glBufferData(GL_UNIFORM_BUFFER, uniform_data_size, NULL, GL_STREAM_DRAW);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, result->uniform_buffer_id);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, uniform_data_size * MATERIAL_DRAW_BUFFER_ELEMENT_CAPACITY, 0, GL_DYNAMIC_DRAW);
+    // glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_SLOT_SSBO_CUSTOM, result->uniform_buffer_id);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
     unsigned int global_ubo_index = glGetUniformBlockIndex(result->gl_program_id, "Global");
     glUniformBlockBinding(result->gl_program_id, global_ubo_index, BINDING_SLOT_GLOBAL);
@@ -364,6 +372,7 @@ renderer_render(Renderer* renderer, float32 dt)
     global_shader_data.time = renderer->timer;
     glBindBuffer(GL_UNIFORM_BUFFER, renderer->global_uniform_buffer_id);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(GlobalUniformData), &global_shader_data);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_SLOT_SSBO_MVP, renderer->mvp_ssbo_id);
 
     // TODO(selim): Actually geometries should be in draw buffers as well but since I only use
     // quads its not necessary for now
@@ -403,34 +412,37 @@ renderer_render(Renderer* renderer, float32 dt)
 
                     glUseProgram(material->gl_program_id);
                     glUniform1i(material->location_texture, 0);
+                    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_SLOT_SSBO_CUSTOM, material->uniform_buffer_id);
 
                     // models
-                    glBindBuffer(GL_UNIFORM_BUFFER, material->uniform_buffer_id);
-                    glBindBufferRange(GL_UNIFORM_BUFFER, BINDING_SLOT_CUSTOM, material->uniform_buffer_id, 0, material->uniform_data_size);
+                    // glBindBuffer(GL_UNIFORM_BUFFER, material->uniform_buffer_id);
+                    // glBindBufferRange(GL_UNIFORM_BUFFER, BINDING_SLOT_CUSTOM, material->uniform_buffer_id, 0, material->uniform_data_size);
 
-
-                    // for(int element_index = 0; element_index < material_draw_buffer->element_count; element_index++)
-                    // {
-                    //     Mat4 model = material_draw_buffer->model_buffer[element_index];
-                    //     Mat4 mvp = mul_mat4(camera->view, model);
-                    //     mvp = mul_mat4(camera->projection, mvp);
-                    // }
+                    for(int element_index = 0; element_index < material_draw_buffer->element_count; element_index++)
+                    {
+                        Mat4 model = material_draw_buffer->model_buffer[element_index];
+                        Mat4 mvp = mul_mat4(camera->view, model);
+                        material_draw_buffer->model_buffer[element_index] = mul_mat4(camera->projection, mvp);
+                    }
 
                     // TODO: use ssbo instead of ubo? GL_SHADER_STORAGE_BUFFER
                     // void* shader_data = ((uint8*)material_draw_buffer->shader_data_buffer);
-                    // glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, material->uniform_data_size * material_draw_buffer->element_count, shader_data);
-                    // glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Mat4) * material_draw_buffer->element_count, material_draw_buffer->model_buffer);
-                    // glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, material_draw_buffer->element_count);
-                    for(int element_index = 0; element_index < material_draw_buffer->element_count; element_index++)
-                    {
-                        void* shader_data = ((uint8*)material_draw_buffer->shader_data_buffer + element_index * material->uniform_data_size);
-                        glBufferSubData(GL_UNIFORM_BUFFER, 0, material->uniform_data_size, shader_data);
-                        Mat4 model = material_draw_buffer->model_buffer[element_index];
-                        Mat4 mvp = mul_mat4(camera->view, model);
-                        mvp = mul_mat4(camera->projection, mvp);
-                        glUniformMatrix4fv(material->location_model, 1, GL_FALSE, mvp.v);
-                        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-                    }
+                    glBindBuffer(GL_SHADER_STORAGE_BUFFER, renderer->mvp_ssbo_id);
+                    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Mat4) * material_draw_buffer->element_count, material_draw_buffer->model_buffer);
+                    glBindBuffer(GL_SHADER_STORAGE_BUFFER, material->uniform_buffer_id);
+                    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, material->uniform_data_size * material_draw_buffer->element_count, material_draw_buffer->shader_data_buffer);
+                    glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, material_draw_buffer->element_count);
+                    
+                    // for(int element_index = 0; element_index < material_draw_buffer->element_count; element_index++)
+                    // {
+                    //     void* shader_data = ((uint8*)material_draw_buffer->shader_data_buffer + element_index * material->uniform_data_size);
+                    //     glBufferSubData(GL_UNIFORM_BUFFER, 0, material->uniform_data_size, shader_data);
+                    //     Mat4 model = material_draw_buffer->model_buffer[element_index];
+                    //     Mat4 mvp = mul_mat4(camera->view, model);
+                    //     mvp = mul_mat4(camera->projection, mvp);
+                    //     glUniformMatrix4fv(material->location_model, 1, GL_FALSE, mvp.v);
+                    //     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+                    // }
 
                     material_draw_buffer->element_count = 0;
                 }

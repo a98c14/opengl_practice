@@ -34,6 +34,8 @@ typedef int16 MaterialDrawBufferIndex;
 #define BINDING_SLOT_GLOBAL 0
 #define BINDING_SLOT_TEXTURE 1
 #define BINDING_SLOT_CUSTOM 2
+#define BINDING_SLOT_SSBO_MVP 2
+#define BINDING_SLOT_SSBO_CUSTOM 3
 
 typedef struct
 {
@@ -181,6 +183,7 @@ typedef struct
 
     uint32 global_uniform_buffer_id;
     uint32 texture_uniform_buffer_id;
+    uint32 mvp_ssbo_id;
 
     Camera camera;
     float32 timer;
@@ -224,7 +227,7 @@ material_new(Renderer* renderer, String vertex_shader_text, String fragment_shad
 internal TextureIndex
 texture_new(Renderer* renderer, uint32 width, uint32 height, uint32 channels, uint32 filter, void* data);
 
-internal MaterialDrawBuffer* 
+internal MaterialDrawBuffer*
 renderer_get_material_buffer(Renderer* renderer, ViewType view_type, FrameBufferIndex layer, TextureIndex texture, MaterialIndex material_index);
 
 internal DrawBuffer 

@@ -1,5 +1,18 @@
 #version 430 core
 
+struct ShaderData
+{
+    vec4 glyph_bounds;
+    vec4 color;
+    vec4 outline_color;
+    /** Softness of the glyph edges. Recommended value: 30 */
+    float softness;
+    /** Thickness of the glyph. Recommended value: 0.5, Values outside of the range 0.4 and 0.9 are not really usable */
+    float thickness;
+    /** Outline thickness. Should be between 0 and 0.5 */
+    float outline_thickness;
+};
+
 layout(location = 0) in vec3 a_pos;
 layout(location = 1) in vec3 a_color;
 layout(location = 2) in vec2 a_tex_coord;
@@ -15,32 +28,33 @@ layout (std140, binding = 1) uniform Texture
     float texture_layer_count;
 };
 
-layout (std140, binding = 2) uniform Custom
+layout (std140, binding = 2) buffer Matrices
 {
-    vec4 u_glyph_bounds;
-    vec4 u_color;
-    vec4 u_outline_color;
-    float u_softness;
-    float u_thickness;
-    float u_outline_thickness;
+    mat4 mvp[];
 };
 
-uniform mat4 u_mvp;
+layout (std140, binding = 3) buffer Custom
+{
+    ShaderData data[];
+};
+
 uniform sampler2D u_main_texture;
 
 /* Vertex Data */
 in vec2 v_tex_coord;
+flat in int v_instance_id;
 
 out vec4 color;
 
 void main() {
     vec2 uv = v_tex_coord;
     vec2 dxy = fwidth(uv);
+    ShaderData v_data = data[v_instance_id];
     float d = texture(u_main_texture, uv).r;
-    float softness = u_softness * max(dxy.x, dxy.y);
-    float alpha = smoothstep(1 - u_thickness - softness, 1 - u_thickness + softness, d);
-    float outline_alpha = smoothstep(1 - u_thickness - softness - u_outline_thickness, 1 - u_thickness + softness - u_outline_thickness, d);
-    vec4 outline_color = vec4(u_outline_color.xyz, outline_alpha * u_outline_color.a);
-    vec4 inside_color = vec4(u_color.xyz, alpha * u_color.a);
+    float softness = v_data.softness * max(dxy.x, dxy.y);
+    float alpha = smoothstep(1 - v_data.thickness - softness, 1 - v_data.thickness + softness, d);
+    float outline_alpha = smoothstep(1 - v_data.thickness - softness - v_data.outline_thickness, 1 - v_data.thickness + softness - v_data.outline_thickness, d);
+    vec4 outline_color = vec4(v_data.outline_color.xyz, outline_alpha * v_data.outline_color.a);
+    vec4 inside_color = vec4(v_data.color.xyz, alpha * v_data.color.a);
     color = mix(inside_color, outline_color, clamp(outline_color.a - alpha, 0, 1));
 }

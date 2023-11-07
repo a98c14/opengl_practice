@@ -15,8 +15,10 @@ int main(void)
 {
     /* initialization */
     logger_init();
-    Arena* persistent_arena = make_arena_reserve(mb(256));
-    Arena* frame_arena = make_arena_reserve(mb(128));
+
+    
+    Arena* persistent_arena = make_arena_reserve(mb(512));
+    Arena* frame_arena = make_arena_reserve(mb(256));
     Window* window = window_create(persistent_arena, WINDOW_WIDTH, WINDOW_HEIGHT, "Simple Example", key_callback);
     RendererConfiguration renderer_configuration = {
         .window_width = WINDOW_WIDTH,
@@ -24,6 +26,7 @@ int main(void)
         .world_height = 100,
         .clear_color = ColorSlate900
     };
+    
     Renderer* renderer = renderer_new(persistent_arena, &renderer_configuration);
     DrawContext* dc = draw_context_new(persistent_arena, renderer);
     EngineTime time = engine_time_new();
@@ -53,6 +56,7 @@ int main(void)
             for(int x = min_x; x < max_x; x++)
             {
                 draw_buffer.model_buffer[draw_index] = transform_quad(vec2(x / 3.0f, y / 3.0f), vec2(0.4f, 0.4f), 0);
+                // draw_buffer.model_buffer[draw_index] = transform_quad(vec2(x * 5, y * 5), vec2(3, 3), 0);
                 ((ShaderDataCircle*)draw_buffer.uniform_data_buffer)[draw_index].color = color_to_vec4(ColorWhite);
                 ((ShaderDataCircle*)draw_buffer.uniform_data_buffer)[draw_index].fill_ratio = 1;
                 // draw_circle_filled(dc, vec2(x, y), 0.5, ColorWhite);
@@ -61,8 +65,6 @@ int main(void)
         }
         circle_pos = lerp_vec2(circle_pos, mouse.world, time.dt * 8.0f);
         profiler_end(&update);
-
-
 
         /* frame: render */
         Profiler render = profiler_begin(string("Render"));

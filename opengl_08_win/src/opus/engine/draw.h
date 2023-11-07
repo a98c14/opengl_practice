@@ -54,6 +54,7 @@ typedef struct
 {
     Vec4 color;
     float32 fill_ratio;
+    Vec3 _;
 } ShaderDataCircle;
 
 typedef struct 
