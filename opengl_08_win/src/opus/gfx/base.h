@@ -33,9 +33,10 @@ typedef int16 MaterialDrawBufferIndex;
 
 #define BINDING_SLOT_GLOBAL 0
 #define BINDING_SLOT_TEXTURE 1
-#define BINDING_SLOT_SSBO_MVP 2
-#define BINDING_SLOT_UBO_CUSTOM 3
-#define BINDING_SLOT_SSBO_CUSTOM 3
+#define BINDING_SLOT_CAMERA 2
+#define BINDING_SLOT_SSBO_MODEL 3
+#define BINDING_SLOT_UBO_CUSTOM 4
+#define BINDING_SLOT_SSBO_CUSTOM 4
 
 typedef struct
 {
@@ -115,6 +116,12 @@ typedef struct
     float32 _;
 } TextureUniformData;
 
+typedef struct
+{
+    Mat4 projection;
+    Mat4 view;
+} CameraUniformData;
+
 enum ShaderProgramType
 {
     ShaderProgramTypeVertex   = GL_VERTEX_SHADER,
@@ -184,6 +191,7 @@ typedef struct
 
     uint32 global_uniform_buffer_id;
     uint32 texture_uniform_buffer_id;
+    uint32 camera_uniform_buffer_id;
     uint32 mvp_ssbo_id;
 
     Camera camera;

@@ -15,13 +15,19 @@ layout (std140, binding = 1) uniform Texture
     float texture_layer_count;
 };
 
-layout (std140, binding = 3) uniform Custom
+layout (std140, binding = 2) uniform Camera
+{
+    mat4 projection;
+    mat4 view;
+};
+
+layout (std140, binding = 4) uniform Custom
 {
     vec4 u_color;
     float u_fill_ratio;
 };
 
-uniform mat4 u_mvp;
+uniform mat4 u_model;
 uniform sampler2D u_main_texture;
 
 /* Vertex Data */
@@ -29,6 +35,6 @@ out vec2 v_tex_coord;
 
 void main() 
 {
-    gl_Position = u_mvp * vec4(a_pos, 1.0);
+    gl_Position = projection * view * u_model * vec4(a_pos, 1.0);
     v_tex_coord = a_tex_coord;
 }

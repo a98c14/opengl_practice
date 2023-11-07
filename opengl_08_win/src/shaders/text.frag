@@ -28,12 +28,18 @@ layout (std140, binding = 1) uniform Texture
     float texture_layer_count;
 };
 
-layout (std140, binding = 2) buffer Matrices
+layout (std140, binding = 2) uniform Camera
 {
-    mat4 mvp[];
+    mat4 projection;
+    mat4 view;
 };
 
-layout (std140, binding = 3) buffer Custom
+layout (std140, binding = 3) buffer Matrices
+{
+    mat4 model[];
+};
+
+layout (std140, binding = 4) buffer Custom
 {
     ShaderData data[];
 };
