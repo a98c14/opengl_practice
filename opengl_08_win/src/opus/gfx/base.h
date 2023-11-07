@@ -33,8 +33,8 @@ typedef int16 MaterialDrawBufferIndex;
 
 #define BINDING_SLOT_GLOBAL 0
 #define BINDING_SLOT_TEXTURE 1
-#define BINDING_SLOT_UBO_CUSTOM 2
 #define BINDING_SLOT_SSBO_MVP 2
+#define BINDING_SLOT_UBO_CUSTOM 3
 #define BINDING_SLOT_SSBO_CUSTOM 3
 
 typedef struct

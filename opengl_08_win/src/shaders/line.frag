@@ -15,7 +15,7 @@ layout (std140, binding = 1) uniform Texture
     float texture_layer_count;
 };
 
-layout (std140, binding = 2) uniform Custom
+layout (std140, binding = 4) uniform Custom
 {
     vec4 u_color;
 };
