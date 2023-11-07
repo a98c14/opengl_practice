@@ -112,23 +112,32 @@ shader_load(String vertex_shader_text, String fragment_shader_text)
 }
 
 internal MaterialIndex
-material_new(Renderer* renderer, String vertex_shader_text, String fragment_shader_text, usize uniform_data_size)
+material_new(Renderer* renderer, String vertex_shader_text, String fragment_shader_text, usize uniform_data_size, bool32 is_instanced)
 {
     MaterialIndex material_index = renderer->material_count;
     renderer->material_count++;
     Material* result = &renderer->materials[material_index];
     result->gl_program_id = shader_load(vertex_shader_text, fragment_shader_text);
-    result->location_model = glGetUniformLocation(result->gl_program_id, "u_mvp");
     result->location_texture = glGetUniformLocation(result->gl_program_id, "u_main_texture");
     result->uniform_data_size = uniform_data_size;
     result->is_initialized = 1;
+    result->is_instanced = is_instanced;
 
     // generate custom shader data UBO
-    glGenBuffers(1, &result->uniform_buffer_id);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, result->uniform_buffer_id);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, uniform_data_size * MATERIAL_DRAW_BUFFER_ELEMENT_CAPACITY, 0, GL_DYNAMIC_DRAW);
-    // glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_SLOT_SSBO_CUSTOM, result->uniform_buffer_id);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    if(is_instanced)
+    {
+        result->location_model = -1;
+        glGenBuffers(1, &result->uniform_buffer_id);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, result->uniform_buffer_id);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, uniform_data_size * MATERIAL_DRAW_BUFFER_ELEMENT_CAPACITY, 0, GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    }
+    else
+    {
+        result->location_model = glGetUniformLocation(result->gl_program_id, "u_mvp");
+        result->uniform_buffer_id = glGetUniformBlockIndex(result->gl_program_id, "Custom");
+        glUniformBlockBinding(result->gl_program_id, result->uniform_buffer_id, BINDING_SLOT_UBO_CUSTOM);
+    }
 
     unsigned int global_ubo_index = glGetUniformBlockIndex(result->gl_program_id, "Global");
     glUniformBlockBinding(result->gl_program_id, global_ubo_index, BINDING_SLOT_GLOBAL);
@@ -410,14 +419,6 @@ renderer_render(Renderer* renderer, float32 dt)
                     MaterialDrawBuffer* material_draw_buffer = &state->material_draw_buffers[material_draw_buffer_index];
                     Material* material = &renderer->materials[material_draw_buffer->material_index];
 
-                    glUseProgram(material->gl_program_id);
-                    glUniform1i(material->location_texture, 0);
-                    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_SLOT_SSBO_CUSTOM, material->uniform_buffer_id);
-
-                    // models
-                    // glBindBuffer(GL_UNIFORM_BUFFER, material->uniform_buffer_id);
-                    // glBindBufferRange(GL_UNIFORM_BUFFER, BINDING_SLOT_CUSTOM, material->uniform_buffer_id, 0, material->uniform_data_size);
-
                     for(int element_index = 0; element_index < material_draw_buffer->element_count; element_index++)
                     {
                         Mat4 model = material_draw_buffer->model_buffer[element_index];
@@ -425,24 +426,32 @@ renderer_render(Renderer* renderer, float32 dt)
                         material_draw_buffer->model_buffer[element_index] = mul_mat4(camera->projection, mvp);
                     }
 
-                    // TODO: use ssbo instead of ubo? GL_SHADER_STORAGE_BUFFER
-                    // void* shader_data = ((uint8*)material_draw_buffer->shader_data_buffer);
-                    glBindBuffer(GL_SHADER_STORAGE_BUFFER, renderer->mvp_ssbo_id);
-                    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Mat4) * material_draw_buffer->element_count, material_draw_buffer->model_buffer);
-                    glBindBuffer(GL_SHADER_STORAGE_BUFFER, material->uniform_buffer_id);
-                    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, material->uniform_data_size * material_draw_buffer->element_count, material_draw_buffer->shader_data_buffer);
-                    glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, material_draw_buffer->element_count);
-                    
-                    // for(int element_index = 0; element_index < material_draw_buffer->element_count; element_index++)
-                    // {
-                    //     void* shader_data = ((uint8*)material_draw_buffer->shader_data_buffer + element_index * material->uniform_data_size);
-                    //     glBufferSubData(GL_UNIFORM_BUFFER, 0, material->uniform_data_size, shader_data);
-                    //     Mat4 model = material_draw_buffer->model_buffer[element_index];
-                    //     Mat4 mvp = mul_mat4(camera->view, model);
-                    //     mvp = mul_mat4(camera->projection, mvp);
-                    //     glUniformMatrix4fv(material->location_model, 1, GL_FALSE, mvp.v);
-                    //     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-                    // }
+                    glUseProgram(material->gl_program_id);
+                    glUniform1i(material->location_texture, 0);
+
+                    if(material->is_instanced)
+                    {
+                        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_SLOT_SSBO_CUSTOM, material->uniform_buffer_id);
+                        glBindBuffer(GL_SHADER_STORAGE_BUFFER, renderer->mvp_ssbo_id);
+                        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Mat4) * material_draw_buffer->element_count, material_draw_buffer->model_buffer);
+                        glBindBuffer(GL_SHADER_STORAGE_BUFFER, material->uniform_buffer_id);
+                        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, material->uniform_data_size * material_draw_buffer->element_count, material_draw_buffer->shader_data_buffer);
+                        glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, material_draw_buffer->element_count);
+                    }
+                    else
+                    {
+                        glBindBuffer(GL_UNIFORM_BUFFER, material->uniform_buffer_id);
+                        glBindBufferRange(GL_UNIFORM_BUFFER, BINDING_SLOT_UBO_CUSTOM, material->uniform_buffer_id, 0, material->uniform_data_size);
+                        for(int element_index = 0; element_index < material_draw_buffer->element_count; element_index++)
+                        {
+                            Mat4 model = material_draw_buffer->model_buffer[element_index];
+                            void* shader_data = ((uint8*)material_draw_buffer->shader_data_buffer + element_index * material->uniform_data_size);
+                            glBufferSubData(GL_UNIFORM_BUFFER, 0, material->uniform_data_size, shader_data);
+                            glUniformMatrix4fv(material->location_model, 1, GL_FALSE, model.v);
+                            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+                        }
+                    }
+
 
                     material_draw_buffer->element_count = 0;
                 }

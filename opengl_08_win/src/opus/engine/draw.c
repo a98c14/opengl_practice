@@ -17,7 +17,8 @@ draw_context_new(Arena* arena, Renderer* renderer)
         renderer,
         file_read_all_as_string(arena, string("..\\src\\shaders\\line.vert")),
         file_read_all_as_string(arena, string("..\\src\\shaders\\line.frag")),
-        sizeof(ShaderDataLine));
+        sizeof(ShaderDataLine),
+        false);
 
     // draw_context->material_quad = material_new(
     //     arena,
@@ -28,19 +29,22 @@ draw_context_new(Arena* arena, Renderer* renderer)
         renderer,
         file_read_all_as_string(arena, string("..\\src\\shaders\\boid.vert")),
         file_read_all_as_string(arena, string("..\\src\\shaders\\boid.frag")),
-        sizeof(ShaderDataBoid));
+        sizeof(ShaderDataBoid),
+        false);
 
     draw_context->material_circle = material_new(
         renderer,
         file_read_all_as_string(arena, string("..\\src\\shaders\\circle.vert")),
         file_read_all_as_string(arena, string("..\\src\\shaders\\circle.frag")),
-        sizeof(ShaderDataCircle));
+        sizeof(ShaderDataCircle), 
+        true);
 
     draw_context->material_text = material_new(
         renderer,
         file_read_all_as_string(arena, string("..\\src\\shaders\\text.vert")),
         file_read_all_as_string(arena, string("..\\src\\shaders\\text.frag")),
-        sizeof(ShaderDataText));
+        sizeof(ShaderDataText), 
+        true);
 
     /* Fonts */
     TextureIndex font_texture = texture_new_from_file(renderer, string("..\\assets\\open_sans.png"), 0, 1);

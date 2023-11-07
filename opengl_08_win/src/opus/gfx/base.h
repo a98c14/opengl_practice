@@ -33,7 +33,7 @@ typedef int16 MaterialDrawBufferIndex;
 
 #define BINDING_SLOT_GLOBAL 0
 #define BINDING_SLOT_TEXTURE 1
-#define BINDING_SLOT_CUSTOM 2
+#define BINDING_SLOT_UBO_CUSTOM 2
 #define BINDING_SLOT_SSBO_MVP 2
 #define BINDING_SLOT_SSBO_CUSTOM 3
 
@@ -72,6 +72,7 @@ typedef struct
 typedef struct
 {
     bool32 is_initialized;
+    bool32 is_instanced;
 
     uint32 gl_program_id;
     uint32 uniform_buffer_id;
@@ -222,7 +223,7 @@ internal uint32
 shader_load(String vertex_shader_text, String fragment_shader_text);
 
 internal MaterialIndex
-material_new(Renderer* renderer, String vertex_shader_text, String fragment_shader_text, usize uniform_data_size);
+material_new(Renderer* renderer, String vertex_shader_text, String fragment_shader_text, usize uniform_data_size, bool32 is_instanced);
 
 internal TextureIndex
 texture_new(Renderer* renderer, uint32 width, uint32 height, uint32 channels, uint32 filter, void* data);
