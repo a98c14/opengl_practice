@@ -56,7 +56,7 @@ int main(void)
             for(int x = min_x; x < max_x; x++)
             {
                 draw_buffer.model_buffer[draw_index] = transform_quad_aligned(vec2(x / 3.0f, y / 3.0f), vec2(0.4f, 0.4f));
-                ((ShaderDataCircle*)draw_buffer.uniform_data_buffer)[draw_index].color = color_to_vec4(ColorWhite);
+                ((ShaderDataCircle*)draw_buffer.uniform_data_buffer)[draw_index].color = vec4(0.5, (float32)y / (max_y - min_y), (float32)x / (max_x - min_x), 1);
                 ((ShaderDataCircle*)draw_buffer.uniform_data_buffer)[draw_index].fill_ratio = 1;
                 draw_index++;
             }
