@@ -19,7 +19,6 @@ log_output(LogLevel level, const char* message, ...)
     char print_buffer[LOG_MESSAGE_SIZE_LIMIT];
     sprintf(print_buffer, "%s%s\n", level_strings[level], out_buffer);
 
-
 #if LOG_TO_FILE == 1
     char date_buffer[128];
     DateTime date = date_now();

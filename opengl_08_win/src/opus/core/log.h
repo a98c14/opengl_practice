@@ -8,7 +8,7 @@
 #include <string.h>
 #include <vadefs.h>
 
-#define LOG_TO_FILE 1
+#define LOG_TO_FILE 0
 #define LOG_TO_CONSOLE 1
 #define LOG_MESSAGE_SIZE_LIMIT 32000
 

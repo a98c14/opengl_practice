@@ -10,7 +10,7 @@ renderer_new(Arena* arena, RendererConfiguration* configuration)
     renderer->frame_buffers = arena_push_array_zero_aligned(arena, FrameBuffer, LAYER_CAPACITY, 16);
     renderer->materials = arena_push_array_zero(arena, Material, MATERIAL_CAPACITY);
     renderer->textures = arena_push_array_zero(arena, Texture, TEXTURE_CAPACITY);
-    
+
     glViewport(0, 0, renderer->window_width, renderer->window_height);
     float32 aspect = renderer->window_width / (float)renderer->window_height;
     float32 world_height = configuration->world_height;
@@ -352,7 +352,7 @@ color_to_vec4(Color c)
     return (Vec4){ .r = c.r / 255.0F, .g = c.g / 255.0F, .b = c.b / 255.0F, .a = c.a / 255.0F };
 }
 
-internal void 
+internal void
 renderer_render(Renderer* renderer, float32 dt)
 {
     Camera* camera = &renderer->camera;
@@ -365,7 +365,7 @@ renderer_render(Renderer* renderer, float32 dt)
     glBindBuffer(GL_UNIFORM_BUFFER, renderer->global_uniform_buffer_id);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(GlobalUniformData), &global_shader_data);
 
-    // TODO(selim): Actually geometries should be in draw buffers as well but since I only use 
+    // TODO(selim): Actually geometries should be in draw buffers as well but since I only use
     // quads its not necessary for now
     // glBindVertexArray(renderer->quad_vao);
 
@@ -408,18 +408,30 @@ renderer_render(Renderer* renderer, float32 dt)
                     glBindBuffer(GL_UNIFORM_BUFFER, material->uniform_buffer_id);
                     glBindBufferRange(GL_UNIFORM_BUFFER, BINDING_SLOT_CUSTOM, material->uniform_buffer_id, 0, material->uniform_data_size);
 
+
+                    // for(int element_index = 0; element_index < material_draw_buffer->element_count; element_index++)
+                    // {
+                    //     Mat4 model = material_draw_buffer->model_buffer[element_index];
+                    //     Mat4 mvp = mul_mat4(camera->view, model);
+                    //     mvp = mul_mat4(camera->projection, mvp);
+                    // }
+
+                    // TODO: use ssbo instead of ubo? GL_SHADER_STORAGE_BUFFER
+                    // void* shader_data = ((uint8*)material_draw_buffer->shader_data_buffer);
+                    // glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, material->uniform_data_size * material_draw_buffer->element_count, shader_data);
+                    // glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Mat4) * material_draw_buffer->element_count, material_draw_buffer->model_buffer);
+                    // glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, material_draw_buffer->element_count);
                     for(int element_index = 0; element_index < material_draw_buffer->element_count; element_index++)
                     {
                         void* shader_data = ((uint8*)material_draw_buffer->shader_data_buffer + element_index * material->uniform_data_size);
                         glBufferSubData(GL_UNIFORM_BUFFER, 0, material->uniform_data_size, shader_data);
-
                         Mat4 model = material_draw_buffer->model_buffer[element_index];
                         Mat4 mvp = mul_mat4(camera->view, model);
                         mvp = mul_mat4(camera->projection, mvp);
                         glUniformMatrix4fv(material->location_model, 1, GL_FALSE, mvp.v);
                         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
                     }
-                    
+
                     material_draw_buffer->element_count = 0;
                 }
             }

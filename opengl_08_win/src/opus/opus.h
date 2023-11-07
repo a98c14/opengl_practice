@@ -22,3 +22,4 @@
 #include <engine/draw.h>
 #include <engine/window.h>
 #include <engine/time.h>
+#include <engine/profiler.h>

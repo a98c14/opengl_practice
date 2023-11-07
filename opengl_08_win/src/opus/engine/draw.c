@@ -82,7 +82,7 @@ draw_text(DrawContext* dc, Vec2 pos, String str, Color color)
     shader_data.softness = 30;
     shader_data.outline_thickness = 0.2;
     DrawBuffer db = renderer_buffer_request(dc->renderer, FRAME_BUFFER_INDEX_DEFAULT, dc->material_text, ViewTypeWorld, dc->font_open_sans->texture, str.length);
-    text_calculate_transforms(dc->font_open_sans, str, 3.5, pos, RectAlignmentTypeBottomLeft, db.model_buffer, 0);
+    text_calculate_transforms(dc->font_open_sans, str, 1.8, pos, RectAlignmentTypeBottomLeft, db.model_buffer, 0);
     ShaderDataText* shader_data_buffer = (ShaderDataText*)db.uniform_data_buffer;
     for(int i = 0; i < str.length; i++)
     {

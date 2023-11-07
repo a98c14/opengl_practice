@@ -32,23 +32,52 @@ int main(void)
     Vec2 circle_pos = vec2_zero();
 
     /* main loop */
-    bool32 has_logged = false;
     while (!glfwWindowShouldClose(window->glfw_window))
     {
+        Profiler main_frame = profiler_begin(string("MainFrame"));
         /* frame: init */
-        arena_reset(frame_arena);
         time = engine_get_time(time);
         InputMouse mouse = input_mouse_get(window, renderer->camera);
 
         /* frame: update */
-        draw_circle(dc, vec2_zero(), 10, ColorWhite);
-        draw_circle_filled(dc, circle_pos, 10, ColorWhite);
+        Profiler update = profiler_begin(string("Update"));
+        int32 min_y = -100;
+        int32 max_y = 100;
+        int32 min_x = -200;
+        int32 max_x = 200;
+        uint32 instance_count = (max_x - min_x)*(max_y - min_y);
+        DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, FRAME_BUFFER_INDEX_DEFAULT, dc->material_circle, ViewTypeWorld, TEXTURE_INDEX_NULL, instance_count);
+        int32 draw_index = 0;
+        for(int y = min_y; y < max_y; y++)
+        {
+            for(int x = min_x; x < max_x; x++)
+            {
+                draw_buffer.model_buffer[draw_index] = transform_quad(vec2(x / 3.0f, y / 3.0f), vec2(0.4f, 0.4f), 0);
+                ((ShaderDataCircle*)draw_buffer.uniform_data_buffer)[draw_index].color = color_to_vec4(ColorWhite);
+                ((ShaderDataCircle*)draw_buffer.uniform_data_buffer)[draw_index].fill_ratio = 1;
+                // draw_circle_filled(dc, vec2(x, y), 0.5, ColorWhite);
+                draw_index++;
+            }
+        }
         circle_pos = lerp_vec2(circle_pos, mouse.world, time.dt * 8.0f);
-        draw_text(dc, vec2(0, -20), string_pushf(frame_arena, "Sample Text. FPS: %d", (int)(1 / time.dt)), ColorWhite);
+        profiler_end(&update);
+
+
 
         /* frame: render */
+        Profiler render = profiler_begin(string("Render"));
         renderer_render(renderer, time.dt);
         window_update(window);
+        profiler_end(&render);
+        profiler_end(&main_frame);
+        arena_reset(frame_arena);
+
+        float32 screen_left = -renderer->camera.world_width / 2;
+        float32 screen_top = renderer->camera.world_height / 2 - 2;
+        draw_text(dc, vec2(screen_left, screen_top), string_pushf(frame_arena, "%s: %0.02fms", main_frame.name.value, 1000*(main_frame.end - main_frame.start)), ColorWhite);
+        draw_text(dc, vec2(screen_left, screen_top-2), string_pushf(frame_arena, "%s: %0.02fms", update.name.value, 1000*(update.end - update.start)), ColorWhite);
+        draw_text(dc, vec2(screen_left, screen_top-4), string_pushf(frame_arena, "%s: %0.02fms", render.name.value, 1000*(render.end - render.start)), ColorWhite);
+        draw_text(dc, vec2(screen_left, screen_top-6), string_pushf(frame_arena, "InstanceCount: %d", instance_count), ColorWhite);
     }
 
     window_destroy(window);
