@@ -198,15 +198,19 @@ texture_new(Renderer* renderer, uint32 width, uint32 height, uint32 channels, ui
 }
 
 internal MaterialDrawBuffer*
-renderer_get_material_buffer(Renderer* renderer, ViewType view_type, FrameBufferIndex layer, TextureIndex texture, MaterialIndex material_index)
+renderer_get_material_buffer(Renderer* renderer, ViewType view_type, FrameBufferIndex layer, TextureIndex texture, MaterialIndex material_index, uint32 available_space)
 {
     uint64 key = ((uint64)layer << 24) + ((uint64)view_type << 16) + ((uint64)texture << 8) + ((uint64)material_index << 0);
-    MaterialDrawBufferIndex index = hash_uint64(key) % MATERIAL_DRAW_BUFFER_CAPACITY;
+    MaterialDrawBufferIndex initial_index = hash_uint64(key) % MATERIAL_DRAW_BUFFER_CAPACITY;
 
     MaterialDrawBuffer* buffer = NULL;
-    for(int i = index; i < index + MATERIAL_DRAW_BUFFER_MAX_PROBE; i++)
+    for(int16 draw_buffer_index = initial_index; draw_buffer_index < initial_index + MATERIAL_DRAW_BUFFER_MAX_PROBE; draw_buffer_index++)
     {
-        buffer = &renderer->draw_state->material_draw_buffers[i % MATERIAL_DRAW_BUFFER_CAPACITY];
+        buffer = &renderer->draw_state->material_draw_buffers[draw_buffer_index % MATERIAL_DRAW_BUFFER_CAPACITY];
+
+        // if the buffer doesn't have enough space for the request, skip it
+        if(buffer->key == key && buffer->element_count + available_space >= MATERIAL_DRAW_BUFFER_ELEMENT_CAPACITY) 
+            continue;
 
         // if target buffer is found, exit
         if(buffer->key == key)
@@ -217,7 +221,8 @@ renderer_get_material_buffer(Renderer* renderer, ViewType view_type, FrameBuffer
         {
             log_debug("initializing material buffer. material: %d, layer: %d, texture: %d, view: %d", material_index, layer, texture, view_type);
             const Material* material = &renderer->materials[material_index];
-            xassert(material->is_initialized, "[ERROR]: Material isn't initialized");
+            xassert(material->is_initialized, "material isn't initialized");
+            buffer->index = draw_buffer_index;
             buffer->key = key;
             buffer->element_count = 0;
             buffer->material_index = material_index;
@@ -264,11 +269,11 @@ renderer_get_material_buffer(Renderer* renderer, ViewType view_type, FrameBuffer
                 view_buffer_index = layer_draw_buffer->view_count;
                 layer_draw_buffer->view_buffers[view_buffer_index].view_type = view_type;
                 layer_draw_buffer->view_count++;
-                xassert(layer_draw_buffer->view_count <= ViewTypeCOUNT, "[ERROR] Draw view buffer index exceeded capacity!");
+                xassert(layer_draw_buffer->view_count <= ViewTypeCOUNT, "draw view buffer index exceeded capacity!");
             }
 
             ViewDrawBuffer* view_draw_buffer = &layer_draw_buffer->view_buffers[view_buffer_index];
-            xassert(view_buffer_index != -1, "[ERROR]: ViewDrawBuffer could not be found");
+            xassert(view_buffer_index != -1, "`ViewDrawBuffer` could not be found");
 
             // find texture buffer
             int32 texture_buffer_index = -1;
@@ -287,33 +292,33 @@ renderer_get_material_buffer(Renderer* renderer, ViewType view_type, FrameBuffer
                 texture_buffer_index = view_draw_buffer->texture_count;
                 view_draw_buffer->texture_draw_buffers[texture_buffer_index].texture_index = texture;
                 view_draw_buffer->texture_count++;
-                xassert(view_draw_buffer->texture_count < TEXTURE_CAPACITY, "[ERROR] Draw texture buffer index exceeded capacity!");
+                xassert(view_draw_buffer->texture_count < TEXTURE_CAPACITY, "draw texture buffer index exceeded capacity!");
             }
 
             TextureDrawBuffer* texture_draw_buffer = &view_draw_buffer->texture_draw_buffers[texture_buffer_index];
 
-            // create material buffer
-            int32 material_internal_index = texture_draw_buffer->material_count;
-            xassert(material_index < MATERIAL_CAPACITY, "[ERROR]: Material internal index exceeded MATERIAL_CAPACITY");
-
-            texture_draw_buffer->material_buffer_indices[material_internal_index];
-            texture_draw_buffer->material_buffer_indices[material_internal_index] = i;
+            // add draw buffer index
+            int32 setting_internal_index = texture_draw_buffer->material_count;
+            xassert(setting_internal_index < MATERIAL_DRAW_BUFFER_CAPACITY_PER_SETTING, "material internal index exceeded MATERIAL_CAPACITY");
+            texture_draw_buffer->material_buffer_indices[setting_internal_index];
+            texture_draw_buffer->material_buffer_indices[setting_internal_index] = draw_buffer_index;
             texture_draw_buffer->material_count++;
             break;
         }
     }
 
-    xassert(buffer->key == key, "[ERROR] MaterialDrawBuffer could not be found");
+    xassert(buffer->key == key, "`MaterialDrawBuffer` could not be found");
     return buffer;
 }
 
-/* queues N elements from underlying draw buffer and returns the addresses */
+/* queues N elements from underlying draw buffer and returns the addresses. If N is larger than `MATERIAL_DRAW_BUFFER_ELEMENT_CAPACITY` use `renderer_buffer_request_batched` instead */
 internal DrawBuffer
 renderer_buffer_request(Renderer* renderer, FrameBufferIndex layer, MaterialIndex material_index, ViewType view_type, TextureIndex texture, uint32 count)
 {
-    xassert(count > 0, "[ERROR] Requested render buffer can not have 0 size");
+    xassert(count > 0, "requested render buffer can not have 0 size");
+    xassert(count < MATERIAL_DRAW_BUFFER_ELEMENT_CAPACITY, "requested render buffer can not be larger than max element capacity, use `renderer_buffer_request_batched` instead");
 
-    MaterialDrawBuffer* buffer = renderer_get_material_buffer(renderer, view_type, layer, texture, material_index);
+    MaterialDrawBuffer* buffer = renderer_get_material_buffer(renderer, view_type, layer, texture, material_index, count);
     const Material* material = &renderer->materials[material_index];
     DrawBuffer result = {0};
     result.capacity = min(count, MATERIAL_DRAW_BUFFER_ELEMENT_CAPACITY - buffer->element_count);
@@ -321,8 +326,48 @@ renderer_buffer_request(Renderer* renderer, FrameBufferIndex layer, MaterialInde
     result.uniform_data_buffer = (uint8*)buffer->shader_data_buffer + (buffer->element_count * material->uniform_data_size);
     result.uniform_data_size = material->uniform_data_size;
     buffer->element_count += count;
-    xassert(result.capacity > 0, "[ERROR]: Material draw buffer is at maximum capacity, can not reserve more elements");
+    xassert(result.capacity > 0, "material draw buffer is at maximum capacity, can not reserve more elements");
     return result;
+}
+
+/* queues N elements from underyling draw buffers in batches and returns the addresses. */
+internal DrawBufferArray*
+renderer_buffer_request_batched(Arena* arena, Renderer* renderer, FrameBufferIndex layer, MaterialIndex material_index, ViewType view_type, TextureIndex texture, uint32 count)
+{
+    uint32 capacity = 1 + (count / MATERIAL_DRAW_BUFFER_ELEMENT_CAPACITY);
+    DrawBufferArray* result = arena_push_struct_zero(arena, DrawBufferArray);
+    result->elements = arena_push_array_zero_aligned(arena, DrawBuffer, capacity, 16);
+    result->count = 0;
+    result->index = 0;
+    
+    uint32 remaining = count;
+    while(remaining > 0)
+    {
+        uint32 batch_size = min(MATERIAL_DRAW_BUFFER_ELEMENT_CAPACITY-1, remaining);
+        result->elements[result->count] = renderer_buffer_request(renderer, layer, material_index, view_type, texture, batch_size);
+        remaining -= batch_size;
+        result->count++;
+    }
+    return result;
+}
+
+internal bool32
+draw_buffer_insert(DrawBuffer* draw_buffer, Mat4 model, void* uniform_data)
+{
+    draw_buffer->model_buffer[draw_buffer->index] = model;
+    memcpy(((uint8*)draw_buffer->uniform_data_buffer) + draw_buffer->uniform_data_size * draw_buffer->index, uniform_data, draw_buffer->uniform_data_size); 
+    draw_buffer->index++;
+    draw_buffer->capacity--;
+    return draw_buffer->capacity > 0;
+}
+
+internal void
+draw_buffer_array_insert(DrawBufferArray* draw_buffer_array, Mat4 model, void* uniform_data)
+{
+    DrawBuffer* draw_buffer = &draw_buffer_array->elements[draw_buffer_array->index];
+    bool32 has_space = draw_buffer_insert(draw_buffer, model, uniform_data);
+    if(!has_space) draw_buffer_array->index++;
+    xassert(draw_buffer_array->index <= draw_buffer_array->count, "draw buffer array insert exceeded available space");
 }
 
 internal void
@@ -428,10 +473,10 @@ renderer_render(Renderer* renderer, float32 dt)
                     texture_shader_data_set(renderer, texture);
                 }
 
-                // material
-                for(int material_index = 0; material_index < texture_draw_buffer->material_count; material_index++)
+                /* Draw Buffers */
+                for(int internal_index = 0; internal_index < texture_draw_buffer->material_count; internal_index++)
                 {
-                    MaterialDrawBufferIndex material_draw_buffer_index = texture_draw_buffer->material_buffer_indices[material_index];
+                    MaterialDrawBufferIndex material_draw_buffer_index = texture_draw_buffer->material_buffer_indices[internal_index];
                     MaterialDrawBuffer* material_draw_buffer = &state->material_draw_buffers[material_draw_buffer_index];
                     Material* material = &renderer->materials[material_draw_buffer->material_index];
 

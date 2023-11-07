@@ -12,8 +12,9 @@
 #define TEXTURE_CAPACITY 32
 #define LAYER_CAPACITY 16
 
-#define MATERIAL_DRAW_BUFFER_CAPACITY 512
-#define MATERIAL_DRAW_BUFFER_ELEMENT_CAPACITY 16384*16
+#define MATERIAL_DRAW_BUFFER_CAPACITY_PER_SETTING 1024
+#define MATERIAL_DRAW_BUFFER_CAPACITY 4096
+#define MATERIAL_DRAW_BUFFER_ELEMENT_CAPACITY 8192
 
 enum
 {
@@ -29,7 +30,7 @@ typedef int16 MaterialDrawBufferIndex;
 #define TEXTURE_INDEX_NULL 0
 #define FRAME_BUFFER_INDEX_DEFAULT 0
 #define MATERIAL_DRAW_BUFFER_EMPTY_KEY -1
-#define MATERIAL_DRAW_BUFFER_MAX_PROBE 5
+#define MATERIAL_DRAW_BUFFER_MAX_PROBE 64
 
 #define BINDING_SLOT_GLOBAL 0
 #define BINDING_SLOT_TEXTURE 1
@@ -131,6 +132,7 @@ enum ShaderProgramType
 typedef struct
 {
     uint64 key;
+    MaterialDrawBufferIndex index;
     MaterialIndex material_index;
     uint32 element_count;
     Mat4* model_buffer;
@@ -142,7 +144,7 @@ typedef struct
     TextureIndex texture_index;
 
     uint32 material_count;
-    MaterialDrawBufferIndex material_buffer_indices[MATERIAL_CAPACITY];
+    MaterialDrawBufferIndex material_buffer_indices[MATERIAL_DRAW_BUFFER_CAPACITY_PER_SETTING];
 } TextureDrawBuffer;
 
 typedef struct
@@ -176,11 +178,19 @@ typedef struct
 
 typedef struct
 {
-    Mat4* model_buffer;
     int32 capacity;
+    int32 index;
     uint32 uniform_data_size;
+    Mat4* model_buffer;
     void* uniform_data_buffer;
 } DrawBuffer;
+
+typedef struct
+{
+    uint32 count;
+    uint32 index;
+    DrawBuffer* elements;
+} DrawBufferArray;
 
 typedef struct
 {
@@ -237,10 +247,19 @@ internal TextureIndex
 texture_new(Renderer* renderer, uint32 width, uint32 height, uint32 channels, uint32 filter, void* data);
 
 internal MaterialDrawBuffer*
-renderer_get_material_buffer(Renderer* renderer, ViewType view_type, FrameBufferIndex layer, TextureIndex texture, MaterialIndex material_index);
+renderer_get_material_buffer(Renderer* renderer, ViewType view_type, FrameBufferIndex layer, TextureIndex texture, MaterialIndex material_index, uint32 available_space);
 
 internal DrawBuffer 
 renderer_buffer_request(Renderer* renderer, FrameBufferIndex layer, MaterialIndex material_index, ViewType view_type, TextureIndex texture, uint32 count);
+
+internal DrawBufferArray*
+renderer_buffer_request_batched(Arena* arena, Renderer* renderer, FrameBufferIndex layer, MaterialIndex material_index, ViewType view_type, TextureIndex texture, uint32 count);
+
+internal bool32
+draw_buffer_insert(DrawBuffer* draw_buffer, Mat4 model, void* uniform_data);
+
+internal void
+draw_buffer_array_insert(DrawBufferArray* draw_buffer_array, Mat4 model, void* uniform_data);
 
 internal void
 frame_buffer_begin(FrameBuffer* frame_buffer);

@@ -44,21 +44,23 @@ int main(void)
 
         /* frame: update */
         Profiler update = profiler_begin(string("Update"));
-        int32 min_y = -100;
-        int32 max_y = 100;
-        int32 min_x = -200;
-        int32 max_x = 200;
+        int32 min_y = -250;
+        int32 max_y = 250;
+        int32 min_x = -350;
+        int32 max_x = 350;
         uint32 instance_count = (max_x - min_x)*(max_y - min_y);
-        DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, FRAME_BUFFER_INDEX_DEFAULT, dc->material_circle_instanced, ViewTypeWorld, TEXTURE_INDEX_NULL, instance_count);
-        int32 draw_index = 0;
+
+        DrawBufferArray* draw_buffer_array = renderer_buffer_request_batched(frame_arena, dc->renderer, FRAME_BUFFER_INDEX_DEFAULT, dc->material_circle_instanced, ViewTypeWorld, TEXTURE_INDEX_NULL, instance_count);
         for(int y = min_y; y < max_y; y++)
         {
             for(int x = min_x; x < max_x; x++)
             {
-                draw_buffer.model_buffer[draw_index] = transform_quad_aligned(vec2(x / 3.0f, y / 3.0f), vec2(0.4f, 0.4f));
-                ((ShaderDataCircle*)draw_buffer.uniform_data_buffer)[draw_index].color = vec4(0.5, (float32)y / (max_y - min_y), (float32)x / (max_x - min_x), 1);
-                ((ShaderDataCircle*)draw_buffer.uniform_data_buffer)[draw_index].fill_ratio = 1;
-                draw_index++;
+                Mat4 model = transform_quad_aligned(vec2(x / 4.0f, y / 4.0f), vec2(0.4f, 0.4f));
+                ShaderDataCircle uniform_data = {
+                    .color = vec4(0.5, (float32)y / (max_y - min_y), (float32)x / (max_x - min_x), 1),
+                    .fill_ratio = 1,
+                };
+                draw_buffer_array_insert(draw_buffer_array, model, &uniform_data);
             }
         }
         circle_pos = lerp_vec2(circle_pos, mouse.world, time.dt * 8.0f);
