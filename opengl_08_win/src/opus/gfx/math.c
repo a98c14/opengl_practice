@@ -20,6 +20,19 @@ transform_quad(Vec2 position, Vec2 scale, float32 rotation)
 }
 
 internal Mat4
+transform_quad_aligned(Vec2 position, Vec2 scale)
+{
+    Mat4 result = mat4_identity();
+    result.m[0][0] = scale.x;
+    result.m[1][1] = scale.y;
+    result.m[2][2] = 0;
+    result.m[3][0] = position.x;
+    result.m[3][1] = position.y;
+    result.m[3][2] = 0;
+    return result;
+}
+
+internal Mat4
 transform_line(Vec2 start, Vec2 end, float32 thickness)
 {
     Vec2 center = lerp_vec2(start, end, 0.5f);

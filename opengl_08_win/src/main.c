@@ -44,8 +44,8 @@ int main(void)
 
         /* frame: update */
         Profiler update = profiler_begin(string("Update"));
-        int32 min_y = -100;
-        int32 max_y = 100;
+        int32 min_y = -200;
+        int32 max_y = 200;
         int32 min_x = -200;
         int32 max_x = 200;
         uint32 instance_count = (max_x - min_x)*(max_y - min_y);
@@ -55,14 +55,13 @@ int main(void)
         {
             for(int x = min_x; x < max_x; x++)
             {
-                draw_buffer.model_buffer[draw_index] = transform_quad(vec2(x / 3.0f, y / 3.0f), vec2(0.4f, 0.4f), 0);
+                draw_buffer.model_buffer[draw_index] = transform_quad_aligned(vec2(x / 3.0f, y / 3.0f), vec2(0.4f, 0.4f));
                 ((ShaderDataCircle*)draw_buffer.uniform_data_buffer)[draw_index].color = color_to_vec4(ColorWhite);
                 ((ShaderDataCircle*)draw_buffer.uniform_data_buffer)[draw_index].fill_ratio = 1;
                 draw_index++;
             }
         }
         circle_pos = lerp_vec2(circle_pos, mouse.world, time.dt * 8.0f);
-        draw_line(dc, vec2_zero(), vec2(100, 100), ColorRed200);
         profiler_end(&update);
 
         /* frame: render */

@@ -400,7 +400,7 @@ renderer_render(Renderer* renderer, float32 dt)
         for(int view_type_index = 0; view_type_index < ViewTypeCOUNT; view_type_index++)
         {
             ViewDrawBuffer* view_draw_buffer = &layer_draw_buffer->view_buffers[view_type_index];
-            // Mat4 view_matrix = view_draw_buffer->view_type == ViewTypeWorld ? camera->view : mat4_identity();
+            Mat4 view_matrix = view_draw_buffer->view_type == ViewTypeWorld ? camera->view : mat4_identity();
 
             /* Texture */
             for(int texture_index = 0; texture_index < view_draw_buffer->texture_count; texture_index++)
@@ -424,7 +424,7 @@ renderer_render(Renderer* renderer, float32 dt)
                     for(int element_index = 0; element_index < material_draw_buffer->element_count; element_index++)
                     {
                         Mat4 model = material_draw_buffer->model_buffer[element_index];
-                        Mat4 mvp = mul_mat4(camera->view, model);
+                        Mat4 mvp = mul_mat4(view_matrix, model);
                         material_draw_buffer->model_buffer[element_index] = mul_mat4(camera->projection, mvp);
                     }
 

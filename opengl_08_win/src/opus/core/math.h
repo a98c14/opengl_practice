@@ -4,7 +4,7 @@
 #include "defines.h"
 
 // NOTE(selim): Delete this if you don't wanna use SIMD
-// #define OPUS_USE_SSE
+#define OPUS_USE_SSE
 #ifdef OPUS_USE_SSE
 # include <xmmintrin.h>
 #endif
