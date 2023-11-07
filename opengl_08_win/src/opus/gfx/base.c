@@ -435,13 +435,6 @@ renderer_render(Renderer* renderer, float32 dt)
                     MaterialDrawBuffer* material_draw_buffer = &state->material_draw_buffers[material_draw_buffer_index];
                     Material* material = &renderer->materials[material_draw_buffer->material_index];
 
-                    // for(int element_index = 0; element_index < material_draw_buffer->element_count; element_index++)
-                    // {
-                    //     Mat4 model = material_draw_buffer->model_buffer[element_index];
-                    //     Mat4 mvp = mul_mat4(view_matrix, model);
-                    //     material_draw_buffer->model_buffer[element_index] = mul_mat4(camera->projection, mvp);
-                    // }
-
                     glUseProgram(material->gl_program_id);
                     glUniform1i(material->location_texture, 0);
 
