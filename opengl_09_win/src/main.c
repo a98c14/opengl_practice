@@ -38,17 +38,7 @@ int main(void)
     int32 cell_count = world_height * world_width;
     TextureIndex world_texture = texture_new(renderer, world_width, world_height, 4, GL_NEAREST, 0);
 
-    const uint32 ring_buffer_size = 4;
-    Cell** cells_buffer = arena_push_array_zero(persistent_arena, Cell*, ring_buffer_size);
-    for(int i = 0; i < ring_buffer_size; i++)
-    {
-        cells_buffer[i] = arena_push_array_zero_aligned(persistent_arena, Cell, cell_count, 16);
-    }
-    uint8 cell_buffer_index = 0;
-    Cell* cells = cells_buffer[0];
-    Cell* temp_cells = arena_push_array_zero_aligned(persistent_arena, Cell, cell_count, 16);
-    Cell* next_cells = cells_buffer[1];
-
+    Cell* cells = arena_push_array_zero_aligned(persistent_arena, Cell, cell_count, 16);
     Color* texture_data = arena_push_array_zero_aligned(persistent_arena, Color, cell_count, 16);
 
     /* application state */
@@ -68,7 +58,7 @@ int main(void)
         Profiler update = profiler_begin(string("Update"));
         int32 mouse_cell_x = (int32)(mouse.world.x + world_width / 2.0f);
         int32 mouse_cell_y = (int32)(mouse.world.y + world_height / 2.0f);
-        bool32 mouse_is_in_bounds = mouse_cell_x > 0 && mouse_cell_x < world_width && mouse_cell_y > 0 && mouse_cell_y < world_height;
+        bool32 mouse_is_in_bounds = mouse_cell_x >= 0 && mouse_cell_x < world_width && mouse_cell_y >= 0 && mouse_cell_y < world_height;
 
         if((mouse.button_state & MouseButtonStateLeft) > 0 && mouse_is_in_bounds)
         {
@@ -78,64 +68,50 @@ int main(void)
         /* physics */
         if(simulation_clock > simulation_rate)
         {
-            memset(next_cells, 0, sizeof(Cell) * cell_count);
-            memset(temp_cells, 0, sizeof(Cell) * cell_count);
             simulation_clock -= simulation_rate;
-
-            /* first pass */
-            for(int32 y = world_height - 1; y >= 0; y--)
+            for(int32 y = 0; y < world_height; y++)
             {
                 for(int32 x = 0; x < world_width; x++)
                 {
                     int32 i = y*world_width+x;
                     Cell* c = &cells[i];
-                    if(c->movement > 0) continue;
                     if(c->type == CellMaterialTypeSand)
                     {
-                        int32 ib = max(0, y-1)*world_width+x;
-                        bool32 down_empty = y-1 >= 0 && temp_cells[ib].type == CellMaterialTypeAir;
+                        int32 ib = (y-1)*world_width+x;
+                        int32 ilb = (y-1)*world_width+(x-1);
+                        int32 irb = (y-1)*world_width+(x+1);
+                        bool32 down_empty = y-1 >= 0 && cells[ib].type == CellMaterialTypeAir;
+                        bool32 down_left_empty = y-1 >= 0 && x-1 >= 0 && cells[ilb].type == CellMaterialTypeAir;
+                        bool32 down_right_empty = y-1 >= 0 && x+1 < world_width && cells[irb].type == CellMaterialTypeAir;
                         if(down_empty)
                         {
-                            temp_cells[ib].priority = max(temp_cells[i].priority, 1);
-                            temp_cells[ib].type = CellMaterialTypeSand;
+                            cells[i].type = CellMaterialTypeAir;
+                            cells[i].priority = 0;
+                            cells[ib].priority = 1;
+                            cells[ib].type = CellMaterialTypeSand;
+                        }
+                        else if(down_right_empty)
+                        {
+                            cells[i].type = CellMaterialTypeAir;
+                            cells[i].priority = 0;
+                            cells[irb].priority = 1;
+                            cells[irb].type = CellMaterialTypeSand;
+                        }
+                        else if(down_left_empty)
+                        {
+                            cells[i].type = CellMaterialTypeAir;
+                            cells[i].priority = 0;
+                            cells[ilb].priority = 1;
+                            cells[ilb].type = CellMaterialTypeSand;
                         }
                         else
                         {
-                            temp_cells[i].priority = 3;
-                            temp_cells[i].type = CellMaterialTypeSand;
+                            cells[i].priority = 3;
+                            cells[i].type = CellMaterialTypeSand;
                         }
                     }
                 }
             }
-
-            /* second pass */
-            for(int32 y = world_height - 1; y >= 0; y--)
-            {
-                for(int32 x = 0; x < world_width; x++)
-                {
-                    int32 i = y*world_width+x;
-                    Cell* c = &cells[i];
-                    if(c->movement > 0) continue;
-                    if(c->type == CellMaterialTypeSand)
-                    {
-                        int32 ib = max(0, y-1)*world_width+x;
-                        bool32 down_empty = y-1 >= 0 && temp_cells[ib].priority <= 1;
-                        if(down_empty)
-                        {
-                            next_cells[ib].priority = 1;
-                            next_cells[ib].type = CellMaterialTypeSand;
-                        }
-                        else
-                        {
-                            next_cells[i].priority = 3;
-                            next_cells[i].type = CellMaterialTypeSand;
-                        }
-                    }
-                }
-            }
-            cell_buffer_index++;
-            cells = cells_buffer[cell_buffer_index%ring_buffer_size];
-            next_cells = cells_buffer[(cell_buffer_index+1)%ring_buffer_size];
         }
 
         /* update colors */
@@ -145,7 +121,6 @@ int main(void)
         shader_data.thickness = 0.50;
         shader_data.softness = 30;
         shader_data.outline_thickness = 0.2;
-        
         
         for(int32 y = 0; y < world_height; y++)
         {

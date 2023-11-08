@@ -19,6 +19,5 @@ typedef enum
 typedef struct
 {
     uint8 priority;
-    uint8 movement;
     uint8 type;
 } Cell;
