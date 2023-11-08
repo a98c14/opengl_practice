@@ -100,6 +100,8 @@ internal Vec2 vec2_one();
 internal Vec2 vec2_right();
 internal Vec2 vec2_up();
 internal Vec3 vec3(float32 x, float32 y, float32 z);
+internal Vec3 vec3_zero();
+internal Vec3 vec3_one();
 internal Vec3 vec3_xy_z(Vec2 xy, float32 z);
 internal Vec4 vec4(float32 x, float32 y, float32 z, float32 w);
 
@@ -119,6 +121,7 @@ internal Vec2 div_vec2_f32(Vec2 a, float32 b);
 
 internal float32 lerp_f32(float32 a, float32 b, float32 t);
 internal Vec2 lerp_vec2(Vec2 a, Vec2 b, float32 t);
+internal Vec4 lerp_vec4(Vec4 a, Vec4 b, float32 t);
 
 /* Vector Operations */
 internal float32 dot_vec2(Vec2 a, Vec2 b);

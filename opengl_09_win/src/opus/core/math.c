@@ -56,6 +56,24 @@ vec3(float32 x, float32 y, float32 z)
     return result;
 }
 
+internal Vec3 vec3_zero()
+{
+    Vec3 result;
+    result.x = 0;
+    result.y = 0;
+    result.z = 0;
+    return result;
+}
+
+internal Vec3 vec3_one()
+{
+    Vec3 result;
+    result.x = 1;
+    result.y = 1;
+    result.z = 1;
+    return result;
+}
+
 internal Vec3 
 vec3_xy_z(Vec2 xy, float32 z)
 {
@@ -224,6 +242,17 @@ lerp_vec2(Vec2 a, Vec2 b, float32 t)
     Vec2 result;
     result.x = (a.x * (1 - t)) + (b.x * t);
     result.y = (a.y * (1 - t)) + (b.y * t);
+    return result;
+}
+
+internal Vec4
+lerp_vec4(Vec4 a, Vec4 b, float32 t)
+{
+    Vec4 result;
+    result.x = (a.x * (1 - t)) + (b.x * t);
+    result.y = (a.y * (1 - t)) + (b.y * t);
+    result.z = (a.z * (1 - t)) + (b.z * t);
+    result.w = (a.w * (1 - t)) + (b.w * t);
     return result;
 }
 

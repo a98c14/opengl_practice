@@ -23,6 +23,7 @@ typedef struct
     MaterialIndex material_text;
     MaterialIndex material_basic;
     MaterialIndex material_line;
+    MaterialIndex material_basic_texture;
     MaterialIndex material_quad;
     MaterialIndex material_circle;
     MaterialIndex material_boid;
@@ -55,6 +56,11 @@ typedef struct
 typedef struct 
 {
     Vec4 color;
+} ShaderDataBasicTexture;
+
+typedef struct 
+{
+    Vec4 color;
     float32 fill_ratio;
     Vec3 _;
 } ShaderDataCircle;
@@ -71,10 +77,13 @@ internal void
 draw_line(DrawContext* dc, Vec2 start, Vec2 end, Color color);
 
 internal void
+draw_texture_aligned(DrawContext* dc, Vec3 pos, Vec2 scale, TextureIndex texture);
+
+internal void
 draw_bounds(DrawContext* dc, float32 left, float32 right, float32 bottom, float32 top, Color color);
 
 internal void
-draw_text(DrawContext* dc, Vec2 pos, String str, Color color);
+draw_text(DrawContext* dc, Vec2 pos, String str, Color color, float32 size);
 
 internal void
 draw_circle(DrawContext* dc, Vec2 position, float32 radius, Color color);

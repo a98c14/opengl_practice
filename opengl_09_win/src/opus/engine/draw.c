@@ -20,6 +20,13 @@ draw_context_new(Arena* arena, Renderer* renderer)
         sizeof(ShaderDataLine),
         false);
 
+    draw_context->material_basic_texture = material_new(
+        renderer,
+        file_read_all_as_string(arena, string("..\\src\\shaders\\basic_texture.vert")),
+        file_read_all_as_string(arena, string("..\\src\\shaders\\basic_texture.frag")),
+        sizeof(ShaderDataBasicTexture),
+        false);
+
     // draw_context->material_quad = material_new(
     //     arena,
     //     file_read_all_as_string(arena, string("C:\\Users\\selim\\source\\practice\\opengl\\opengl_03_win\\src\\shaders\\basic.vert")),
@@ -75,6 +82,14 @@ draw_line(DrawContext* dc, Vec2 start, Vec2 end, Color color)
 }
 
 internal void
+draw_texture_aligned(DrawContext* dc, Vec3 pos, Vec2 scale, TextureIndex texture)
+{
+    DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, FRAME_BUFFER_INDEX_DEFAULT, dc->material_basic_texture, ViewTypeWorld, texture, 1);
+    ShaderDataBasicTexture uniform_data = (ShaderDataBasicTexture){0};
+    draw_buffer_insert(&draw_buffer, transform_quad_aligned(pos, scale), &uniform_data);
+}
+
+internal void
 draw_bounds(DrawContext* dc, float32 left, float32 right, float32 bottom, float32 top, Color color)
 {
     draw_line(dc, vec2(left, top), vec2(left, bottom), color);
@@ -84,7 +99,7 @@ draw_bounds(DrawContext* dc, float32 left, float32 right, float32 bottom, float3
 }
 
 internal void
-draw_text(DrawContext* dc, Vec2 pos, String str, Color color)
+draw_text(DrawContext* dc, Vec2 pos, String str, Color color, float32 size)
 {
     ShaderDataText shader_data = {0};
     shader_data.color = color_to_vec4(color);
@@ -93,7 +108,7 @@ draw_text(DrawContext* dc, Vec2 pos, String str, Color color)
     shader_data.softness = 30;
     shader_data.outline_thickness = 0.2;
     DrawBuffer db = renderer_buffer_request(dc->renderer, FRAME_BUFFER_INDEX_DEFAULT, dc->material_text, ViewTypeWorld, dc->font_open_sans->texture, str.length);
-    text_calculate_transforms(dc->font_open_sans, str, 1.8, pos, RectAlignmentTypeBottomLeft, db.model_buffer, 0);
+    text_calculate_transforms(dc->font_open_sans, str, size, pos, RectAlignmentTypeBottomLeft, db.model_buffer, 0);
     ShaderDataText* shader_data_buffer = (ShaderDataText*)db.uniform_data_buffer;
     for(int i = 0; i < str.length; i++)
     {

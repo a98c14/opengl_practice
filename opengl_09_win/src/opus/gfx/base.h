@@ -14,7 +14,7 @@
 
 #define MATERIAL_DRAW_BUFFER_CAPACITY_PER_SETTING 128
 #define MATERIAL_DRAW_BUFFER_CAPACITY 512
-#define MATERIAL_DRAW_BUFFER_ELEMENT_CAPACITY 8192
+#define MATERIAL_DRAW_BUFFER_ELEMENT_CAPACITY 8192*4
 
 enum
 {
@@ -99,6 +99,7 @@ typedef struct
     int32 width;
     int32 height;
     int32 channels;
+    int32 format;
     int32 layer_count;
     uint32 gl_texture_id;
     uint32 gl_texture_type;
@@ -269,6 +270,9 @@ renderer_frame_buffer_init(Renderer* renderer, uint32 width, uint32 height, uint
 
 internal Vec4
 color_to_vec4(Color color);
+
+internal Color
+vec4_to_color(Vec4 c);
 
 internal void 
 renderer_render(Renderer* renderer, float32 dt);

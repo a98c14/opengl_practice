@@ -16,6 +16,10 @@ input_mouse_get(Window* window, Camera camera)
 {
     InputMouse result = {0};
     glfwGetCursorPos(window->glfw_window, &result.raw_x, &result.raw_y);
+    result.button_state += (glfwGetMouseButton(window->glfw_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) << 0;
+    result.button_state += (glfwGetMouseButton(window->glfw_window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) << 1;
+    result.button_state += (glfwGetMouseButton(window->glfw_window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS) << 2;
+    
     Vec2 mouse_raw = vec2(result.raw_x, result.raw_y);
     result.world = mouse_world_position(mouse_raw, camera);
     // TODO: calculate mouse screen position

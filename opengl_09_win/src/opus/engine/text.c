@@ -55,7 +55,7 @@ text_calculate_transforms(GlyphAtlas* atlas, String str, float32 size_in_pixels,
         float32 x = position.x + base_offset.x + plane_offset.x + w / 2.0f;
         float32 y = position.y + base_offset.y + plane_offset.y + h / 2.0f;
 
-        Mat4 transform = transform_quad(vec2(x, y), vec2(w, h), 0);
+        Mat4 transform = transform_quad_aligned(vec3(x, y, -10), vec2(w, h));
         memcpy(&dst_matrices[index], &transform, sizeof(transform));
         base_offset.x += glyph.advance * size_in_pixels;
         index++;

@@ -1,6 +1,9 @@
 #pragma once
 #include <gfx/base.h>
 
+internal Color
+lerp_color(Color a, Color b, float32 t);
+
 const Color ColorButtonInactive      =  { .r = 0x9e, .g = 0xa8, .b = 0xad, .a =0xff };
 const Color ColorButtonInactiveHover =  { .r = 0x7f, .g = 0x8a, .b = 0x94, .a =0xff };
 const Color ColorButtonActive        =  { .r = 0xeb, .g = 0xf4, .b = 0xf7, .a =0xff };

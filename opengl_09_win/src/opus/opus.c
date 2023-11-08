@@ -19,3 +19,4 @@
 #include <engine/window.c>
 #include <engine/time.c>
 #include <engine/profiler.c>
+#include <engine/color.c>

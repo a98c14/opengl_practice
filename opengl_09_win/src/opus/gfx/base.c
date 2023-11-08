@@ -16,7 +16,7 @@ renderer_new(Arena* arena, RendererConfiguration* configuration)
     float32 world_height = configuration->world_height;
     float32 world_width = world_height * aspect;
 
-    renderer->camera = camera_new(world_width, world_height, 1, -1, renderer->window_width, renderer->window_height);
+    renderer->camera = camera_new(world_width, world_height, 100, -100, renderer->window_width, renderer->window_height);
 
     glEnable(GL_BLEND);
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
@@ -179,22 +179,32 @@ texture_new(Renderer* renderer, uint32 width, uint32 height, uint32 channels, ui
     switch (channels)
     {
         case 4:
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+            texture->format = GL_RGBA;
             break;
         case 3:
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            texture->format = GL_RGB;
             break;
         case 2:
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, data);
+            texture->format = GL_RED;
             break;
         case 1:
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, data);
+            texture->format = GL_RED;
             break;
         default:
+            texture->format = GL_RGBA;
             break;
     }
+    glTexImage2D(GL_TEXTURE_2D, 0, texture->format, width, height, 0, texture->format, GL_UNSIGNED_BYTE, data);
 
     return texture_index;
+}
+
+internal void
+texture_update(Renderer* renderer, TextureIndex texture, void* data)
+{
+    Texture* texture_data = &renderer->textures[texture];
+    glBindTexture(GL_TEXTURE_2D, texture_data->gl_texture_id);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texture_data->width, texture_data->height, texture_data->format, GL_UNSIGNED_BYTE, data);
 }
 
 internal MaterialDrawBuffer*
@@ -421,6 +431,12 @@ internal Vec4
 color_to_vec4(Color c)
 {
     return (Vec4){ .r = c.r / 255.0F, .g = c.g / 255.0F, .b = c.b / 255.0F, .a = c.a / 255.0F };
+}
+
+internal Color
+vec4_to_color(Vec4 c)
+{
+    return (Color){ .r = c.r * 255.0F, .g = c.g * 255.0F, .b = c.b * 255.0F, .a = c.a * 255.0F };
 }
 
 internal void

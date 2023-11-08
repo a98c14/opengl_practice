@@ -20,7 +20,7 @@ transform_quad(Vec2 position, Vec2 scale, float32 rotation)
 }
 
 internal Mat4
-transform_quad_aligned(Vec2 position, Vec2 scale)
+transform_quad_aligned(Vec3 position, Vec2 scale)
 {
     Mat4 result = mat4_identity();
     result.m[0][0] = scale.x;
@@ -28,7 +28,7 @@ transform_quad_aligned(Vec2 position, Vec2 scale)
     result.m[2][2] = 0;
     result.m[3][0] = position.x;
     result.m[3][1] = position.y;
-    result.m[3][2] = 0;
+    result.m[3][2] = position.z;
     return result;
 }
 
