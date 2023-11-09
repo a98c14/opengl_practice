@@ -46,10 +46,19 @@ const uint8 MatterDensities[] =
     20, // Dirt
 };
 
-/**                                         D  L  R  U  DL DR UL UR */
-const uint8 MatterMovementRulesSolid[]  = { 1, 0, 0, 0,  1, 1, 0, 0 };
-const uint8 MatterMovementRulesLiquid[] = { 1, 1, 1, 0,  1, 1, 0, 0 };
-const uint8 MatterMovementRulesGas[]    = { 1, 1, 1, 0,  1, 1, 0, 0 };
+/**            TR TL BR BL  T  R  L  B 
+ * DownCheck:   0  0  1  1  0  0  0  1
+ * LeftCheck:   0  1  0  1  0  0  1  0
+ * RightCheck:  1  0  1  0  0  1  0  0 
+ * UpCheck:     1  1  0  0  1  0  0  0 */
+const uint8 BoundCheckDown  = 0b00110001;
+const uint8 BoundCheckLeft  = 0b01010010;
+const uint8 BoundCheckRight = 0b10100100;
+const uint8 BoundCheckUp    = 0b11001000;
+
+const uint8 MatterMovementRulesSolid  = 0b00110001;
+const uint8 MatterMovementRulesLiquid = 0b00110111;
+const uint8 MatterMovementRulesGas    = 0b00110111;
 
 const uint8 MatterStates[] = 
 {

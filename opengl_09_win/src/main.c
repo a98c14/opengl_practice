@@ -85,21 +85,27 @@ int main(void)
                     if(movements[i] > 0) continue;
 
                     MatterStateType matter_state = MatterStates[cells[i].type];
-                    const uint8* movement_rules;
-                    switch (matter_state) 
-                    { 
+                    uint8 movement_rules;
+                    switch (matter_state)
+                    {
                         case MatterStateTypeSolid: movement_rules = MatterMovementRulesSolid; break;
                         case MatterStateTypeLiquid: movement_rules = MatterMovementRulesLiquid; break;
                         case MatterStateTypeGas: movement_rules = MatterMovementRulesGas; break;
-                        default: movement_rules = NULL;
+                        default: movement_rules = 0;
                     }
 
                     for(int direction = 0; direction < CellDirectionCount; direction++)
                     {
+                        bool32 should_check = 1 & (movement_rules >> direction);
+                        bool32 out_of_bounds =
+                            (1 & (BoundCheckDown >> direction)) & (y-1 <  0) ||
+                            (1 & (BoundCheckUp   >> direction)) & (y+1 >= world_height) ||
+                            (1 & (BoundCheckRight>> direction)) & (x+1 >= world_width) ||
+                            (1 & (BoundCheckLeft >> direction)) & (x-1 <  0);
+
                         int32 target_index = i + direction_indices[direction];
                         if(target_index < 0 || target_index >= cell_count) continue;
-                        // TODO: add bound check
-                        bool32 target_empty = (movement_rules[direction] * MatterDensities[cells[i].type]) > MatterDensities[cells[target_index].type];
+                        bool32 target_empty = !out_of_bounds && should_check * MatterDensities[cells[i].type] > MatterDensities[cells[target_index].type];
                         if(target_empty)
                         {
                             Cell temp = cells[i];
@@ -109,24 +115,6 @@ int main(void)
                             break;
                         }
                     }
-                    // bool32 down_empty = y-1 >= 0 && MatterDensities[cells[i].type] > MatterDensities[cells[ib].type];
-                    // bool32 down_left_empty = y-1 >= 0 && x-1 >= 0 && cells[ilb].type == CellMaterialTypeAir;
-                    // bool32 down_right_empty = y-1 >= 0 && x+1 < world_width && cells[irb].type == CellMaterialTypeAir;
-                    // bool32 left_empty = x-1 >= 0 && MatterDensities[cells[i].type] > MatterDensities[cells[il].type];
-                    // bool32 right_empty = x+1 < world_width && MatterDensities[cells[i].type] > MatterDensities[cells[ir].type];
-
-                    // uint32 target_index;
-                    // uint32 movement = 1;
-                    // if(down_empty) target_index = ib;
-                    // else if(down_right_empty) target_index = irb;
-                    // else if(down_left_empty) target_index = ilb;
-                    // else if(left_empty) target_index = il;
-                    // else if(right_empty) target_index = ir;
-                    // else { target_index = i; movement = 0; }
-                    // Cell temp = cells[i];
-                    // cells[i] = cells[target_index];
-                    // cells[target_index] = temp;
-                    // movements[target_index] = movement;
                 }
             }
         }
