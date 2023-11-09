@@ -15,7 +15,7 @@
 #define LOG_WARN_ENABLED 1
 #define LOG_INFO_ENABLED 1
 #define LOG_DEBUG_ENABLED 1
-#define LOG_TRACE_ENABLED 1
+#define LOG_TRACE_ENABLED 0 // Warning: Emits a lot of logs, best to enable while debugging
 
 typedef enum 
 {

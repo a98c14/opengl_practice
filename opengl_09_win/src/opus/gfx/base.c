@@ -229,7 +229,7 @@ renderer_get_material_buffer(Renderer* renderer, ViewType view_type, FrameBuffer
         // if the slot is empty and we are still in probe range, initialize the buffer
         if(buffer->key == MATERIAL_DRAW_BUFFER_EMPTY_KEY)
         {
-            log_debug("initializing material buffer. material: %d, layer: %d, texture: %d, view: %d", material_index, layer, texture, view_type);
+            log_debug("initializing material buffer. layer: %2d, view: %2d, texture: %2d, material: %2d, buffer index: %03d", layer, view_type, texture, material_index, draw_buffer_index);
             const Material* material = &renderer->materials[material_index];
             xassert(material->is_initialized, "material isn't initialized");
             buffer->index = draw_buffer_index;
@@ -309,6 +309,7 @@ renderer_get_material_buffer(Renderer* renderer, ViewType view_type, FrameBuffer
 
             // add draw buffer index
             int32 setting_internal_index = texture_draw_buffer->material_count;
+            log_trace("draw buffer internal_index: %d", setting_internal_index);
             xassert(setting_internal_index < MATERIAL_DRAW_BUFFER_CAPACITY_PER_SETTING, "material internal index exceeded MATERIAL_CAPACITY");
             texture_draw_buffer->material_buffer_indices[setting_internal_index];
             texture_draw_buffer->material_buffer_indices[setting_internal_index] = draw_buffer_index;
@@ -498,6 +499,7 @@ renderer_render(Renderer* renderer, float32 dt)
 
                     glUseProgram(material->gl_program_id);
                     glUniform1i(material->location_texture, 0);
+                    log_trace("rendering, layer: %2d, view: %2d, texture: %2d, material: %2d, internal: %2d, draw_buffer: %03d", layer_draw_buffer->layer_index, view_draw_buffer->view_type, texture_draw_buffer->texture_index, material_draw_buffer->material_index, internal_index, material_draw_buffer_index);
 
                     if(material->is_instanced)
                     {

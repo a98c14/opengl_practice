@@ -148,7 +148,10 @@ int main(void)
             {
                 int32 cell_index = y*world_width+x;
                 Cell* cell = &cells[cell_index];
-                draw_text(dc, vec2(x - world_width / 2.0f + 0.25f, y - world_height / 2.0f + 0.25), string_pushf(frame_arena, "%2d", MatterDensities[cell->type]), ColorSlate700, 0.5f);
+                float32 cell_x = x-world_width/2.0f;
+                float32 cell_y = y-world_height/2.0f;
+                draw_text(dc, vec2(cell_x + 0.25f, cell_y + 0.25), string_pushf(frame_arena, "%2d", MatterDensities[cell->type]), ColorSlate700, 0.5f);
+                draw_line(dc, vec2(cell_x, cell_y), vec2(cell_x + 0.5, cell_y + 0.5), ColorBlack);
             }
         }
 
