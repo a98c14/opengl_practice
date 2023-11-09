@@ -39,6 +39,7 @@ int main(void)
     TextureIndex world_texture = texture_new(renderer, world_width, world_height, 4, GL_NEAREST, 0);
 
     Cell* cells = arena_push_array_zero_aligned(persistent_arena, Cell, cell_count, 16);
+    uint8* movements = arena_push_array_zero_aligned(persistent_arena, uint8, cell_count, 16);
     Color* texture_data = arena_push_array_zero_aligned(persistent_arena, Color, cell_count, 16);
 
     /* application state */
@@ -64,52 +65,68 @@ int main(void)
         {
             cells[mouse_cell_y*world_width+mouse_cell_x].type = (uint8)CellMaterialTypeSand;
         }
+        else if((mouse.button_state & MouseButtonStateRight) > 0 && mouse_is_in_bounds)
+        {
+            cells[mouse_cell_y*world_width+mouse_cell_x].type = (uint8)CellMaterialTypeWater;
+        }
+
+        const uint32 direction_indices[CellDirectionCount] =  {  -world_width, -1, +1, world_width, -world_width-1, -world_width+1, world_width-1, world_width+1 };
 
         /* physics */
         if(simulation_clock > simulation_rate)
         {
             simulation_clock -= simulation_rate;
+            memset(movements, 0, sizeof(Cell)*cell_count);
             for(int32 y = 0; y < world_height; y++)
             {
                 for(int32 x = 0; x < world_width; x++)
                 {
                     int32 i = y*world_width+x;
-                    Cell* c = &cells[i];
-                    if(c->type == CellMaterialTypeSand)
+                    if(movements[i] > 0) continue;
+
+                    MatterStateType matter_state = MatterStates[cells[i].type];
+                    const uint8* movement_rules;
+                    switch (matter_state) 
+                    { 
+                        case MatterStateTypeSolid: movement_rules = MatterMovementRulesSolid; break;
+                        case MatterStateTypeLiquid: movement_rules = MatterMovementRulesLiquid; break;
+                        case MatterStateTypeGas: movement_rules = MatterMovementRulesGas; break;
+                        default: movement_rules = NULL;
+                    }
+
+                    for(int direction = 0; direction < CellDirectionCount; direction++)
                     {
-                        int32 ib = (y-1)*world_width+x;
-                        int32 ilb = (y-1)*world_width+(x-1);
-                        int32 irb = (y-1)*world_width+(x+1);
-                        bool32 down_empty = y-1 >= 0 && cells[ib].type == CellMaterialTypeAir;
-                        bool32 down_left_empty = y-1 >= 0 && x-1 >= 0 && cells[ilb].type == CellMaterialTypeAir;
-                        bool32 down_right_empty = y-1 >= 0 && x+1 < world_width && cells[irb].type == CellMaterialTypeAir;
-                        if(down_empty)
+                        int32 target_index = i + direction_indices[direction];
+                        if(target_index < 0 || target_index >= cell_count) continue;
+                        // TODO: add bound check
+                        bool32 target_empty = (movement_rules[direction] * MatterDensities[cells[i].type]) > MatterDensities[cells[target_index].type];
+                        if(target_empty)
                         {
-                            cells[i].type = CellMaterialTypeAir;
-                            cells[i].priority = 0;
-                            cells[ib].priority = 1;
-                            cells[ib].type = CellMaterialTypeSand;
-                        }
-                        else if(down_right_empty)
-                        {
-                            cells[i].type = CellMaterialTypeAir;
-                            cells[i].priority = 0;
-                            cells[irb].priority = 1;
-                            cells[irb].type = CellMaterialTypeSand;
-                        }
-                        else if(down_left_empty)
-                        {
-                            cells[i].type = CellMaterialTypeAir;
-                            cells[i].priority = 0;
-                            cells[ilb].priority = 1;
-                            cells[ilb].type = CellMaterialTypeSand;
-                        }
-                        else
-                        {
-                            cells[i].priority = 3;
-                            cells[i].type = CellMaterialTypeSand;
+                            Cell temp = cells[i];
+                            cells[i] = cells[target_index];
+                            cells[target_index] = temp;
+                            movements[target_index] = 1;
+                            break;
                         }
                     }
+                    // bool32 down_empty = y-1 >= 0 && MatterDensities[cells[i].type] > MatterDensities[cells[ib].type];
+                    // bool32 down_left_empty = y-1 >= 0 && x-1 >= 0 && cells[ilb].type == CellMaterialTypeAir;
+                    // bool32 down_right_empty = y-1 >= 0 && x+1 < world_width && cells[irb].type == CellMaterialTypeAir;
+                    // bool32 left_empty = x-1 >= 0 && MatterDensities[cells[i].type] > MatterDensities[cells[il].type];
+                    // bool32 right_empty = x+1 < world_width && MatterDensities[cells[i].type] > MatterDensities[cells[ir].type];
+
+                    // uint32 target_index;
+                    // uint32 movement = 1;
+                    // if(down_empty) target_index = ib;
+                    // else if(down_right_empty) target_index = irb;
+                    // else if(down_left_empty) target_index = ilb;
+                    // else if(left_empty) target_index = il;
+                    // else if(right_empty) target_index = ir;
+                    // else { target_index = i; movement = 0; }
+                    // Cell temp = cells[i];
+                    // cells[i] = cells[target_index];
+                    // cells[target_index] = temp;
+                    // movements[target_index] = movement;
                 }
             }
         }
@@ -121,11 +138,11 @@ int main(void)
         shader_data.thickness = 0.50;
         shader_data.softness = 30;
         shader_data.outline_thickness = 0.2;
-        
+
         for(int32 y = 0; y < world_height; y++)
         {
             for(int32 x = 0; x < world_width; x++)
-            {                
+            {
                 int32 cell_index = y*world_width+x;
                 Cell* cell = &cells[cell_index];
                 Vec4 current_cell_color = CellMaterialColors[cell->type];
@@ -140,10 +157,10 @@ int main(void)
         for(int32 y = 0; y < world_height; y++)
         {
             for(int32 x = 0; x < world_width; x++)
-            {                
+            {
                 int32 cell_index = y*world_width+x;
                 Cell* cell = &cells[cell_index];
-                draw_text(dc, vec2(x - world_width / 2.0f + 0.25f, y - world_height / 2.0f + 0.25), string_pushf(frame_arena, "%2d", cell->priority), ColorSlate700, 0.5f);
+                draw_text(dc, vec2(x - world_width / 2.0f + 0.25f, y - world_height / 2.0f + 0.25), string_pushf(frame_arena, "%2d", MatterDensities[cell->type]), ColorSlate700, 0.5f);
             }
         }
 
