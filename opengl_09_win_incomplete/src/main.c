@@ -151,7 +151,7 @@ int main(void)
                 float32 cell_x = x-world_width/2.0f;
                 float32 cell_y = y-world_height/2.0f;
                 draw_text(dc, vec2(cell_x + 0.25f, cell_y + 0.25), string_pushf(frame_arena, "%2d", MatterDensities[cell->type]), ColorSlate700, 0.5f);
-                draw_line(dc, vec2(cell_x, cell_y), vec2(cell_x + 0.5, cell_y + 0.5), ColorBlack);
+                draw_line(dc, vec2(cell_x + 0.5, cell_y + 0.5), vec2(cell_x + 1, cell_y + 1), ColorBlack);
             }
         }
 
