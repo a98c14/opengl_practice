@@ -6,7 +6,8 @@ draw_context_new(Arena* arena, Renderer* renderer)
     DrawContext* draw_context = arena_push_struct_zero(arena, DrawContext);
     draw_context->renderer = renderer;
     
-    draw_context->geometry_quad = geometry_quad_create();
+    draw_context->geometry_quad = geometry_quad_create(renderer);
+    draw_context->geometry_triangle = geometry_triangle_create(renderer);
 
     // draw_context->material_basic = material_new(
     //     arena,
@@ -73,29 +74,41 @@ draw_context_new(Arena* arena, Renderer* renderer)
 }
 
 internal void
-draw_line(DrawContext* dc, Vec2 start, Vec2 end, Color color)
+draw_line(DrawContext* dc, Vec2 start, Vec2 end, Color color, float32 thickness)
 {
-    float32 thickness = 0.15;
-    DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, FRAME_BUFFER_INDEX_DEFAULT, dc->material_line, ViewTypeWorld, TEXTURE_INDEX_NULL, 1);
+    DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, ViewTypeWorld, 0, FRAME_BUFFER_INDEX_DEFAULT, TEXTURE_INDEX_NULL, dc->geometry_quad, dc->material_line, 1);
     draw_buffer.model_buffer[0] = transform_line(start, end, thickness);
     ((ShaderDataLine*)draw_buffer.uniform_data_buffer)[0].color = color_to_vec4(color);
 }
 
 internal void
+draw_debug_line(DrawContext* dc, Vec2 start, Vec2 end, Color color)
+{
+    draw_line(dc, start, end, color, 4 * dc->renderer->pixel_per_unit);
+}
+
+internal void
 draw_texture_aligned(DrawContext* dc, Vec3 pos, Vec2 scale, TextureIndex texture)
 {
-    DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, FRAME_BUFFER_INDEX_DEFAULT, dc->material_basic_texture, ViewTypeWorld, texture, 1);
+    DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, ViewTypeWorld, 0, FRAME_BUFFER_INDEX_DEFAULT, texture, dc->geometry_quad, dc->material_basic_texture, 1);
     ShaderDataBasicTexture uniform_data = (ShaderDataBasicTexture){0};
     draw_buffer_insert(&draw_buffer, transform_quad_aligned(pos, scale), &uniform_data);
 }
 
 internal void
-draw_bounds(DrawContext* dc, float32 left, float32 right, float32 bottom, float32 top, Color color)
+draw_bounds(DrawContext* dc, float32 left, float32 right, float32 bottom, float32 top, Color color, float32 thickness)
 {
-    draw_line(dc, vec2(left, top), vec2(left, bottom), color);
-    draw_line(dc, vec2(left, bottom), vec2(right, bottom), color);
-    draw_line(dc, vec2(right, bottom), vec2(right, top), color);
-    draw_line(dc, vec2(right, top), vec2(left, top), color);
+    DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, ViewTypeWorld, 0, FRAME_BUFFER_INDEX_DEFAULT, TEXTURE_INDEX_NULL, dc->geometry_quad, dc->material_line, 4);
+    ShaderDataLine* uniform_buffer = (ShaderDataLine*)draw_buffer.uniform_data_buffer;
+    Vec4 color_vec4 = color_to_vec4(color);
+    draw_buffer.model_buffer[0] = transform_line(vec2(left, top), vec2(left, bottom), thickness);
+    draw_buffer.model_buffer[1] = transform_line(vec2(left, bottom), vec2(right, bottom), thickness);
+    draw_buffer.model_buffer[2] = transform_line(vec2(right, bottom), vec2(right, top), thickness);
+    draw_buffer.model_buffer[3] = transform_line(vec2(right, top), vec2(left, top), thickness);
+    uniform_buffer[0].color = color_vec4;
+    uniform_buffer[1].color = color_vec4;
+    uniform_buffer[2].color = color_vec4;
+    uniform_buffer[3].color = color_vec4;
 }
 
 internal void
@@ -107,7 +120,7 @@ draw_text(DrawContext* dc, Vec2 pos, String str, Color color, float32 size)
     shader_data.thickness = 0.50;
     shader_data.softness = 30;
     shader_data.outline_thickness = 0.2;
-    DrawBuffer db = renderer_buffer_request(dc->renderer, FRAME_BUFFER_INDEX_DEFAULT, dc->material_text, ViewTypeWorld, dc->font_open_sans->texture, str.length);
+    DrawBuffer db = renderer_buffer_request(dc->renderer, ViewTypeWorld, 0, FRAME_BUFFER_INDEX_DEFAULT, dc->font_open_sans->texture, dc->geometry_quad, dc->material_text, str.length);
     text_calculate_transforms(dc->font_open_sans, str, size, pos, RectAlignmentTypeBottomLeft, db.model_buffer, 0);
     ShaderDataText* shader_data_buffer = (ShaderDataText*)db.uniform_data_buffer;
     for(int i = 0; i < str.length; i++)
@@ -121,7 +134,7 @@ draw_text(DrawContext* dc, Vec2 pos, String str, Color color, float32 size)
 internal void
 draw_circle(DrawContext* dc, Vec2 position, float32 radius, Color color)
 {
-    DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, FRAME_BUFFER_INDEX_DEFAULT, dc->material_circle, ViewTypeWorld, TEXTURE_INDEX_NULL, 1);
+    DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, ViewTypeWorld, 0, FRAME_BUFFER_INDEX_DEFAULT, TEXTURE_INDEX_NULL, dc->geometry_quad, dc->material_circle, 1);
     draw_buffer.model_buffer[0] = transform_quad(position, vec2(radius, radius), 0);
     ((ShaderDataCircle*)draw_buffer.uniform_data_buffer)[0].color = color_to_vec4(color);
 }
@@ -129,7 +142,7 @@ draw_circle(DrawContext* dc, Vec2 position, float32 radius, Color color)
 internal void
 draw_circle_filled(DrawContext* dc, Vec2 position, float32 radius, Color color)
 {
-    DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, FRAME_BUFFER_INDEX_DEFAULT, dc->material_circle, ViewTypeWorld, TEXTURE_INDEX_NULL, 1);
+    DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, ViewTypeWorld, 0, FRAME_BUFFER_INDEX_DEFAULT, TEXTURE_INDEX_NULL, dc->geometry_quad, dc->material_circle, 1);
     draw_buffer.model_buffer[0] = transform_quad(position, vec2(radius, radius), 0);
     ((ShaderDataCircle*)draw_buffer.uniform_data_buffer)[0].color = color_to_vec4(color);
     ((ShaderDataCircle*)draw_buffer.uniform_data_buffer)[0].fill_ratio = 1;
@@ -139,7 +152,7 @@ internal void
 draw_boid(DrawContext* dc, Vec2 position, Vec2 direction, float32 size, Color color)
 {
     float32 rotation = angle_vec2(direction);
-    DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, FRAME_BUFFER_INDEX_DEFAULT, dc->material_boid, ViewTypeWorld, TEXTURE_INDEX_NULL, 1);
+    DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, ViewTypeWorld, 0, FRAME_BUFFER_INDEX_DEFAULT, TEXTURE_INDEX_NULL, dc->geometry_quad, dc->material_boid, 1);
     draw_buffer.model_buffer[0] = transform_quad(position, vec2(size, size * 1.4), 90 + rotation);
     ((ShaderDataBoid*)draw_buffer.uniform_data_buffer)[0].color = color_to_vec4(color);
 }

@@ -1,7 +1,7 @@
 #include "primitives.h"
 
-internal Geometry
-geometry_quad_create()
+internal GeometryIndex
+geometry_quad_create(Renderer* renderer)
 {
     uint32 vao;
     uint32 vbo;
@@ -33,14 +33,12 @@ geometry_quad_create()
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float32), (void*)(6 * sizeof(float32)));
     glEnableVertexAttribArray(2);
 
-    Geometry geom = {0};
-    geom.index_count = 6;
-    geom.vertex_array_object = vao;
-    return geom;
+    GeometryIndex result = geometry_new(renderer, 6, vao);
+    return result;
 }
 
-internal Geometry
-geometry_triangle_create()
+internal GeometryIndex
+geometry_triangle_create(Renderer* renderer)
 {
     uint32 vao;
     uint32 ebo;
@@ -64,8 +62,6 @@ geometry_triangle_create()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float32), (void*)(sizeof(float32) * 3));
     glEnableVertexAttribArray(1);
 
-    Geometry geom = {0};
-    geom.index_count = 3;
-    geom.vertex_array_object = vao;
-    return geom;
+    GeometryIndex result = geometry_new(renderer, 3, vao);
+    return result;
 }

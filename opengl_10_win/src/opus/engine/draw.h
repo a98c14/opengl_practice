@@ -17,7 +17,8 @@ typedef struct
     Camera* camera;
 
     /* Geometries */
-    Geometry geometry_quad;
+    GeometryIndex geometry_quad;
+    GeometryIndex geometry_triangle;
 
     /* Materials */
     MaterialIndex material_text;
@@ -74,13 +75,16 @@ internal DrawContext*
 draw_context_new(Arena* arena, Renderer* renderer);
 
 internal void
-draw_line(DrawContext* dc, Vec2 start, Vec2 end, Color color);
+draw_line(DrawContext* dc, Vec2 start, Vec2 end, Color color, float32 thickness);
+
+internal void
+draw_debug_line(DrawContext* dc, Vec2 start, Vec2 end, Color color);
 
 internal void
 draw_texture_aligned(DrawContext* dc, Vec3 pos, Vec2 scale, TextureIndex texture);
 
 internal void
-draw_bounds(DrawContext* dc, float32 left, float32 right, float32 bottom, float32 top, Color color);
+draw_bounds(DrawContext* dc, float32 left, float32 right, float32 bottom, float32 top, Color color, float32 thickness);
 
 internal void
 draw_text(DrawContext* dc, Vec2 pos, String str, Color color, float32 size);

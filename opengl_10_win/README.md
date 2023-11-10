@@ -1,7 +1,6 @@
-# Renderer 
+# UI System
 
-## Base
-80k instance = 40ms render, 7ms update
+
 
 ## Commands
 ### Build & Run

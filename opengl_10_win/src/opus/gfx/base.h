@@ -10,7 +10,9 @@
 /* Constants */ 
 #define MATERIAL_CAPACITY 32
 #define TEXTURE_CAPACITY 32
+#define GEOMETRY_CAPACITY 32
 #define LAYER_CAPACITY 16
+#define SORTING_LAYER_CAPACITY 16
 
 #define MATERIAL_DRAW_BUFFER_CAPACITY_PER_SETTING 128
 #define MATERIAL_DRAW_BUFFER_CAPACITY 512
@@ -22,11 +24,18 @@ enum
     ViewTypeScreen,
     ViewTypeCOUNT,
 };
-typedef int8 ViewType;
+
+typedef uint8 ViewType;
 typedef int8 FrameBufferIndex;
 typedef int8 TextureIndex;
-typedef int32 MaterialIndex;
+typedef int8 MaterialIndex;
+typedef uint8 GeometryIndex;
+/** Objects are rendered with descending order (highest first) */
+typedef uint8 SortLayerIndex;
 typedef int16 MaterialDrawBufferIndex;
+
+
+
 #define TEXTURE_INDEX_NULL 0
 #define FRAME_BUFFER_INDEX_DEFAULT 0
 #define MATERIAL_DRAW_BUFFER_EMPTY_KEY -1
@@ -142,10 +151,18 @@ typedef struct
 
 typedef struct
 {
-    TextureIndex texture_index;
+    GeometryIndex geometry_index;
 
     uint32 material_count;
     MaterialDrawBufferIndex material_buffer_indices[MATERIAL_DRAW_BUFFER_CAPACITY_PER_SETTING];
+} GeometryDrawBuffer;
+
+typedef struct
+{
+    TextureIndex texture_index;
+
+    uint32 geometry_count;
+    GeometryDrawBuffer geometry_draw_buffers[GEOMETRY_CAPACITY];
 } TextureDrawBuffer;
 
 typedef struct
@@ -167,14 +184,20 @@ typedef struct
 
 typedef struct
 {
+    uint32 layer_count;
+    LayerDrawBuffer layer_draw_buffers[LAYER_CAPACITY];
+} SortingLayerDrawBuffer;
+
+typedef struct
+{
     // model and shader data that is needed to render the image
     // indexed by hash of layer, view, texture, material
     uint32 material_draw_buffer_count;
     MaterialDrawBuffer* material_draw_buffers;
+    Geometry active_geometry;
 
     // draw buffers
-    uint32 layer_count;
-    LayerDrawBuffer layer_draw_buffers[LAYER_CAPACITY];
+    SortingLayerDrawBuffer sorting_layer_draw_buffers[SORTING_LAYER_CAPACITY];
 } RendererDrawState;
 
 typedef struct
@@ -199,25 +222,31 @@ typedef struct
 
     float32 window_width;
     float32 window_height;
+    Camera camera;
 
     uint32 global_uniform_buffer_id;
     uint32 texture_uniform_buffer_id;
     uint32 camera_uniform_buffer_id;
     uint32 mvp_ssbo_id;
 
-    Camera camera;
+    /* state */
     float32 timer;
+    float32 pixel_per_unit;
     RendererDrawState* draw_state;
 
-    // resources
-    uint32 frame_buffer_count;
+    /* resources */
+    uint8 frame_buffer_count;
     FrameBuffer* frame_buffers;
 
-    uint32 texture_count;
+    uint8 texture_count;
     Texture* textures;
+
+    uint8 geometry_count;
+    Geometry* geometries;
 
     uint8 material_count;
     Material* materials;
+
 } Renderer;
 
 typedef struct
@@ -244,17 +273,20 @@ shader_load(String vertex_shader_text, String fragment_shader_text);
 internal MaterialIndex
 material_new(Renderer* renderer, String vertex_shader_text, String fragment_shader_text, usize uniform_data_size, bool32 is_instanced);
 
+internal GeometryIndex
+geometry_new(Renderer* renderer, int32 index_count, int32 vertex_array_object);
+
 internal TextureIndex
 texture_new(Renderer* renderer, uint32 width, uint32 height, uint32 channels, uint32 filter, void* data);
 
 internal MaterialDrawBuffer*
-renderer_get_material_buffer(Renderer* renderer, ViewType view_type, FrameBufferIndex layer, TextureIndex texture, MaterialIndex material_index, uint32 available_space);
+renderer_get_material_buffer(Renderer* renderer, ViewType view_type, SortLayerIndex sort_layer, FrameBufferIndex layer, TextureIndex texture, GeometryIndex geometry, MaterialIndex material_index, uint32 available_space);
 
 internal DrawBuffer 
-renderer_buffer_request(Renderer* renderer, FrameBufferIndex layer, MaterialIndex material_index, ViewType view_type, TextureIndex texture, uint32 count);
+renderer_buffer_request(Renderer* renderer, ViewType view_type, SortLayerIndex sort_layer, FrameBufferIndex layer, TextureIndex texture, GeometryIndex geometry, MaterialIndex material_index, uint32 count);
 
 internal DrawBufferArray*
-renderer_buffer_request_batched(Arena* arena, Renderer* renderer, FrameBufferIndex layer, MaterialIndex material_index, ViewType view_type, TextureIndex texture, uint32 count);
+renderer_buffer_request_batched(Arena* arena, Renderer* renderer, ViewType view_type, SortLayerIndex sort_layer, FrameBufferIndex layer, TextureIndex texture, GeometryIndex geometry, MaterialIndex material_index, uint32 count);
 
 internal bool32
 draw_buffer_insert(DrawBuffer* draw_buffer, Mat4 model, void* uniform_data);
