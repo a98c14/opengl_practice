@@ -7,7 +7,7 @@
 #include <core/hash.h>
 #include <core/asserts.h>
 
-/* Constants */ 
+/* Constants */
 #define MATERIAL_CAPACITY 32
 #define TEXTURE_CAPACITY 32
 #define GEOMETRY_CAPACITY 32
@@ -175,29 +175,31 @@ typedef struct
 
 typedef struct
 {
-    FrameBufferIndex layer_index;
-
     // grouped by view type (screen, world)
     uint32 view_count;
     ViewDrawBuffer view_buffers[ViewTypeCOUNT];
-} LayerDrawBuffer;
-
-typedef struct
-{
-    uint32 layer_count;
-    LayerDrawBuffer layer_draw_buffers[LAYER_CAPACITY];
 } SortingLayerDrawBuffer;
 
 typedef struct
 {
-    // model and shader data that is needed to render the image
-    // indexed by hash of layer, view, texture, material
+    FrameBufferIndex layer_index;
+
+    /** TODO: Should we keep the count here and sort when a new buffer is created
+     * instead of looping through all evevy frame? */ 
+    SortingLayerDrawBuffer sorting_layer_draw_buffers[SORTING_LAYER_CAPACITY];
+} LayerDrawBuffer;
+
+typedef struct
+{
+    /** model and shader data that is needed to render the image
+     * indexed by hash of layer, view, texture, material */
     uint32 material_draw_buffer_count;
     MaterialDrawBuffer* material_draw_buffers;
     Geometry active_geometry;
 
     // draw buffers
-    SortingLayerDrawBuffer sorting_layer_draw_buffers[SORTING_LAYER_CAPACITY];
+    uint32 layer_count;
+    LayerDrawBuffer layer_draw_buffers[LAYER_CAPACITY];
 } RendererDrawState;
 
 typedef struct
@@ -261,7 +263,7 @@ typedef struct
 internal Renderer*
 renderer_new(Arena* arena, RendererConfiguration* configuration);
 
-internal RendererDrawState* 
+internal RendererDrawState*
 renderer_draw_state_new(Arena* arena);
 
 internal Camera
@@ -282,7 +284,7 @@ texture_new(Renderer* renderer, uint32 width, uint32 height, uint32 channels, ui
 internal MaterialDrawBuffer*
 renderer_get_material_buffer(Renderer* renderer, ViewType view_type, SortLayerIndex sort_layer, FrameBufferIndex layer, TextureIndex texture, GeometryIndex geometry, MaterialIndex material_index, uint32 available_space);
 
-internal DrawBuffer 
+internal DrawBuffer
 renderer_buffer_request(Renderer* renderer, ViewType view_type, SortLayerIndex sort_layer, FrameBufferIndex layer, TextureIndex texture, GeometryIndex geometry, MaterialIndex material_index, uint32 count);
 
 internal DrawBufferArray*
@@ -306,7 +308,7 @@ color_to_vec4(Color color);
 internal Color
 vec4_to_color(Vec4 c);
 
-internal void 
+internal void
 renderer_render(Renderer* renderer, float32 dt);
 
 internal void

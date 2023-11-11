@@ -9,10 +9,12 @@ draw_context_new(Arena* arena, Renderer* renderer)
     draw_context->geometry_quad = geometry_quad_create(renderer);
     draw_context->geometry_triangle = geometry_triangle_create(renderer);
 
-    // draw_context->material_basic = material_new(
-    //     arena,
-    //     file_read_all_as_string(arena, string("C:\\Users\\selim\\source\\practice\\opengl\\opengl_03_win\\src\\shaders\\basic.vert")),
-    //     file_read_all_as_string(arena, string("C:\\Users\\selim\\source\\practice\\opengl\\opengl_03_win\\src\\shaders\\basic.frag")));
+    draw_context->material_basic = material_new(
+        renderer,
+        file_read_all_as_string(arena, string("..\\src\\shaders\\basic.vert")),
+        file_read_all_as_string(arena, string("..\\src\\shaders\\basic.frag")),
+        sizeof(ShaderDataBasic),
+        false);
 
     draw_context->material_line = material_new(
         renderer,
@@ -26,6 +28,13 @@ draw_context_new(Arena* arena, Renderer* renderer)
         file_read_all_as_string(arena, string("..\\src\\shaders\\basic_texture.vert")),
         file_read_all_as_string(arena, string("..\\src\\shaders\\basic_texture.frag")),
         sizeof(ShaderDataBasicTexture),
+        false);
+
+    draw_context->material_triangle = material_new(
+        renderer,
+        file_read_all_as_string(arena, string("..\\src\\shaders\\triangle.vert")),
+        file_read_all_as_string(arena, string("..\\src\\shaders\\triangle.frag")),
+        sizeof(ShaderDataTriangle),
         false);
 
     // draw_context->material_quad = material_new(
@@ -79,6 +88,14 @@ draw_line(DrawContext* dc, Vec2 start, Vec2 end, Color color, float32 thickness)
     DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, ViewTypeWorld, 0, FRAME_BUFFER_INDEX_DEFAULT, TEXTURE_INDEX_NULL, dc->geometry_quad, dc->material_line, 1);
     draw_buffer.model_buffer[0] = transform_line(start, end, thickness);
     ((ShaderDataLine*)draw_buffer.uniform_data_buffer)[0].color = color_to_vec4(color);
+}
+
+internal void
+draw_triangle(DrawContext* dc, Vec2 position, float32 rotation, Color color, float32 size, SortLayerIndex sort_index)
+{
+    DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, ViewTypeWorld, sort_index, FRAME_BUFFER_INDEX_DEFAULT, TEXTURE_INDEX_NULL, dc->geometry_triangle, dc->material_basic, 1);
+    draw_buffer.model_buffer[0] = transform_quad(position, vec2(size, size), rotation);
+    ((ShaderDataBasic*)draw_buffer.uniform_data_buffer)[0].color = color_to_vec4(color);
 }
 
 internal void

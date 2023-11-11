@@ -251,14 +251,11 @@ renderer_get_material_buffer(Renderer* renderer, ViewType view_type, SortLayerIn
             buffer->model_buffer = arena_push_array_zero_aligned(renderer->arena, Mat4, MATERIAL_DRAW_BUFFER_ELEMENT_CAPACITY, 16);
             buffer->shader_data_buffer = arena_push_zero_aligned(renderer->arena, MATERIAL_DRAW_BUFFER_ELEMENT_CAPACITY * material->uniform_data_size, 16);
 
-            // find sort layer
-            SortingLayerDrawBuffer* sort_layer_draw_buffer = &renderer->draw_state->sorting_layer_draw_buffers[sort_layer];
-
             // find layer buffer
             int32 layer_buffer_index = -1;
-            for(int j = 0; j < sort_layer_draw_buffer->layer_count; j++)
+            for(int j = 0; j < renderer->draw_state->layer_count; j++)
             {
-                FrameBufferIndex layer_index = sort_layer_draw_buffer->layer_draw_buffers[j].layer_index;
+                FrameBufferIndex layer_index = renderer->draw_state->layer_draw_buffers[j].layer_index;
                 if(layer_index == layer)
                 {
                     layer_buffer_index = j;
@@ -268,20 +265,23 @@ renderer_get_material_buffer(Renderer* renderer, ViewType view_type, SortLayerIn
 
             if(layer_buffer_index == -1)
             {
-                layer_buffer_index = sort_layer_draw_buffer->layer_count;
-                sort_layer_draw_buffer->layer_draw_buffers[layer_buffer_index].layer_index = layer;
-                sort_layer_draw_buffer->layer_count++;
-                xassert(sort_layer_draw_buffer->layer_count < LAYER_CAPACITY, "[ERROR] Draw layer buffer index exceeded capacity!");
+                layer_buffer_index = renderer->draw_state->layer_count;
+                renderer->draw_state->layer_draw_buffers[layer_buffer_index].layer_index = layer;
+                renderer->draw_state->layer_count++;
+                xassert(renderer->draw_state->layer_count < LAYER_CAPACITY, "[ERROR] Draw layer buffer index exceeded capacity!");
             }
 
             xassert(layer_buffer_index != -1, "[ERROR] LayerDrawBuffer could not be found");
-            LayerDrawBuffer* layer_draw_buffer = &sort_layer_draw_buffer->layer_draw_buffers[layer_buffer_index];
+            LayerDrawBuffer* layer_draw_buffer = &renderer->draw_state->layer_draw_buffers[layer_buffer_index];
+
+            // find sort layer
+            SortingLayerDrawBuffer* sort_layer_draw_buffer = &layer_draw_buffer->sorting_layer_draw_buffers[sort_layer];
 
             // find view buffer
             int32 view_buffer_index = -1;
-            for(int j = 0; j < layer_draw_buffer->view_count; j++)
+            for(int j = 0; j < sort_layer_draw_buffer->view_count; j++)
             {
-                ViewType current_view_type = layer_draw_buffer->view_buffers[j].view_type;
+                ViewType current_view_type = sort_layer_draw_buffer->view_buffers[j].view_type;
                 if(current_view_type == view_type)
                 {
                     view_buffer_index = j;
@@ -291,13 +291,13 @@ renderer_get_material_buffer(Renderer* renderer, ViewType view_type, SortLayerIn
 
             if(view_buffer_index == -1)
             {
-                view_buffer_index = layer_draw_buffer->view_count;
-                layer_draw_buffer->view_buffers[view_buffer_index].view_type = view_type;
-                layer_draw_buffer->view_count++;
-                xassert(layer_draw_buffer->view_count <= ViewTypeCOUNT, "draw view buffer index exceeded capacity!");
+                view_buffer_index = sort_layer_draw_buffer->view_count;
+                sort_layer_draw_buffer->view_buffers[view_buffer_index].view_type = view_type;
+                sort_layer_draw_buffer->view_count++;
+                xassert(sort_layer_draw_buffer->view_count <= ViewTypeCOUNT, "draw view buffer index exceeded capacity!");
             }
 
-            ViewDrawBuffer* view_draw_buffer = &layer_draw_buffer->view_buffers[view_buffer_index];
+            ViewDrawBuffer* view_draw_buffer = &sort_layer_draw_buffer->view_buffers[view_buffer_index];
             xassert(view_buffer_index != -1, "`ViewDrawBuffer` could not be found");
 
             // find texture buffer
@@ -491,22 +491,22 @@ renderer_render(Renderer* renderer, float32 dt)
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(GlobalUniformData), &global_shader_data);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_SLOT_SSBO_MODEL, renderer->mvp_ssbo_id);
 
-    /* Sort Layer */
-    for(int8 sort_layer_index = SORTING_LAYER_CAPACITY - 1; sort_layer_index >= 0; sort_layer_index--)
+    /* Layer */
+    for(uint8 layer_index = 0; layer_index < state->layer_count; layer_index++)
     {
-        SortingLayerDrawBuffer* sort_layer_draw_buffer = &state->sorting_layer_draw_buffers[sort_layer_index];
-        
-        /* Layer */
-        for(uint8 layer_index = 0; layer_index < sort_layer_draw_buffer->layer_count; layer_index++)
+        LayerDrawBuffer* layer_draw_buffer = &state->layer_draw_buffers[layer_index];
+        FrameBuffer* frame_buffer = &renderer->frame_buffers[layer_draw_buffer->layer_index];
+        frame_buffer_begin(frame_buffer);
+
+        /* Sort Layer */
+        for(int8 sort_layer_index = SORTING_LAYER_CAPACITY - 1; sort_layer_index >= 0; sort_layer_index--)
         {
-            LayerDrawBuffer* layer_draw_buffer = &sort_layer_draw_buffer->layer_draw_buffers[layer_index];
-            FrameBuffer* frame_buffer = &renderer->frame_buffers[layer_draw_buffer->layer_index];
-            frame_buffer_begin(frame_buffer);
+            SortingLayerDrawBuffer* sort_layer_draw_buffer = &layer_draw_buffer->sorting_layer_draw_buffers[sort_layer_index];
 
             /* View */
             for(uint8 view_type_index = 0; view_type_index < ViewTypeCOUNT; view_type_index++)
             {
-                ViewDrawBuffer* view_draw_buffer = &layer_draw_buffer->view_buffers[view_type_index];
+                ViewDrawBuffer* view_draw_buffer = &sort_layer_draw_buffer->view_buffers[view_type_index];
                 Mat4 view_matrix = view_draw_buffer->view_type == ViewTypeWorld ? camera->view : mat4_identity();
 
                 CameraUniformData camera_data = {0};
