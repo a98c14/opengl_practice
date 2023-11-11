@@ -102,7 +102,7 @@ draw_triangle(DrawContext* dc, Vec2 position, float32 rotation, Color color, flo
 }
 
 internal void
-draw_rect(DrawContext* dc, Rect rect, float32 rotation, Color color, SortLayerIndex sort_index)
+draw_rect(DrawContext* dc, Rect rect, float32 rotation, SortLayerIndex sort_index, StyleRect style)
 {
     DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, ViewTypeWorld, sort_index, FRAME_BUFFER_INDEX_DEFAULT, TEXTURE_INDEX_NULL, dc->geometry_quad, dc->material_rounded_rect, 1);
     // transform_quad_aligned is much faster so if there is no need for rotation, use aligned
@@ -110,10 +110,10 @@ draw_rect(DrawContext* dc, Rect rect, float32 rotation, Color color, SortLayerIn
     else draw_buffer.model_buffer[0] = transform_quad(rect.center, rect.size, rotation);
 
     ShaderDataRectRounded* uniform_buffer = (ShaderDataRectRounded*)draw_buffer.uniform_data_buffer;
-    uniform_buffer[0].color = color_to_vec4(color);
-    uniform_buffer[0].round = vec4(0.2, 0.2, 0.8, 0.2);
+    uniform_buffer[0].color = style.color;
+    uniform_buffer[0].round = style.border_radius.v;
     uniform_buffer[0].scale = rect.size;
-    uniform_buffer[0].softness = 0.03;
+    uniform_buffer[0].softness = style.softness;
 }
 
 internal void

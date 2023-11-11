@@ -20,3 +20,5 @@
 #include <engine/time.c>
 #include <engine/profiler.c>
 #include <engine/color.c>
+
+#include <theme/base.c>

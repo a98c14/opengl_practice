@@ -31,6 +31,7 @@ int main(void)
     Renderer* renderer = renderer_new(persistent_arena, &renderer_configuration);
     DrawContext* dc = draw_context_new(persistent_arena, renderer);
     EngineTime time = engine_time_new();
+    Theme* default_theme = theme_init_default(persistent_arena);
 
     /* application state */
 
@@ -47,10 +48,7 @@ int main(void)
         draw_debug_line(dc, vec2(0, 0), vec2(0, 100 * renderer->pixel_per_unit), ColorBlack);
         draw_debug_line(dc, vec2(0, 0), vec2(0, 200 * renderer->pixel_per_unit), ColorBlack);
 
-        draw_rect(dc, rect(0, -20, 20, 10), 0, ColorAmber300, 0);
-        draw_rect(dc, rect(0, -60, 200, 100), 30, ColorAmber500, 0);
-
-        
+        draw_rect(dc, rect(0, -60, 200, 100), 0, 0, default_theme->style_rect_default);
 
         // UIContext* ctx;
         // ui_view_begin(ctx);

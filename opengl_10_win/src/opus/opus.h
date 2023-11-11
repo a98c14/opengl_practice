@@ -23,3 +23,5 @@
 #include <engine/window.h>
 #include <engine/time.h>
 #include <engine/profiler.h>
+
+#include <theme/base.h>

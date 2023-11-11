@@ -37,6 +37,7 @@ typedef struct
     GlyphAtlas* font_open_sans;
 } DrawContext;
 
+/* Shader Data */
 typedef struct 
 {
     Vec4 glyph_bounds;
@@ -92,6 +93,20 @@ typedef struct
     Vec4 color;
 } ShaderDataBoid;
 
+/* Styles */
+typedef union 
+{
+    struct { float32 tr; float32 br; float32 tl; float32 bl; };
+    Vec4 v;
+} BorderRadius;
+
+typedef struct
+{
+    Vec4 color;
+    BorderRadius border_radius;
+    float32 softness;
+} StyleRect;
+
 internal DrawContext*
 draw_context_new(Arena* arena, Renderer* renderer);
 
@@ -120,4 +135,4 @@ internal void
 draw_triangle(DrawContext* dc, Vec2 position, float32 rotation, Color color, float32 size, SortLayerIndex sort_index);
 
 internal void
-draw_rect(DrawContext* dc, Rect rect, float32 rotation, Color color, SortLayerIndex sort_index);
+draw_rect(DrawContext* dc, Rect rect, float32 rotation, SortLayerIndex sort_index, StyleRect style);

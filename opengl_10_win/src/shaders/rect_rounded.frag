@@ -56,7 +56,7 @@ void main() {
     r.xy = (uv.x>0.0) ? r.xy : r.zw;
     r.x  = (uv.y>0.0) ? r.x  : r.y;
     
-    vec2 q = abs(uv) - (vec2(1 * aspect, 1) - dxy * 5) + r.x;
+    vec2 q = abs(uv) - (vec2(1 * aspect, 1) - dxy * 10) + r.x;
     float d = min(max(q.x,q.y),0.0) + length(max(q,0.0)) - r.x;
     d = 1-smoothstep(0.0, u_softness, d);
 
