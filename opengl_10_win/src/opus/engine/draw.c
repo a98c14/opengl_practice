@@ -146,8 +146,8 @@ draw_bounds(DrawContext* dc, float32 left, float32 right, float32 bottom, float3
     uniform_buffer[3].color = color_vec4;
 }
 
-internal void
-draw_text(DrawContext* dc, Vec2 pos, String str, StyleText style)
+internal Rect
+draw_text(DrawContext* dc, Vec2 pos, String str, RectAlignmentType alignment, StyleText style)
 {
     ShaderDataText shader_data = {0};
     shader_data.color = style.color;
@@ -156,7 +156,7 @@ draw_text(DrawContext* dc, Vec2 pos, String str, StyleText style)
     shader_data.softness = style.softness;
     shader_data.outline_thickness = style.outline_thickness;
     DrawBuffer db = renderer_buffer_request(dc->renderer, ViewTypeWorld, SORT_LAYER_INDEX_DEFAULT, FRAME_BUFFER_INDEX_DEFAULT, dc->font_open_sans->texture, dc->geometry_quad, dc->material_text, str.length);
-    text_calculate_transforms(dc->font_open_sans, str, style.font_size, pos, RectAlignmentTypeBottomLeft, db.model_buffer, 0);
+    Rect bounds = text_calculate_transforms(dc->font_open_sans, str, style.font_size, pos, alignment, db.model_buffer, 0);
     ShaderDataText* shader_data_buffer = (ShaderDataText*)db.uniform_data_buffer;
     for(int i = 0; i < str.length; i++)
     {
@@ -164,6 +164,7 @@ draw_text(DrawContext* dc, Vec2 pos, String str, StyleText style)
         shader_data.glyph_bounds = glyph.atlas_bounds.v;
         memcpy(&shader_data_buffer[i], &shader_data, sizeof(ShaderDataText));
     }
+    return bounds;
 }
 
 internal void

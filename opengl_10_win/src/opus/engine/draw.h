@@ -9,6 +9,7 @@
 #include <gfx/utils.h>
 #include <fonts.h>
 #include "color.h"
+#include "style.h"
 #include "text.h"
 
 typedef struct
@@ -93,33 +94,6 @@ typedef struct
     Vec4 color;
 } ShaderDataBoid;
 
-/* Styles */
-typedef union 
-{
-    struct { float32 tr; float32 br; float32 tl; float32 bl; };
-    Vec4 v;
-} BorderRadius;
-
-typedef struct
-{
-    Vec4 color;
-    BorderRadius border_radius;
-    float32 softness;
-} StyleRect;
-
-typedef struct
-{
-    Vec4 color;
-    Vec4 outline_color;
-    /** Softness of the glyph edges. Recommended value: 30 */
-    float32 softness;
-    /** Thickness of the glyph. Recommended value: 0.5, Values outside of the range 0.4 and 0.9 are not really usable */
-    float32 thickness;
-    /** Outline thickness. Should be between 0 and 0.5 */
-    float32 outline_thickness;
-    float32 font_size;
-} StyleText;
-
 internal DrawContext*
 draw_context_new(Arena* arena, Renderer* renderer);
 
@@ -135,8 +109,9 @@ draw_texture_aligned(DrawContext* dc, Vec3 pos, Vec2 scale, TextureIndex texture
 internal void
 draw_bounds(DrawContext* dc, float32 left, float32 right, float32 bottom, float32 top, Color color, float32 thickness);
 
-internal void
-draw_text(DrawContext* dc, Vec2 pos, String str, StyleText style);
+/** Draws given string to screen and returns the bounding box for the while string */
+internal Rect
+draw_text(DrawContext* dc, Vec2 pos, String str, RectAlignmentType alignment, StyleText style);
 
 internal void
 draw_circle(DrawContext* dc, Vec2 position, float32 radius, Color color);

@@ -6,6 +6,18 @@ glyph_get(GlyphAtlas* atlas, char c)
     return atlas->glyphs[(int)c - 32];
 }
 
+internal float32
+glyph_width(Glyph glyph, float32 size)
+{
+    return size * (glyph.plane_bounds.right - glyph.plane_bounds.left);
+}
+
+internal float32
+glyph_height(Glyph glyph, float32 size)
+{
+    return size * (glyph.plane_bounds.top - glyph.plane_bounds.bottom);
+}
+
 internal GlyphAtlas*
 glyph_atlas_load(Arena* arena, const GlyphAtlasInfo* atlas_info, const Glyph* glyphs, uint32 glyph_count, TextureIndex texture)
 {
@@ -18,44 +30,47 @@ glyph_atlas_load(Arena* arena, const GlyphAtlasInfo* atlas_info, const Glyph* gl
 }
 
 internal Rect
-text_calculate_bounds(GlyphAtlas* atlas, String str, float32 size_in_pixels)
+text_calculate_bounds(GlyphAtlas* atlas, RectAlignmentType alignment, String str, float32 size)
 {
-    Vec2 size = vec2_zero();
+    Vec2 string_size = vec2_zero();
+    Glyph glyph;
     for(int i = 0; i < str.length; i++)
     {
-        Glyph glyph = glyph_get(atlas, str.value[i]);
-        float32 h = size_in_pixels * (glyph.plane_bounds.top - glyph.plane_bounds.bottom);
-        size.x += glyph.advance * size_in_pixels;
-        size.y = max(h, size.y);
+        glyph = glyph_get(atlas, str.value[i]);
+        float32 h = glyph_height(glyph, size);
+        string_size.x += glyph.advance * size;
+        string_size.y = max(h, string_size.y);
     };
+    
+    // add the width (plus offset) of the last letter so bounds cover the whole string to the end
+    string_size.x += size * glyph.plane_bounds.left + (glyph_width(glyph, size)) / 2.0f + AlignmentMultiplierX[alignment];
 
-    return (Rect){.center = vec2_zero(), .size = size };
+    Glyph first_glyph = glyph_get(atlas, str.value[0]);
+    float32 x = string_size.x * AlignmentMultiplierX[alignment] + first_glyph.plane_bounds.left * size;
+    float32 y = string_size.y * AlignmentMultiplierY[alignment];
+    return (Rect){.x = x - FontAlignmentMultiplierX[alignment], .y = y, .w = string_size.x, .h = string_size.y };
 }
 
 internal Rect
 text_calculate_transforms(GlyphAtlas* atlas, String str, float32 size_in_pixels, Vec2 position, RectAlignmentType alignment, Mat4* dst_matrices, uint32 dst_index)
 {
-    Rect string_bounds = text_calculate_bounds(atlas, str, size_in_pixels);
-    Glyph first_glyph = glyph_get(atlas, str.value[0]);
-    Vec2 base_offset = { 
-        .x = string_bounds.w * FontAlignmentMultiplierX[alignment] - size_in_pixels * first_glyph.plane_bounds.left,
-        .y = string_bounds.h * FontAlignmentMultiplierY[alignment] 
+    Rect string_bounds = text_calculate_bounds(atlas, alignment, str, size_in_pixels);
+    Vec2 base_offset = {
+        .x = string_bounds.w * FontAlignmentMultiplierX[alignment],
+        .y = string_bounds.h * FontAlignmentMultiplierY[alignment]
     };
 
     uint32 index = dst_index;
     for(int i = 0; i < str.length; i++)
     {
         Glyph glyph = glyph_get(atlas, str.value[i]);
-        float32 w = size_in_pixels * (glyph.plane_bounds.right - glyph.plane_bounds.left);
-        float32 h = size_in_pixels * (glyph.plane_bounds.top - glyph.plane_bounds.bottom);
-        Vec2 plane_offset = { 
-            .x = size_in_pixels * glyph.plane_bounds.left, 
-            .y = size_in_pixels * glyph.plane_bounds.bottom 
-        };
+        float32 w = glyph_width(glyph, size_in_pixels);
+        float32 h = glyph_height(glyph, size_in_pixels);
+        Vec2 plane_offset = { .x = size_in_pixels * glyph.plane_bounds.left, .y = size_in_pixels * glyph.plane_bounds.bottom };
         float32 x = position.x + base_offset.x + plane_offset.x + w / 2.0f;
         float32 y = position.y + base_offset.y + plane_offset.y + h / 2.0f;
 
-        Mat4 transform = transform_quad_aligned(vec3(x, y, -10), vec2(w, h));
+        Mat4 transform = transform_quad_aligned(vec3(x, y, 0), vec2(w, h));
         memcpy(&dst_matrices[index], &transform, sizeof(transform));
         base_offset.x += glyph.advance * size_in_pixels;
         index++;

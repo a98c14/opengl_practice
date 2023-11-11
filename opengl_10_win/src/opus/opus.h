@@ -19,6 +19,7 @@
 #include <engine/text.h>
 #include <engine/input.h>
 #include <engine/color.h>
+#include <engine/style.h>
 #include <engine/draw.h>
 #include <engine/window.h>
 #include <engine/time.h>

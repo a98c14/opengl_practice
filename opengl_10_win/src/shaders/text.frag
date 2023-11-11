@@ -1,4 +1,5 @@
 #version 430 core
+#define DEBUG 0
 
 struct ShaderData
 {
@@ -63,4 +64,7 @@ void main() {
     vec4 outline_color = vec4(v_data.outline_color.xyz, outline_alpha * v_data.outline_color.a);
     vec4 inside_color = vec4(v_data.color.xyz, alpha * v_data.color.a);
     color = mix(inside_color, outline_color, clamp(outline_color.a - alpha, 0, 1));
+#if DEBUG == 1
+    color = mix(vec4(1, 0, 0, 1), color, color.a);
+#endif
 }

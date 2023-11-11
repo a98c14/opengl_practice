@@ -18,5 +18,3 @@ typedef struct
 
 internal Theme*
 theme_init_default(Arena* arena, Renderer* renderer);
-
-

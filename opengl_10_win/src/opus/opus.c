@@ -15,6 +15,7 @@
 
 #include <engine/text.c>
 #include <engine/input.c>
+#include <engine/style.c>
 #include <engine/draw.c>
 #include <engine/window.c>
 #include <engine/time.c>
