@@ -37,10 +37,13 @@ draw_context_new(Arena* arena, Renderer* renderer)
         sizeof(ShaderDataTriangle),
         false);
 
-    // draw_context->material_quad = material_new(
-    //     arena,
-    //     file_read_all_as_string(arena, string("C:\\Users\\selim\\source\\practice\\opengl\\opengl_03_win\\src\\shaders\\basic.vert")),
-    //     file_read_all_as_string(arena, string("C:\\Users\\selim\\source\\practice\\opengl\\opengl_03_win\\src\\shaders\\basic.frag")));
+    draw_context->material_rounded_rect = material_new(
+        renderer,
+        file_read_all_as_string(arena, string("..\\src\\shaders\\rect_rounded.vert")),
+        file_read_all_as_string(arena, string("..\\src\\shaders\\rect_rounded.frag")),
+        sizeof(ShaderDataRectRounded),
+        false);
+
 
     draw_context->material_boid = material_new(
         renderer,
@@ -96,6 +99,21 @@ draw_triangle(DrawContext* dc, Vec2 position, float32 rotation, Color color, flo
     DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, ViewTypeWorld, sort_index, FRAME_BUFFER_INDEX_DEFAULT, TEXTURE_INDEX_NULL, dc->geometry_triangle, dc->material_basic, 1);
     draw_buffer.model_buffer[0] = transform_quad(position, vec2(size, size), rotation);
     ((ShaderDataBasic*)draw_buffer.uniform_data_buffer)[0].color = color_to_vec4(color);
+}
+
+internal void
+draw_rect(DrawContext* dc, Rect rect, float32 rotation, Color color, SortLayerIndex sort_index)
+{
+    DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, ViewTypeWorld, sort_index, FRAME_BUFFER_INDEX_DEFAULT, TEXTURE_INDEX_NULL, dc->geometry_quad, dc->material_rounded_rect, 1);
+    // transform_quad_aligned is much faster so if there is no need for rotation, use aligned
+    if(rotation == 0) draw_buffer.model_buffer[0] = transform_quad_aligned(vec3_xy_z(rect.center, 0), rect.size);
+    else draw_buffer.model_buffer[0] = transform_quad(rect.center, rect.size, rotation);
+
+    ShaderDataRectRounded* uniform_buffer = (ShaderDataRectRounded*)draw_buffer.uniform_data_buffer;
+    uniform_buffer[0].color = color_to_vec4(color);
+    uniform_buffer[0].round = vec4(0.2, 0.2, 0.8, 0.2);
+    uniform_buffer[0].scale = rect.size;
+    uniform_buffer[0].softness = 0.03;
 }
 
 internal void

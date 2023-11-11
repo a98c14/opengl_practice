@@ -94,6 +94,17 @@ vec4(float32 x, float32 y, float32 z, float32 w)
     return result;
 }
 
+internal Rect 
+rect(float32 x, float32 y, float32 w, float32 h)
+{
+    Rect result;
+    result.x = x;
+    result.y = y;
+    result.w = w;
+    result.h = h;
+    return result;
+}
+
 /* Basic Operations */
 internal Vec2 
 add_vec2(Vec2 a, Vec2 b)

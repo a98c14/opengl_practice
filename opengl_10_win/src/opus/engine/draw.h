@@ -26,6 +26,7 @@ typedef struct
     MaterialIndex material_line;
     MaterialIndex material_basic_texture;
     MaterialIndex material_triangle;
+    MaterialIndex material_rounded_rect;
     MaterialIndex material_quad;
     MaterialIndex material_circle;
     MaterialIndex material_boid;
@@ -70,6 +71,15 @@ typedef struct
     Vec4 color;
 } ShaderDataBasicTexture;
 
+typedef struct
+{
+    Vec4 color;
+    Vec4 round;
+    Vec2 scale;
+    float32 softness;
+    float32 _;
+} ShaderDataRectRounded;
+
 typedef struct 
 {
     Vec4 color;
@@ -108,3 +118,6 @@ draw_boid(DrawContext* dc, Vec2 position, Vec2 direction, float32 size, Color co
 
 internal void
 draw_triangle(DrawContext* dc, Vec2 position, float32 rotation, Color color, float32 size, SortLayerIndex sort_index);
+
+internal void
+draw_rect(DrawContext* dc, Rect rect, float32 rotation, Color color, SortLayerIndex sort_index);
