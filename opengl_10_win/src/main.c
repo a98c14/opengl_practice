@@ -47,8 +47,8 @@ int main(void)
         draw_debug_line(dc, vec2(0, 0), vec2(0, 100 * renderer->pixel_per_unit), ColorBlack);
         draw_debug_line(dc, vec2(0, 0), vec2(0, 200 * renderer->pixel_per_unit), ColorBlack);
 
-        draw_triangle(dc, vec2(0, -20), 0, ColorRed100, 100, 10);
-        draw_triangle(dc, vec2(0, -50), 0, ColorBlack, 20, 0);
+        draw_triangle(dc, vec2(0, -20), 0, ColorRed100, 100, 4);
+        draw_triangle(dc, vec2(0, -50), 0, ColorBlack, 20, 8);
 
         // UIContext* ctx;
         // ui_view_begin(ctx);

@@ -241,7 +241,7 @@ renderer_get_material_buffer(Renderer* renderer, ViewType view_type, SortLayerIn
         // if the slot is empty and we are still in probe range, initialize the buffer
         if(buffer->key == MATERIAL_DRAW_BUFFER_EMPTY_KEY)
         {
-            log_debug("initializing material buffer. sort: %2d, layer: %2d, view: %2d, texture: %2d, geometry: %2d, material: %2d, buffer index: %03d", sort_layer, layer, view_type, texture, geometry, material_index, draw_buffer_index);
+            log_debug("initializing material buffer, sort:%d layer:%d view:%d texture:%d geometry:%d material:%d buffer_index:%03d instanced:%d", sort_layer, layer, view_type, texture, geometry, material_index, draw_buffer_index, renderer->materials[material_index].is_instanced);
             const Material* material = &renderer->materials[material_index];
             xassert(material->is_initialized, "material isn't initialized");
             buffer->index = draw_buffer_index;
