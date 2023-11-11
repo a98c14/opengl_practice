@@ -10,10 +10,13 @@ typedef struct
     BorderRadius rounded_lg;
     BorderRadius rounded_xl;
 
-    StyleRect style_rect_default;
+    StyleRect rect_default;
+
+    StyleText font_default;
+    StyleText font_debug;
 } Theme;
 
 internal Theme*
-theme_init_default(Arena* arena);
+theme_init_default(Arena* arena, Renderer* renderer);
 
 

@@ -147,16 +147,16 @@ draw_bounds(DrawContext* dc, float32 left, float32 right, float32 bottom, float3
 }
 
 internal void
-draw_text(DrawContext* dc, Vec2 pos, String str, Color color, float32 size)
+draw_text(DrawContext* dc, Vec2 pos, String str, StyleText style)
 {
     ShaderDataText shader_data = {0};
-    shader_data.color = color_to_vec4(color);
-    shader_data.outline_color = color_to_vec4(ColorInvisible);
-    shader_data.thickness = 0.50;
-    shader_data.softness = 30;
-    shader_data.outline_thickness = 0.2;
+    shader_data.color = style.color;
+    shader_data.outline_color = style.outline_color;
+    shader_data.thickness = style.thickness;
+    shader_data.softness = style.softness;
+    shader_data.outline_thickness = style.outline_thickness;
     DrawBuffer db = renderer_buffer_request(dc->renderer, ViewTypeWorld, SORT_LAYER_INDEX_DEFAULT, FRAME_BUFFER_INDEX_DEFAULT, dc->font_open_sans->texture, dc->geometry_quad, dc->material_text, str.length);
-    text_calculate_transforms(dc->font_open_sans, str, size, pos, RectAlignmentTypeBottomLeft, db.model_buffer, 0);
+    text_calculate_transforms(dc->font_open_sans, str, style.font_size, pos, RectAlignmentTypeBottomLeft, db.model_buffer, 0);
     ShaderDataText* shader_data_buffer = (ShaderDataText*)db.uniform_data_buffer;
     for(int i = 0; i < str.length; i++)
     {
