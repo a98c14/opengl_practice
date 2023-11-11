@@ -30,7 +30,7 @@ glyph_atlas_load(Arena* arena, const GlyphAtlasInfo* atlas_info, const Glyph* gl
 }
 
 internal Rect
-text_calculate_bounds(GlyphAtlas* atlas, RectAlignmentType alignment, String str, float32 size)
+text_calculate_bounds(GlyphAtlas* atlas, Vec2 position, RectAlignmentType alignment, String str, float32 size)
 {
     Vec2 string_size = vec2_zero();
     Glyph glyph;
@@ -45,16 +45,15 @@ text_calculate_bounds(GlyphAtlas* atlas, RectAlignmentType alignment, String str
     // add the width (plus offset) of the last letter so bounds cover the whole string to the end
     string_size.x += size * glyph.plane_bounds.left + (glyph_width(glyph, size)) / 2.0f + AlignmentMultiplierX[alignment];
 
-    Glyph first_glyph = glyph_get(atlas, str.value[0]);
-    float32 x = string_size.x * AlignmentMultiplierX[alignment] + first_glyph.plane_bounds.left * size;
-    float32 y = string_size.y * AlignmentMultiplierY[alignment];
-    return (Rect){.x = x - FontAlignmentMultiplierX[alignment], .y = y, .w = string_size.x, .h = string_size.y };
+    float32 x = string_size.x * AlignmentMultiplierX[alignment];
+    float32 y = size * AlignmentMultiplierY[alignment];
+    return (Rect){.x = x + position.x, .y = y + position.y, .w = string_size.x, .h = size };
 }
 
 internal Rect
 text_calculate_transforms(GlyphAtlas* atlas, String str, float32 size_in_pixels, Vec2 position, RectAlignmentType alignment, Mat4* dst_matrices, uint32 dst_index)
 {
-    Rect string_bounds = text_calculate_bounds(atlas, alignment, str, size_in_pixels);
+    Rect string_bounds = text_calculate_bounds(atlas, position, alignment, str, size_in_pixels);
     Vec2 base_offset = {
         .x = string_bounds.w * FontAlignmentMultiplierX[alignment],
         .y = string_bounds.h * FontAlignmentMultiplierY[alignment]
@@ -75,5 +74,6 @@ text_calculate_transforms(GlyphAtlas* atlas, String str, float32 size_in_pixels,
         base_offset.x += glyph.advance * size_in_pixels;
         index++;
     }
+    
     return string_bounds;
 }

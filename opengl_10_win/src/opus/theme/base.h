@@ -13,6 +13,7 @@ typedef struct
     StyleRect rect_default;
 
     StyleText font_default;
+    StyleText font_default_light;
     StyleText font_debug;
 } Theme;
 
