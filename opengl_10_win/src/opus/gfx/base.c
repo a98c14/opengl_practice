@@ -499,7 +499,7 @@ renderer_render(Renderer* renderer, float32 dt)
         frame_buffer_begin(frame_buffer);
 
         /* Sort Layer */
-        for(int8 sort_layer_index = SORTING_LAYER_CAPACITY - 1; sort_layer_index >= 0; sort_layer_index--)
+        for(int8 sort_layer_index = 0; sort_layer_index < SORTING_LAYER_CAPACITY; sort_layer_index++)
         {
             SortingLayerDrawBuffer* sort_layer_draw_buffer = &layer_draw_buffer->sorting_layer_draw_buffers[sort_layer_index];
 

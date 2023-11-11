@@ -3,7 +3,6 @@
 struct ShaderData
 {
     vec4 color;
-    float fill_ratio;
 };
 
 layout(location = 0) in vec3 a_pos;
@@ -46,12 +45,6 @@ flat in int v_instance_id;
 out vec4 color;
 
 void main() {
-    float softness = 3;
-    vec2 uv = v_tex_coord;
-    uv = uv * 2.0 - 1.0;
-    vec2 dp = fwidth(uv);
-    softness *= dp.x;
     ShaderData v_data = data[v_instance_id];
-    float d = smoothstep((1 - v_data.fill_ratio) - softness * 2, (1 - v_data.fill_ratio) - softness, length(uv)) - smoothstep(1 - softness, 1.0, length(uv));
-    color = vec4(v_data.color.xyz, d * v_data.color.a);
+    color = v_data.color;
 }

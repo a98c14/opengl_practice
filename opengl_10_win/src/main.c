@@ -24,7 +24,7 @@ int main(void)
     RendererConfiguration renderer_configuration = {
         .window_width = WINDOW_WIDTH,
         .window_height = WINDOW_HEIGHT,
-        .world_height = 1080,
+        .world_height = 480,
         .clear_color = ColorSlate900
     };
 
@@ -44,10 +44,10 @@ int main(void)
 
         /* frame: update */
         Profiler update = profiler_begin(string("Update"));
-        draw_debug_line(dc, vec2(0, 0), vec2(0, 100 * renderer->pixel_per_unit), ColorWhite);
-        draw_debug_line(dc, vec2(0, 0), vec2(0, 200 * renderer->pixel_per_unit), ColorWhite);
+        draw_debug_line(dc, vec2(0, 0), vec2(0, 100 * renderer->pixel_per_unit), ColorBlack);
+        draw_debug_line(dc, vec2(0, 0), vec2(0, 200 * renderer->pixel_per_unit), ColorBlack);
 
-        draw_triangle(dc, vec2(0, -50), 0, ColorRed100, 100, 1);
+        draw_triangle(dc, vec2(0, -20), 0, ColorRed100, 100, 10);
         draw_triangle(dc, vec2(0, -50), 0, ColorBlack, 20, 0);
 
         // UIContext* ctx;
@@ -66,11 +66,13 @@ int main(void)
 
         float32 screen_left = -renderer->camera.world_width / 2;
         float32 screen_top = renderer->camera.world_height / 2;
-        draw_text(dc, vec2(screen_left, screen_top-10), string_pushf(frame_arena, "%s: %0.02fms", main_frame.name.value, 1000*(main_frame.end - main_frame.start)), ColorWhite, 10.0f);
-        draw_text(dc, vec2(screen_left, screen_top-20-1), string_pushf(frame_arena, "%s: %0.02fms", update.name.value, 1000*(update.end - update.start)), ColorWhite, 10.0f);
-        draw_text(dc, vec2(screen_left, screen_top-30-2), string_pushf(frame_arena, "%s: %0.02fms", render.name.value, 1000*(render.end - render.start)), ColorWhite, 10.0f);
-        draw_text(dc, vec2(screen_left, screen_top-40-3), string_pushf(frame_arena, "Mouse: [%0.02f, %0.02f]", mouse.world.x, mouse.world.y), ColorWhite, 10.0f);
-        draw_text(dc, vec2(screen_left, screen_top-50-4), string_pushf(frame_arena, "MouseButtonState: 0x%x", mouse.button_state), ColorWhite, 10.0f);
+        const float32 debug_font_size = 20.0f * renderer->pixel_per_unit;
+        Color debug_font_color = ColorWhite;
+        draw_text(dc, vec2(screen_left, screen_top-debug_font_size*1), string_pushf(frame_arena, "%s: %0.02fms", main_frame.name.value, 1000*(main_frame.end - main_frame.start)), debug_font_color, debug_font_size);
+        draw_text(dc, vec2(screen_left, screen_top-debug_font_size*2), string_pushf(frame_arena, "%s: %0.02fms", update.name.value, 1000*(update.end - update.start)), debug_font_color, debug_font_size);
+        draw_text(dc, vec2(screen_left, screen_top-debug_font_size*3), string_pushf(frame_arena, "%s: %0.02fms", render.name.value, 1000*(render.end - render.start)), debug_font_color, debug_font_size);
+        draw_text(dc, vec2(screen_left, screen_top-debug_font_size*4), string_pushf(frame_arena, "Mouse: [%0.02f, %0.02f]", mouse.world.x, mouse.world.y), debug_font_color, debug_font_size);
+        draw_text(dc, vec2(screen_left, screen_top-debug_font_size*5), string_pushf(frame_arena, "MouseButtonState: 0x%x", mouse.button_state), debug_font_color, debug_font_size);
     }
 
     window_destroy(window);
