@@ -13,6 +13,7 @@
 #include <gfx/utils.c>
 #include <gfx/debug.c>
 
+#include <engine/layout.c>
 #include <engine/text.c>
 #include <engine/input.c>
 #include <engine/style.c>

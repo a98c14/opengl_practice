@@ -8,29 +8,10 @@
 #include <core/strings.h>
 #include <gfx/base.h>
 #include <gfx/math.h>
+#include "layout.h"
 
-typedef enum
-{
-	RectAlignmentTypeCenter,
-	RectAlignmentTypeBottom,
-	RectAlignmentTypeTop,
-	RectAlignmentTypeRight,
-	RectAlignmentTypeLeft,
-
-	RectAlignmentTypeBottomLeft,
-	RectAlignmentTypeBottomRight,
-	RectAlignmentTypeTopLeft,
-	RectAlignmentTypeTopRight,
-	RectAlignmentTypeCount
-} RectAlignmentType;
-
-                                                                // Center,  Bottom,   Top,  Right,  Left,  BottomLeft,  BottomRight,  TopLeft,  TopRight
-const float32 AlignmentMultiplierX[RectAlignmentTypeCount]     = {      0,       0,     0,   -0.5,   0.5,         0.5,         -0.5,      0.5,      -0.5 };
-const float32 AlignmentMultiplierY[RectAlignmentTypeCount]     = {      0,     0.5,  -0.5,      0,     0,         0.5,          0.5,     -0.5,      -0.5 };
 const float32 FontAlignmentMultiplierX[RectAlignmentTypeCount] = {   -0.5,    -0.5,  -0.5,   -1.0,   0.0,         0.0,         -1.0,      0.0,      -1.0 };
 const float32 FontAlignmentMultiplierY[RectAlignmentTypeCount] = {   -0.5,     0.0,  -1.0,   -0.5,  -0.5,         0.0,          0.0,     -1.0,      -1.0 };
-const float32 AnchorMultiplierX[RectAlignmentTypeCount]        = {      0,       0,     0,    0.5,  -0.5,        -0.5,          0.5,     -0.5,       0.5 };
-const float32 AnchorMultiplierY[RectAlignmentTypeCount]        = {      0,    -0.5,   0.5,      0,     0,        -0.5,         -0.5,      0.5,       0.5 };
 
 typedef struct
 {

@@ -11,6 +11,7 @@
 #include "color.h"
 #include "style.h"
 #include "text.h"
+#include "layout.h"
 
 typedef struct
 {

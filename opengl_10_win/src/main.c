@@ -32,6 +32,7 @@ int main(void)
     DrawContext* dc = draw_context_new(persistent_arena, renderer);
     EngineTime time = engine_time_new();
     Theme* default_theme = theme_init_default(persistent_arena, renderer);
+    Bounds screen = { .left = -renderer->camera.world_width / 2, .right = renderer->camera.world_width / 2, .top = renderer->camera.world_height / 2, .bottom = -renderer->camera.world_height / 2};
 
     /* application state */
 
@@ -61,6 +62,10 @@ int main(void)
 
         draw_debug_line(dc, vec2(0, -size), vec2(0, size*2), ColorBluePastel);
 
+        StyleRect test_style = default_theme->rect_default;
+        test_style.color = color_to_vec4(ColorSlate800);
+        draw_rect(dc, rect_aligned(screen.left, screen.top, 100, 100, RectAlignmentTypeTopLeft), 0, 0, test_style);
+
         // UIContext* ctx;
         // ui_view_begin(ctx);
         //     ui_button(ctx);
@@ -75,14 +80,12 @@ int main(void)
         profiler_end(&main_frame);
         arena_reset(frame_arena);
 
-        float32 screen_left = -renderer->camera.world_width / 2;
-        float32 screen_top = renderer->camera.world_height / 2;
         float32 font_size = default_theme->font_debug.font_size;
-        draw_text(dc, vec2(screen_left, screen_top), string_pushf(frame_arena, "%s: %0.02fms", main_frame.name.value, 1000*(main_frame.end - main_frame.start)), RectAlignmentTypeTopLeft, default_theme->font_debug);
-        draw_text(dc, vec2(screen_left, screen_top-font_size), string_pushf(frame_arena, "%s: %0.02fms", update.name.value, 1000*(update.end - update.start)), RectAlignmentTypeTopLeft, default_theme->font_debug);
-        draw_text(dc, vec2(screen_left, screen_top-font_size*2), string_pushf(frame_arena, "%s: %0.02fms", render.name.value, 1000*(render.end - render.start)), RectAlignmentTypeTopLeft, default_theme->font_debug);
-        draw_text(dc, vec2(screen_left, screen_top-font_size*3), string_pushf(frame_arena, "Mouse: [%0.02f, %0.02f]", mouse.world.x, mouse.world.y), RectAlignmentTypeTopLeft, default_theme->font_debug);
-        draw_text(dc, vec2(screen_left, screen_top-font_size*4), string_pushf(frame_arena, "MouseButtonState: 0x%x", mouse.button_state), RectAlignmentTypeTopLeft, default_theme->font_debug);
+        draw_text(dc, vec2(screen.left, screen.top), string_pushf(frame_arena, "%s: %0.02fms", main_frame.name.value, 1000*(main_frame.end - main_frame.start)), RectAlignmentTypeTopLeft, default_theme->font_debug);
+        draw_text(dc, vec2(screen.left, screen.top-font_size), string_pushf(frame_arena, "%s: %0.02fms", update.name.value, 1000*(update.end - update.start)), RectAlignmentTypeTopLeft, default_theme->font_debug);
+        draw_text(dc, vec2(screen.left, screen.top-font_size*2), string_pushf(frame_arena, "%s: %0.02fms", render.name.value, 1000*(render.end - render.start)), RectAlignmentTypeTopLeft, default_theme->font_debug);
+        draw_text(dc, vec2(screen.left, screen.top-font_size*3), string_pushf(frame_arena, "Mouse: [%0.02f, %0.02f]", mouse.world.x, mouse.world.y), RectAlignmentTypeTopLeft, default_theme->font_debug);
+        draw_text(dc, vec2(screen.left, screen.top-font_size*4), string_pushf(frame_arena, "MouseButtonState: 0x%x", mouse.button_state), RectAlignmentTypeTopLeft, default_theme->font_debug);
     }
 
     window_destroy(window);
