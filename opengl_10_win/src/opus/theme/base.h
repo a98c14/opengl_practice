@@ -5,6 +5,7 @@
 
 typedef struct 
 {
+    BorderRadius rounded_none;
     BorderRadius rounded_sm;
     BorderRadius rounded_md;
     BorderRadius rounded_lg;
@@ -15,6 +16,8 @@ typedef struct
     StyleText font_default;
     StyleText font_default_light;
     StyleText font_debug;
+    StyleText font_window_header;
+
 } Theme;
 
 internal Theme*

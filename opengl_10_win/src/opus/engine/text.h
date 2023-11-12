@@ -10,6 +10,7 @@
 #include <gfx/math.h>
 #include "layout.h"
 
+                                                                // Center,  Bottom,   Top,  Right,  Left,  BottomLeft,  BottomRight,  TopLeft,  TopRight
 const float32 FontAlignmentMultiplierX[RectAlignmentTypeCount] = {   -0.5,    -0.5,  -0.5,   -1.0,   0.0,         0.0,         -1.0,      0.0,      -1.0 };
 const float32 FontAlignmentMultiplierY[RectAlignmentTypeCount] = {   -0.5,     0.0,  -1.0,   -0.5,  -0.5,         0.0,          0.0,     -1.0,      -1.0 };
 

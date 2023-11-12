@@ -27,6 +27,8 @@ typedef struct
     /** Outline thickness. Should be between 0 and 0.5 */
     float32 outline_thickness;
     float32 font_size;
+    /** Letter y coordinate is offseted by this amount */
+    float32 base_line;
 } StyleText;
 
 internal StyleText

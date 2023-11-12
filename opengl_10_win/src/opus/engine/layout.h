@@ -26,3 +26,6 @@ const float32 AnchorMultiplierY[RectAlignmentTypeCount]        = {      0,    -0
 
 internal Rect
 rect_aligned(float32 x, float32 y, float32 w, float32 h, RectAlignmentType alignment);
+
+internal Rect
+rect_anchor(Rect parent, RectAlignmentType anchor, Rect rect);

@@ -153,3 +153,9 @@ internal Mat4 mat4_transform(Mat4 translation, Mat4 rotation, Mat4 scale);
 internal Mat4 mat4_ortho(float32 width, float32 height, float32 near, float32 far);
 
 internal Vec4 linear_combine_v4_m4(Vec4 v, Mat4 m);
+
+/* Utils */
+internal Vec2 rect_bl(Rect rect);
+internal Vec2 rect_br(Rect rect);
+internal Vec2 rect_tr(Rect rect);
+internal Vec2 rect_tl(Rect rect);

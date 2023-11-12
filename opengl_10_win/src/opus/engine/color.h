@@ -20,6 +20,7 @@ global const Color ColorGreenPastel  = { .r = 168,  .g = 209, .b = 209, .a = 0xf
 global const Color ColorBluePastel   = { .r = 158,  .g = 161, .b = 212, .a = 0xff };
 
 global const Color ColorShadow = { .r = 0,  .g = 0, .b = 0, .a = 173};
+global const Color ColorDebugWindow = { .r = 5,  .g = 8, .b = 14, .a = 122};
 
 global const Color ColorHealthBarFilled = { .r = 201,  .g = 28, .b = 16, .a = 0xff };
 global const Color ColorHealthBarEmpty  = { .r = 46,    .g = 7,  .b = 5, .a = 0xff };

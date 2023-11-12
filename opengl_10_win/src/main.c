@@ -38,7 +38,7 @@ int main(void)
 
     /* main loop */
     while (!glfwWindowShouldClose(window->glfw_window))
-    {
+    { 
         Profiler main_frame = profiler_begin(string("MainFrame"));
         /* frame: init */
         time = engine_get_time(time);
@@ -46,25 +46,33 @@ int main(void)
 
         /* frame: update */
         Profiler update = profiler_begin(string("Update"));
-        float32 size = 40 * renderer->pixel_per_unit;
-        draw_text(dc, vec2(0, 0), string("Middle Text"), RectAlignmentTypeBottomLeft, font_style_override_size(default_theme->font_default_light, size));
-        draw_text(dc, vec2(0, -size), string("Bottom Text"), RectAlignmentTypeBottomLeft, font_style_override_size(default_theme->font_default_light, size));
-        draw_text(dc, vec2(0, size), string("Top Text"), RectAlignmentTypeBottomLeft, font_style_override_size(default_theme->font_default_light, size));
-
-        draw_debug_line(dc, vec2(-10, 0), vec2(-10, size), ColorRedPastel);
-        draw_debug_line(dc, vec2(-10, 0), vec2(100, 0), ColorRedPastel);
-
-        draw_debug_line(dc, vec2(-10, -size), vec2(-10, 0), ColorRed500);
-        draw_debug_line(dc, vec2(-10, -size), vec2(100, -size), ColorRed500);
-
-        draw_debug_line(dc, vec2(-10, size), vec2(-10, size*2), ColorBluePastel);
-        draw_debug_line(dc, vec2(-10, size), vec2(100, size), ColorBluePastel);
-
-        draw_debug_line(dc, vec2(0, -size), vec2(0, size*2), ColorBluePastel);
+        float32 size = default_theme->font_window_header.font_size;
 
         StyleRect test_style = default_theme->rect_default;
-        test_style.color = color_to_vec4(ColorSlate800);
-        draw_rect(dc, rect_aligned(screen.left, screen.top, 100, 100, RectAlignmentTypeTopLeft), 0, 0, test_style);
+        test_style.color = color_to_vec4(ColorDebugWindow);
+        test_style.border_radius = default_theme->rounded_none;
+
+        StyleRect header_style = default_theme->rect_default;
+        header_style.color = color_to_vec4(ColorRed900);
+        header_style.border_radius = (BorderRadius){ .bl = 0, .br = 0, .tr = 2, .tl = 2 };
+
+        float32 padding_y = 2;
+        float32 padding_x = 2;
+        float32 window_width = 200;
+        float32 window_height = 100;
+        float32 header_height = size + padding_y * 2;
+
+        Rect frame = rect_aligned(0, 0, window_width, window_height - header_height, RectAlignmentTypeTopLeft);
+        Rect header = rect_aligned(0, 0, window_width, header_height, RectAlignmentTypeBottomLeft);
+        header = rect_anchor(frame, RectAlignmentTypeTopLeft, header);
+        draw_rect(dc, frame, 0, 0, test_style);
+        draw_text(dc, add_vec2(rect_bl(header), vec2(padding_x, padding_y)), string("Header"), RectAlignmentTypeBottomLeft, default_theme->font_window_header);
+        
+        Rect input_text_bounds = draw_text(dc, add_vec2(rect_tl(frame), vec2(padding_x, -padding_y)), string("Input:"), RectAlignmentTypeTopLeft, default_theme->font_window_header);
+        Rect input = rect_aligned(0, -1, window_width - input_text_bounds.w - padding_x - padding_x, input_text_bounds.h, RectAlignmentTypeBottomLeft);
+        input = rect_anchor(input_text_bounds, RectAlignmentTypeBottomRight, input);
+        draw_rect(dc, input, 0, 0, default_theme->rect_default);
+        
 
         // UIContext* ctx;
         // ui_view_begin(ctx);
@@ -80,6 +88,8 @@ int main(void)
         profiler_end(&main_frame);
         arena_reset(frame_arena);
 
+        Rect info_frame = rect_aligned(screen.left, screen.bottom, screen.right - screen.left, window_height, RectAlignmentTypeBottomLeft);
+        draw_rect(dc, info_frame, 0, 0, test_style);
         float32 font_size = default_theme->font_debug.font_size;
         draw_text(dc, vec2(screen.left, screen.top), string_pushf(frame_arena, "%s: %0.02fms", main_frame.name.value, 1000*(main_frame.end - main_frame.start)), RectAlignmentTypeTopLeft, default_theme->font_debug);
         draw_text(dc, vec2(screen.left, screen.top-font_size), string_pushf(frame_arena, "%s: %0.02fms", update.name.value, 1000*(update.end - update.start)), RectAlignmentTypeTopLeft, default_theme->font_debug);

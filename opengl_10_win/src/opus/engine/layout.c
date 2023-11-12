@@ -14,3 +14,12 @@ rect_aligned(float32 x, float32 y, float32 w, float32 h, RectAlignmentType align
 	result.y += result.h * AlignmentMultiplierY[alignment];
 	return result;
 }
+
+internal Rect
+rect_anchor(Rect parent, RectAlignmentType anchor, Rect rect)
+{
+	Rect result = rect;
+	result.x = rect.x + parent.x + AnchorMultiplierX[anchor] * parent.w;
+	result.y = rect.y + parent.y + AnchorMultiplierY[anchor] * parent.h;
+	return result;
+}

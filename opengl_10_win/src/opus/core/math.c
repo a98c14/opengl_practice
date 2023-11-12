@@ -506,3 +506,24 @@ linear_combine_v4_m4(Vec4 v, Mat4 m)
 #endif
     return result;
 }
+
+
+internal Vec2 rect_bl(Rect rect)
+{
+    return vec2(rect.x - rect.w / 2.0f, rect.y - rect.h / 2.0f);
+}
+
+internal Vec2 rect_br(Rect rect)
+{
+    return vec2(rect.x + rect.w / 2.0f, rect.y - rect.h / 2.0f);
+}
+
+internal Vec2 rect_tr(Rect rect)
+{
+    return vec2(rect.x + rect.w / 2.0f, rect.y + rect.h / 2.0f);
+}
+
+internal Vec2 rect_tl(Rect rect)
+{
+    return vec2(rect.x - rect.w / 2.0f, rect.y + rect.h / 2.0f);
+}
