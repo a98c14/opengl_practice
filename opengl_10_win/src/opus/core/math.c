@@ -527,22 +527,50 @@ internal float32 rect_top(Rect rect)
     return rect.y + rect.h / 2.0f;
 }
 
+/* Bottom Left */
 internal Vec2 rect_bl(Rect rect)
 {
     return vec2(rect.x - rect.w / 2.0f, rect.y - rect.h / 2.0f);
 }
 
+/* Bottom Right */
 internal Vec2 rect_br(Rect rect)
 {
     return vec2(rect.x + rect.w / 2.0f, rect.y - rect.h / 2.0f);
 }
 
+/* Top Right */
 internal Vec2 rect_tr(Rect rect)
 {
     return vec2(rect.x + rect.w / 2.0f, rect.y + rect.h / 2.0f);
 }
 
+/* Top Left */
 internal Vec2 rect_tl(Rect rect)
 {
     return vec2(rect.x - rect.w / 2.0f, rect.y + rect.h / 2.0f);
+}
+
+/* Center Left */
+internal Vec2 rect_cl(Rect rect)
+{
+    return vec2(rect.x - rect.w / 2.0f, rect.y);
+}
+
+/* Center Right */
+internal Vec2 rect_cr(Rect rect)
+{
+    return vec2(rect.x + rect.w / 2.0f, rect.y);
+}
+
+/* Center Bottom */
+internal Vec2 rect_cb(Rect rect)
+{
+    return vec2(rect.x, rect.y - rect.h / 2.0f);
+}
+
+/* Center Top */
+internal Vec2 rect_ct(Rect rect)
+{
+    return vec2(rect.x, rect.y + rect.h / 2.0f);
 }

@@ -10,8 +10,11 @@ key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
-#define WINDOW_WIDTH 1920
-#define WINDOW_HEIGHT 1080
+#define WINDOW_WIDTH 2560
+#define WINDOW_HEIGHT 1440
+#define WORLD_WIDTH 640.0f
+#define WORLD_HEIGHT 480.0f
+#define PPU (1.0f / (WINDOW_WIDTH / WORLD_WITH)) // pixel per unit
 
 int main(void)
 {
@@ -24,7 +27,8 @@ int main(void)
     RendererConfiguration renderer_configuration = {
         .window_width = WINDOW_WIDTH,
         .window_height = WINDOW_HEIGHT,
-        .world_height = 480,
+        .world_width = 0,
+        .world_height = WORLD_HEIGHT,
         .clear_color = ColorSlate900
     };
 
@@ -33,7 +37,7 @@ int main(void)
     EngineTime time = engine_time_new();
     Theme* default_theme = theme_init_default(persistent_arena, renderer);
     Bounds screen = { .left = -renderer->camera.world_width / 2, .right = renderer->camera.world_width / 2, .top = renderer->camera.world_height / 2, .bottom = -renderer->camera.world_height / 2};
-    UIContext* ctx = ui_context_new(persistent_arena, dc, default_theme);
+    UIContext* ctx = ui_context_new(persistent_arena, dc, default_theme);    
 
     /* application state */
 
@@ -61,11 +65,13 @@ int main(void)
         draw_line(dc, vec2(-200, 0), vec2(200, 0), ColorRed900, 2);
         draw_line(dc, vec2(0, -200), vec2(0, 200), ColorRed900, 2);
         
-        ctx->spacing = 2;
         ui_frame_begin(ctx, vec2(5, -5), vec2(100, 0), AlignmentTopLeft, vec2(2, 2));
             ui_rect_basic(ctx);
             ui_rect_basic(ctx);
             ui_rect_basic(ctx);
+            ui_text(ctx, string("First Line"));
+            ui_text(ctx, string("Second Line"));
+            ui_text(ctx, string("Third Line"));
         ui_frame_end(ctx);
 
         profiler_end(&update);

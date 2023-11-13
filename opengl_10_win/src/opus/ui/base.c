@@ -7,8 +7,8 @@ ui_context_new(Arena* arena, DrawContext* draw_context, Theme* theme)
     ctx->frame_stack = arena_push_array_zero_aligned(arena, UIFrame, UI_FRAME_CAPACITY, 16);
     ctx->theme = theme;
     ctx->dc = draw_context;
-    ctx->line_height = 20 ;
-    ctx->spacing = 2;
+    ctx->line_height = em(20);
+    ctx->spacing = em(4);
     return ctx;
 }
 
@@ -30,7 +30,7 @@ ui_frame_begin(UIContext* ctx, Vec2 pos, Vec2 size, Alignment alignment, Vec2 pa
     frame->cursor = rect_align(base, alignment);
     frame->base_alignment = alignment;
     frame->padding = padding;
-    frame->cursor = rect_shrink(frame->cursor, padding.x * 2); // left + right padding
+    frame->cursor = rect_shrink(frame->cursor, padding.x * padding.x); // left + right padding
     frame->cursor = rect_move(frame->cursor, vec2(0, -padding.y)); // since we don't know the final height apply only top padding here
 }
 
@@ -52,6 +52,18 @@ ui_rect_basic(UIContext* ctx)
     UIFrame* frame = ui_active_frame(ctx);
     Rect row = rect(0, 0, frame->cursor.w, ctx->line_height);
     row = rect_anchor(row, frame->cursor, ANCHOR_TL_TL);
+    draw_rect(ctx->dc, row, 0, 1, ctx->theme->rect_debug);
+    frame->cursor = rect_move(frame->cursor, vec2(0, -row.h-ctx->spacing));
+}
+
+internal void
+ui_text(UIContext* ctx, String str)
+{
+    Alignment alignment = AlignmentLeft;
+    UIFrame* frame = ui_active_frame(ctx);
+    Rect row = rect(0, 0, frame->cursor.w, ctx->line_height);
+    row = rect_anchor(row, frame->cursor, ANCHOR_TL_TL);
+    draw_text(ctx->dc, rect_relative(row, alignment), str, alignment, ctx->theme->font_default);
     draw_rect(ctx->dc, row, 0, 1, ctx->theme->rect_debug);
     frame->cursor = rect_move(frame->cursor, vec2(0, -row.h-ctx->spacing));
 }

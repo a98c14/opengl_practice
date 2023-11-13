@@ -19,6 +19,9 @@
 #define MATERIAL_DRAW_BUFFER_CAPACITY 512
 #define MATERIAL_DRAW_BUFFER_ELEMENT_CAPACITY 8192*4
 
+// TEMP: testing global variable solution out. Potentially dangerous?
+global float32 _pixel_per_unit = 1;
+
 enum
 {
     ViewTypeWorld,
@@ -34,8 +37,6 @@ typedef uint8 GeometryIndex;
 /** Objects are rendered with descending order (highest first) */
 typedef uint8 SortLayerIndex;
 typedef int16 MaterialDrawBufferIndex;
-
-
 
 #define TEXTURE_INDEX_NULL 0
 #define FRAME_BUFFER_INDEX_DEFAULT 0
@@ -225,6 +226,8 @@ typedef struct
 
     float32 window_width;
     float32 window_height;
+    float32 world_width;
+    float32 world_height;
     Camera camera;
 
     uint32 global_uniform_buffer_id;
@@ -234,7 +237,8 @@ typedef struct
 
     /* state */
     float32 timer;
-    float32 pixel_per_unit;
+    float32 ppu;
+    float32 aspect;
     RendererDrawState* draw_state;
 
     /* resources */
@@ -257,6 +261,8 @@ typedef struct
     uint32 window_width;
     uint32 window_height;
 
+    // Use 0 to auto calculate it using aspect ratio from window size (at least one of width or height still needs to be provided)
+    float32 world_width;
     float32 world_height;
     Color clear_color;
 } RendererConfiguration;
@@ -314,3 +320,7 @@ renderer_render(Renderer* renderer, float32 dt);
 
 internal void
 texture_shader_data_set(Renderer* renderer, const Texture* texture);
+
+/* returns the resolution independent pixel value. */
+internal float32
+em(float32 px);

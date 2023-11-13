@@ -55,3 +55,6 @@ ui_frame_begin(UIContext* ctx, Vec2 pos, Vec2 size, Alignment alignment, Vec2 pa
 
 internal void
 ui_frame_end(UIContext* ctx);
+
+internal void
+ui_text(UIContext* ctx, String str);

@@ -32,12 +32,12 @@ rect_anchor(Rect child, Rect parent, Anchor anchor)
 	return result;
 }
 
-internal Rect
-rect_relative(Rect rect, Rect parent, Alignment anchor)
+internal Vec2
+rect_relative(Rect rect, Alignment alignment)
 {
-	Rect result = rect;
-	result.x = rect.x + parent.x + AnchorMultiplierX[anchor] * parent.w;
-	result.y = rect.y + parent.y + AnchorMultiplierY[anchor] * parent.h;
+	Vec2 result = rect.center;
+	result.x = rect.x - AlignmentMultiplierX[alignment] * rect.w;
+	result.y = rect.y - AlignmentMultiplierY[alignment] * rect.h;
 	return result;
 }
 

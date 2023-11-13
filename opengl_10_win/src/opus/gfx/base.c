@@ -12,12 +12,22 @@ renderer_new(Arena* arena, RendererConfiguration* configuration)
     renderer->textures = arena_push_array_zero(arena, Texture, TEXTURE_CAPACITY);
     renderer->geometries = arena_push_array_zero(arena, Geometry, GEOMETRY_CAPACITY);
 
+    xassert(configuration->world_width > 0 || configuration->world_height > 0, "at least one of world width or world height needs to have a value");
     glViewport(0, 0, renderer->window_width, renderer->window_height);
-    float32 aspect = renderer->window_width / (float)renderer->window_height;
+    renderer->aspect = renderer->window_width / (float)renderer->window_height;
     float32 world_height = configuration->world_height;
-    float32 world_width = world_height * aspect;
-    renderer->pixel_per_unit = 1.0f / (configuration->window_width / world_width);
+    float32 world_width = configuration->world_width;
+    if(configuration->world_width == 0)
+        world_width = world_height * renderer->aspect;
+    if(configuration->world_height == 0)
+        world_height = world_width / renderer->aspect;
+    renderer->world_width = world_width;
+    renderer->world_height = world_height;
+    renderer->ppu = 1.0f / (renderer->window_width / world_width);
     renderer->camera = camera_new(world_width, world_height, 100, -100, renderer->window_width, renderer->window_height);
+
+    // TEMP: testing global variable solution out. Potentially dangerous?
+    _pixel_per_unit = renderer->ppu; 
 
     glEnable(GL_BLEND);
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
@@ -593,4 +603,10 @@ texture_shader_data_set(Renderer* renderer, const Texture* texture)
     glBindBuffer(GL_UNIFORM_BUFFER, renderer->texture_uniform_buffer_id);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(TextureUniformData), &shader_data);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+internal float32
+em(float32 px)
+{
+    return _pixel_per_unit * px;
 }

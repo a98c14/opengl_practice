@@ -163,3 +163,7 @@ internal Vec2 rect_bl(Rect rect);
 internal Vec2 rect_br(Rect rect);
 internal Vec2 rect_tr(Rect rect);
 internal Vec2 rect_tl(Rect rect);
+internal Vec2 rect_cl(Rect rect);
+internal Vec2 rect_cr(Rect rect);
+internal Vec2 rect_cb(Rect rect);
+internal Vec2 rect_ct(Rect rect);

@@ -119,7 +119,7 @@ draw_rect(DrawContext* dc, Rect rect, float32 rotation, SortLayerIndex sort_inde
 internal void
 draw_debug_line(DrawContext* dc, Vec2 start, Vec2 end, Color color)
 {
-    draw_line(dc, start, end, color, 4 * dc->renderer->pixel_per_unit);
+    draw_line(dc, start, end, color, 4 * dc->renderer->ppu);
 }
 
 internal void
