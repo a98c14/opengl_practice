@@ -38,7 +38,7 @@ internal void
 ui_frame_end(UIContext* ctx)
 {
     UIFrame* frame = ui_active_frame(ctx);
-    float32 base_container_height = rect_bottom(frame->base) - rect_bottom(frame->cursor) + 2.0f;
+    float32 base_container_height = rect_bottom(frame->base) - rect_bottom(frame->cursor) + frame->padding.y;
     base_container_height -= ctx->spacing; // this is subtracted so we don't add spacing for the last element
     Rect base_rect = rect(frame->base.x, frame->base.y, frame->base.w, base_container_height);
     base_rect = rect_align(base_rect, frame->base_alignment);

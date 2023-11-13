@@ -61,7 +61,8 @@ int main(void)
         draw_line(dc, vec2(-200, 0), vec2(200, 0), ColorRed900, 2);
         draw_line(dc, vec2(0, -200), vec2(0, 200), ColorRed900, 2);
         
-        ui_frame_begin(ctx, vec2_zero(), vec2(100, 0), AlignmentTopLeft, vec2(2, 2));
+        ctx->spacing = 2;
+        ui_frame_begin(ctx, vec2(5, -5), vec2(100, 0), AlignmentTopLeft, vec2(2, 2));
             ui_rect_basic(ctx);
             ui_rect_basic(ctx);
             ui_rect_basic(ctx);
