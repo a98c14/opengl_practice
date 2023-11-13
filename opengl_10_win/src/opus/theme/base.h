@@ -14,6 +14,7 @@ typedef struct
     StyleRect rect_default;
     StyleRect rect_debug;
     StyleRect rect_view;
+    StyleRect rect_header;
 
     StyleText font_default;
     StyleText font_default_light;

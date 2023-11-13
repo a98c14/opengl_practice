@@ -69,9 +69,6 @@ int main(void)
         draw_rect(ctx->dc, rect(-200, 100, 50, 50), 0, 1, ctx->theme->rect_debug);
         
         ui_frame_begin(ctx, vec2(5, -5), vec2(100, 0), AlignmentTopLeft, vec2(2, 2));
-            ui_rect_basic(ctx);
-            ui_rect_basic(ctx);
-            ui_rect_basic(ctx);
             ui_text(ctx, string("First Line"));
             ui_text(ctx, string("Second Line"));
             ui_text(ctx, string("Third Line"));

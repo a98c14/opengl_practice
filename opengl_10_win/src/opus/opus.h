@@ -30,3 +30,4 @@
 
 #include <ui/base.h>
 #include <ui/components.h>
+#include <ui/debug.h>

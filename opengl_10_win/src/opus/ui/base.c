@@ -25,9 +25,13 @@ ui_frame_begin(UIContext* ctx, Vec2 pos, Vec2 size, Alignment alignment, Vec2 pa
     FrameIndex frame_index = ctx->frame_count;
     UIFrame* frame = &ctx->frame_stack[frame_index];
     ctx->frame_count++;
-    Rect base = rect(pos.x, pos.y, size.x, size.y);
-    frame->base = base;
+    Rect base = rect(pos.x, pos.y, size.x, 0);
+    Rect header = rect(0, 0, size.x, em(20));
+    
     frame->cursor = rect_align(base, alignment);
+    draw_rect(ctx->dc, rect_anchor(header, frame->cursor, ANCHOR_TL_BL), 0, 0, ctx->theme->rect_header);
+
+    frame->base = base;
     frame->base_alignment = alignment;
     frame->padding = padding;
     frame->cursor = rect_shrink(frame->cursor, padding.x * padding.x); // left + right padding
@@ -63,7 +67,7 @@ ui_text(UIContext* ctx, String str)
     UIFrame* frame = ui_active_frame(ctx);
     Rect row = rect(0, 0, frame->cursor.w, ctx->line_height);
     row = rect_anchor(row, frame->cursor, ANCHOR_TL_TL);
-    draw_rect(ctx->dc, row, 0, 1, ctx->theme->rect_debug);
     draw_text(ctx->dc, rect_relative(row, alignment), str, alignment, ctx->theme->font_default);
+    debug_ui_rect(ctx->dc, row, 0, 1, ctx->theme->rect_debug);
     frame->cursor = rect_move(frame->cursor, vec2(0, -row.h-ctx->spacing));
 }

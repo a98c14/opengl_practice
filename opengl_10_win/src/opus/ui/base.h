@@ -3,7 +3,9 @@
 #include <core/defines.h>
 #include <engine/draw.h>
 #include <theme/base.h>
+#include "debug.h"
 
+#define UI_DEBUG 1
 #define UI_FRAME_CAPACITY 256
 #define DEFAULT_LINE_HEIGHT 20
 
