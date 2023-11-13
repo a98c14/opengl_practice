@@ -77,10 +77,11 @@ typedef struct
 typedef struct
 {
     Vec4 color;
+    Vec4 edge_color;
     Vec4 round;
     Vec2 scale;
     float32 softness;
-    float32 _;
+    float32 edge_thickness;
 } ShaderDataRectRounded;
 
 typedef struct 

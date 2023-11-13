@@ -44,7 +44,6 @@ draw_context_new(Arena* arena, Renderer* renderer)
         sizeof(ShaderDataRectRounded),
         false);
 
-
     draw_context->material_boid = material_new(
         renderer,
         file_read_all_as_string(arena, string("..\\src\\shaders\\boid.vert")),
@@ -111,9 +110,11 @@ draw_rect(DrawContext* dc, Rect rect, float32 rotation, SortLayerIndex sort_inde
 
     ShaderDataRectRounded* uniform_buffer = (ShaderDataRectRounded*)draw_buffer.uniform_data_buffer;
     uniform_buffer[0].color = style.color;
+    uniform_buffer[0].edge_color = style.border_color;
     uniform_buffer[0].round = style.border_radius.v;
     uniform_buffer[0].scale = rect.size;
     uniform_buffer[0].softness = style.softness;
+    uniform_buffer[0].edge_thickness = style.border_thickness;
 }
 
 internal void

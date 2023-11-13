@@ -24,9 +24,11 @@ layout (std140, binding = 2) uniform Camera
 layout (std140, binding = 4) uniform Custom
 {
     vec4 u_color;
+    vec4 u_edge_color;
     vec4 u_round;
     vec2 u_scale;
     float u_softness;
+    float u_edge_thickness;
 };
 
 uniform mat4 u_model;

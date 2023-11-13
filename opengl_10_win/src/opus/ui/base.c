@@ -63,7 +63,7 @@ ui_text(UIContext* ctx, String str)
     UIFrame* frame = ui_active_frame(ctx);
     Rect row = rect(0, 0, frame->cursor.w, ctx->line_height);
     row = rect_anchor(row, frame->cursor, ANCHOR_TL_TL);
-    draw_text(ctx->dc, rect_relative(row, alignment), str, alignment, ctx->theme->font_default);
     draw_rect(ctx->dc, row, 0, 1, ctx->theme->rect_debug);
+    draw_text(ctx->dc, rect_relative(row, alignment), str, alignment, ctx->theme->font_default);
     frame->cursor = rect_move(frame->cursor, vec2(0, -row.h-ctx->spacing));
 }

@@ -64,6 +64,9 @@ int main(void)
 
         draw_line(dc, vec2(-200, 0), vec2(200, 0), ColorRed900, 2);
         draw_line(dc, vec2(0, -200), vec2(0, 200), ColorRed900, 2);
+
+        draw_rect(ctx->dc, rect(0, 100, 100, 100), 0, 1, ctx->theme->rect_debug);
+        draw_rect(ctx->dc, rect(-200, 100, 50, 50), 0, 1, ctx->theme->rect_debug);
         
         ui_frame_begin(ctx, vec2(5, -5), vec2(100, 0), AlignmentTopLeft, vec2(2, 2));
             ui_rect_basic(ctx);

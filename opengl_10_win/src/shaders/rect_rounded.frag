@@ -25,9 +25,11 @@ layout (std140, binding = 2) uniform Camera
 layout (std140, binding = 4) uniform Custom
 {
     vec4 u_color;
+    vec4 u_edge_color;
     vec4 u_round;
     vec2 u_scale;
     float u_softness;
+    float u_edge_thickness;
 };
 
 uniform mat4 u_model;
@@ -52,6 +54,7 @@ void main() {
     uv.x *= aspect;
     vec2 dxy = fwidth(uv);
     vec2 softness = u_softness * dxy;
+    float edge_thickness = u_edge_thickness * dxy.x;
 
     // calculate corner roundness
     vec4 r = u_round;
@@ -61,11 +64,12 @@ void main() {
     
     vec2 q = abs(uv) - (vec2(1 * aspect, 1) - softness) + r.x;
     float d = min(max(q.x,q.y),0.0) + length(max(q,0.0)) - r.x;
-    d = 1-smoothstep(0.0, softness.x, d);
+    float edge = step(softness.x - edge_thickness, d);
+    d = 1 - smoothstep(0.0, softness.x, d);
 
-    // float d = sd_rounded_box(uv, vec2(0.5, 0.5) , vec4(r));
-    color = vec4(u_color.xyz, u_color.a * d);
+    color = mix(u_color, u_edge_color, edge);
+    color = vec4(color.xyz, color.a * d);
 #if DEBUG == 1
-    color = mix(vec4(1.0, 0.0, 1.0, 1.0), color, color.a);
+    color = mix(vec4(0.0, 0.0, 1.0, 1.0), color, color.a);
 #endif
 }

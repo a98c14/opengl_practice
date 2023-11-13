@@ -12,8 +12,10 @@ typedef union
 typedef struct
 {
     Vec4 color;
+    Vec4 border_color;
     BorderRadius border_radius;
     float32 softness;
+    float32 border_thickness;
 } StyleRect;
 
 typedef struct
