@@ -12,12 +12,13 @@ typedef struct
     BorderRadius rounded_xl;
 
     StyleRect rect_default;
+    StyleRect rect_debug;
+    StyleRect rect_view;
 
     StyleText font_default;
     StyleText font_default_light;
     StyleText font_debug;
     StyleText font_window_header;
-
 } Theme;
 
 internal Theme*

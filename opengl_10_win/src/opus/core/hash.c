@@ -9,6 +9,13 @@ hash_uint64(uint64 value)
     return (uint32)value;
 }
 
+internal uint32
+hash_xy(int32 x, int32 y)
+{
+    int32 result = (x * 92837111) ^ (y *689287499);
+    return abs(result);
+}
+
 internal uint64 
 hash_chars(const char* buffer)
 {

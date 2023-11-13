@@ -155,6 +155,10 @@ internal Mat4 mat4_ortho(float32 width, float32 height, float32 near, float32 fa
 internal Vec4 linear_combine_v4_m4(Vec4 v, Mat4 m);
 
 /* Utils */
+internal float32 rect_left(Rect rect);
+internal float32 rect_right(Rect rect);
+internal float32 rect_bottom(Rect rect);
+internal float32 rect_top(Rect rect);
 internal Vec2 rect_bl(Rect rect);
 internal Vec2 rect_br(Rect rect);
 internal Vec2 rect_tr(Rect rect);

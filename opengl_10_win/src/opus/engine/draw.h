@@ -112,7 +112,7 @@ draw_bounds(DrawContext* dc, float32 left, float32 right, float32 bottom, float3
 
 /** Draws given string to screen and returns the bounding box for the while string */
 internal Rect
-draw_text(DrawContext* dc, Vec2 pos, String str, RectAlignmentType alignment, StyleText style);
+draw_text(DrawContext* dc, Vec2 pos, String str, Alignment alignment, StyleText style);
 
 internal void
 draw_circle(DrawContext* dc, Vec2 position, float32 radius, Color color);

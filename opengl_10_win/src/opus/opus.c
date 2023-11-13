@@ -24,3 +24,6 @@
 #include <engine/color.c>
 
 #include <theme/base.c>
+
+#include <ui/base.c>
+#include <ui/components.c>

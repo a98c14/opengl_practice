@@ -30,7 +30,7 @@ glyph_atlas_load(Arena* arena, const GlyphAtlasInfo* atlas_info, const Glyph* gl
 }
 
 internal Rect
-text_calculate_bounds(GlyphAtlas* atlas, Vec2 position, RectAlignmentType alignment, String str, float32 size)
+text_calculate_bounds(GlyphAtlas* atlas, Vec2 position, Alignment alignment, String str, float32 size)
 {
     Vec2 string_size = vec2_zero();
     Glyph glyph;
@@ -51,7 +51,7 @@ text_calculate_bounds(GlyphAtlas* atlas, Vec2 position, RectAlignmentType alignm
 }
 
 internal Rect
-text_calculate_transforms(GlyphAtlas* atlas, String str, float32 size_in_pixels, Vec2 position, RectAlignmentType alignment, Mat4* dst_matrices, uint32 dst_index)
+text_calculate_transforms(GlyphAtlas* atlas, String str, float32 size_in_pixels, Vec2 position, Alignment alignment, Mat4* dst_matrices, uint32 dst_index)
 {
     Rect string_bounds = text_calculate_bounds(atlas, position, alignment, str, size_in_pixels);
     Vec2 base_offset = {

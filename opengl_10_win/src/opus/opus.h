@@ -27,3 +27,6 @@
 #include <engine/profiler.h>
 
 #include <theme/base.h>
+
+#include <ui/base.h>
+#include <ui/components.h>

@@ -11,8 +11,8 @@
 #include "layout.h"
 
                                                                 // Center,  Bottom,   Top,  Right,  Left,  BottomLeft,  BottomRight,  TopLeft,  TopRight
-const float32 FontAlignmentMultiplierX[RectAlignmentTypeCount] = {   -0.5,    -0.5,  -0.5,   -1.0,   0.0,         0.0,         -1.0,      0.0,      -1.0 };
-const float32 FontAlignmentMultiplierY[RectAlignmentTypeCount] = {   -0.5,     0.0,  -1.0,   -0.5,  -0.5,         0.0,          0.0,     -1.0,      -1.0 };
+const float32 FontAlignmentMultiplierX[AlignmentCount] = {   -0.5,    -0.5,  -0.5,   -1.0,   0.0,         0.0,         -1.0,      0.0,      -1.0 };
+const float32 FontAlignmentMultiplierY[AlignmentCount] = {   -0.5,     0.0,  -1.0,   -0.5,  -0.5,         0.0,          0.0,     -1.0,      -1.0 };
 
 typedef struct
 {
@@ -56,7 +56,7 @@ internal GlyphAtlas*
 glyph_atlas_load(Arena* arena, const GlyphAtlasInfo* atlas_info, const Glyph* glyphs, uint32 glyph_count, TextureIndex texture);
 
 internal Rect
-text_calculate_bounds(GlyphAtlas* atlas, Vec2 position, RectAlignmentType alignment, String str, float32 size);
+text_calculate_bounds(GlyphAtlas* atlas, Vec2 position, Alignment alignment, String str, float32 size);
 
 internal Rect
-text_calculate_transforms(GlyphAtlas* atlas, String str, float32 size_in_pixels, Vec2 position, RectAlignmentType alignment, Mat4* dst_matrices, uint32 dst_index);
+text_calculate_transforms(GlyphAtlas* atlas, String str, float32 size_in_pixels, Vec2 position, Alignment alignment, Mat4* dst_matrices, uint32 dst_index);

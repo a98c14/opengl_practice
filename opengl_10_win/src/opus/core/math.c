@@ -507,6 +507,25 @@ linear_combine_v4_m4(Vec4 v, Mat4 m)
     return result;
 }
 
+internal float32 rect_left(Rect rect)
+{
+    return rect.x - rect.w / 2.0f;
+}
+
+internal float32 rect_right(Rect rect)
+{
+    return rect.x + rect.w / 2.0f;
+}
+
+internal float32 rect_bottom(Rect rect)
+{
+    return rect.y - rect.h / 2.0f;
+}
+
+internal float32 rect_top(Rect rect)
+{
+    return rect.y + rect.h / 2.0f;
+}
 
 internal Vec2 rect_bl(Rect rect)
 {
