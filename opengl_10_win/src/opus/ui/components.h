@@ -5,3 +5,5 @@
 
 #include "base.h"
 
+internal bool32
+ui_slider(UIContext* ctx, String label, Range range, float32* value);

@@ -25,11 +25,12 @@ uuid_is_null(UIID id)
 }
 
 internal UIContext*
-ui_context_new(Arena* arena, DrawContext* draw_context, Theme* theme)
+ui_context_new(Arena* arena, Arena* frame_arena, DrawContext* draw_context, Theme* theme)
 {
     UIContext* ctx = arena_push_struct_zero_aligned(arena, UIContext, 16);
     ctx->frame_stack = arena_push_array_zero_aligned(arena, UIFrame, UI_FRAME_CAPACITY, 16);
     ctx->theme = theme;
+    ctx->frame_arena = frame_arena;
     ctx->dc = draw_context;
     return ctx;
 }
@@ -79,8 +80,6 @@ ui_cursor_new(UIContext* ctx, Vec2 pos, float width)
 {
     Rect cursor;
     cursor = rect_align(rect(pos.x, pos.y, width, 0), AlignmentBottomLeft);
-    // cursor = rect_shrink_f32(cursor, padding.x * 2); // left + right padding
-    // cursor = rect_move(cursor, vec2(0, -padding.y)); // since we don't know the final height apply only top padding here
     return cursor;
 }
 
@@ -135,20 +134,16 @@ ui_rect_basic(UIContext* ctx)
 internal bool32
 ui_window_begin(UIContext* ctx, String name, Vec2* pos, Vec2 size, bool32* is_enabled)
 {
+    // TODO: use an actual id
     int32 name_hash = hash_string(name);
     UIID id = uuid_new(name_hash, 0);
     UIFrame* frame = frame = ui_frame_new(ctx);
     frame->cursor = ui_cursor_new(ctx, *pos, size.x);
 
     /* draw header */
-    Rect header = rect_wh(frame->cursor.w, em(20));
+    Rect header = rect_wh(frame->cursor.w, em(24));
     header = rect_anchor(header, frame->cursor, ANCHOR_TL_TL);
     bool32 hover = intersects_rect_point(header, ctx->mouse.world);
-    StyleRect header_style = hover ? ctx->theme->rect_header_hover : ctx->theme->rect_header;
-    draw_rect(ctx->dc, header, 0, 0, header_style);
-    draw_text(ctx->dc, rect_cl(header), name, AlignmentLeft, ctx->theme->font_window_header);
-    frame->cursor = rect_move(frame->cursor, vec2(0, -header.h));
-
     if(!ui_is_active(ctx, id) && hover && input_mouse_pressed(ctx->mouse, MouseButtonStateLeft))
     {
         ui_activate(ctx, id);
@@ -167,10 +162,14 @@ ui_window_begin(UIContext* ctx, String name, Vec2* pos, Vec2 size, bool32* is_en
         ui_active_clear(ctx);
     }
 
+    StyleRect header_style = hover ? ctx->theme->rect_header_hover : ctx->theme->rect_header;
+    draw_rect(ctx->dc, header, 0, 0, header_style);
+    draw_text(ctx->dc, rect_cl(rect_shrink_f32(header, 4)), name, AlignmentLeft, ctx->theme->font_window_header);
+    frame->cursor = rect_move(frame->cursor, vec2(0, -header.h));
+
     /* init root container */
     frame->base = frame->cursor;
     frame->cursor = rect_move(frame->cursor, vec2(0, -ctx->theme->padding.y));
-
     return *is_enabled;
 }
 
@@ -185,7 +184,6 @@ ui_text(UIContext* ctx, String str)
 {
     UIFrame* frame = ui_active_frame(ctx);
     Rect row = ui_row(ctx, frame);
-
     Alignment alignment = AlignmentLeft;
     Rect inner_row = rect_shrink(row, vec2(ctx->theme->padding.x*2, 0));
     draw_text(ctx->dc, rect_relative(inner_row, alignment), str, alignment, ctx->theme->font_default);

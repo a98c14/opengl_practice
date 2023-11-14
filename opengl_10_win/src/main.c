@@ -41,13 +41,14 @@ int main(void)
     EngineTime time = engine_time_new();
     Theme* default_theme = theme_init_default(persistent_arena, renderer);
     Bounds screen = { .left = -renderer->camera.world_width / 2, .right = renderer->camera.world_width / 2, .top = renderer->camera.world_height / 2, .bottom = -renderer->camera.world_height / 2};
-    UIContext* ctx = ui_context_new(persistent_arena, dc, default_theme);
+    UIContext* ctx = ui_context_new(persistent_arena, frame_arena, dc, default_theme);
 
     /* application state */
     // ShowCursor(0);
 
     Vec2 window_pos = vec2_zero();
     bool32 window_is_enabled = 1;
+    float32 slider_value = 4;
     InputMouse mouse = {0};
     /* main loop */
     while (!glfwWindowShouldClose(window->glfw_window))
@@ -77,6 +78,15 @@ int main(void)
             ui_text(ctx, string("First Line"));
             ui_text(ctx, string("Second Line"));
             ui_text(ctx, string("Third Line"));
+            // if(ui_button(ctx, string("Second Line")))
+            // {
+
+            // }
+            
+            if(ui_slider(ctx, string("Coords"), range(0, 10), &slider_value))
+            {
+                
+            }
         }
         ui_window_end(ctx);
 

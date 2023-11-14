@@ -178,10 +178,10 @@ draw_circle(DrawContext* dc, Vec2 position, float32 radius, Color color)
 }
 
 internal void
-draw_circle_filled(DrawContext* dc, Vec2 position, float32 radius, Color color)
+draw_circle_filled(DrawContext* dc, Circle circle, Color color)
 {
     DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, ViewTypeWorld, SORT_LAYER_INDEX_DEFAULT, FRAME_BUFFER_INDEX_DEFAULT, TEXTURE_INDEX_NULL, dc->geometry_quad, dc->material_circle, 1);
-    draw_buffer.model_buffer[0] = transform_quad(position, vec2(radius, radius), 0);
+    draw_buffer.model_buffer[0] = transform_quad(circle.center, vec2(circle.radius, circle.radius), 0);
     ((ShaderDataCircle*)draw_buffer.uniform_data_buffer)[0].color = color_to_vec4(color);
     ((ShaderDataCircle*)draw_buffer.uniform_data_buffer)[0].fill_ratio = 1;
 }

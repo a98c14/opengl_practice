@@ -119,6 +119,9 @@ internal void
 draw_circle(DrawContext* dc, Vec2 position, float32 radius, Color color);
 
 internal void
+draw_circle_filled(DrawContext* dc, Circle circle, Color color);
+
+internal void
 draw_boid(DrawContext* dc, Vec2 position, Vec2 direction, float32 size, Color color);
 
 internal void

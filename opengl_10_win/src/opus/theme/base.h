@@ -16,6 +16,7 @@ typedef struct
     StyleRect rect_debug;
     StyleRect rect_view;
     StyleRect rect_header;
+    StyleRect rect_slider_bar;
     StyleRect rect_header_hover;
 
     StyleText font_default;

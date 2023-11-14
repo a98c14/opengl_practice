@@ -34,6 +34,7 @@ typedef struct
 
 typedef struct
 {
+    Arena* frame_arena;
     DrawContext* dc;
     Theme* theme;
 
@@ -50,6 +51,7 @@ typedef struct
     UIID hot;
 
     float32 activation_time;
+    Vec2 drag_start;
     Vec2 drag_offset;
 } UIContext;
 
@@ -63,10 +65,13 @@ internal bool32
 uuid_is_null(UIID id);
 
 internal UIContext*
-ui_context_new(Arena* arena, DrawContext* draw_context, Theme* theme);
+ui_context_new(Arena* arena, Arena* frame_arena, DrawContext* draw_context, Theme* theme);
 
 internal bool32
 ui_is_active(UIContext* ctx, UIID id);
+
+internal void
+ui_activate(UIContext* ctx, UIID id);
 
 internal void
 ui_active_clear(UIContext* ctx);

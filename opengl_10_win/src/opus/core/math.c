@@ -115,6 +115,24 @@ rect_wh(float32 w, float32 h)
     return result;
 }
 
+internal Circle 
+circle(Vec2 center, float32 radius)
+{
+    Circle result;
+    result.center = center;
+    result.radius = radius;
+    return result;
+}
+
+internal Range 
+range(float32 min, float32 max)
+{
+    Range result;
+    result.min = min;
+    result.max = max;
+    return result;
+}
+
 /* Basic Operations */
 internal Vec2 
 add_vec2(Vec2 a, Vec2 b)
