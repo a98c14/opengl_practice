@@ -40,6 +40,27 @@ ui_is_active(UIContext* ctx, UIID id)
     return ctx->active.item == id.item && ctx->active.owner == id.owner;
 }
 
+internal void
+ui_activate(UIContext* ctx, UIID id)
+{
+    ctx->active = id;
+    ctx->activation_time = ctx->time.current_frame;
+}
+
+internal void
+ui_active_clear(UIContext* ctx)
+{
+    ctx->activation_time = 0;
+    ctx->active = uuid_null();
+    ctx->drag_offset = vec2_zero();
+}
+
+internal float32
+ui_active_time(UIContext* ctx)
+{
+    return ctx->time.current_frame - ctx->activation_time;
+}
+
 internal bool32
 ui_is_hot(UIContext* ctx, UIID id)
 {
@@ -111,8 +132,8 @@ ui_rect_basic(UIContext* ctx)
     frame->cursor = rect_move(frame->cursor, vec2(0, -row.h-ctx->theme->spacing));
 }
 
-internal void
-ui_window_begin(UIContext* ctx, String name, Vec2* pos, Vec2 size)
+internal bool32
+ui_window_begin(UIContext* ctx, String name, Vec2* pos, Vec2 size, bool32* is_enabled)
 {
     int32 name_hash = hash_string(name);
     UIID id = uuid_new(name_hash, 0);
@@ -123,14 +144,14 @@ ui_window_begin(UIContext* ctx, String name, Vec2* pos, Vec2 size)
     Rect header = rect_wh(frame->cursor.w, em(20));
     header = rect_anchor(header, frame->cursor, ANCHOR_TL_TL);
     bool32 hover = intersects_rect_point(header, ctx->mouse.world);
-    StyleRect header_style = hover ? ctx->theme->rect_header_hover : ctx->theme->rect_header; 
+    StyleRect header_style = hover ? ctx->theme->rect_header_hover : ctx->theme->rect_header;
     draw_rect(ctx->dc, header, 0, 0, header_style);
     draw_text(ctx->dc, rect_cl(header), name, AlignmentLeft, ctx->theme->font_window_header);
     frame->cursor = rect_move(frame->cursor, vec2(0, -header.h));
 
     if(!ui_is_active(ctx, id) && hover && input_mouse_pressed(ctx->mouse, MouseButtonStateLeft))
     {
-        ctx->active = id;
+        ui_activate(ctx, id);
         ctx->drag_offset = sub_vec2(rect_tl(header), ctx->mouse.world);
     }
     else if(ui_is_active(ctx, id) && input_mouse_pressed(ctx->mouse, MouseButtonStateLeft))
@@ -140,13 +161,17 @@ ui_window_begin(UIContext* ctx, String name, Vec2* pos, Vec2 size)
     }
     else if(ui_is_active(ctx, id) && input_mouse_released(ctx->mouse, MouseButtonStateLeft))
     {
-        ctx->active = uuid_null();
-        ctx->drag_offset = vec2_zero();
+        if(ui_active_time(ctx) < 200)
+            b32_flip(is_enabled);
+
+        ui_active_clear(ctx);
     }
 
     /* init root container */
     frame->base = frame->cursor;
     frame->cursor = rect_move(frame->cursor, vec2(0, -ctx->theme->padding.y));
+
+    return *is_enabled;
 }
 
 internal void

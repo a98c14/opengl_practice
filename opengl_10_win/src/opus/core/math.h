@@ -168,3 +168,5 @@ internal Vec2 rect_cl(Rect rect);
 internal Vec2 rect_cr(Rect rect);
 internal Vec2 rect_cb(Rect rect);
 internal Vec2 rect_ct(Rect rect);
+
+internal void b32_flip(bool32* b);

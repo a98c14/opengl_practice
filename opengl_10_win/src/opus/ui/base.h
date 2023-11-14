@@ -2,6 +2,7 @@
 
 #include <core/defines.h>
 #include <physics/intersection.h>
+#include <engine/time.h>
 #include <engine/draw.h>
 #include <engine/input.h>
 #include <theme/base.h>
@@ -37,6 +38,7 @@ typedef struct
     Theme* theme;
 
     /* Input */
+    EngineTime time;
     InputMouse mouse;
 
     /* Layout */
@@ -47,6 +49,7 @@ typedef struct
     UIID active;
     UIID hot;
 
+    float32 activation_time;
     Vec2 drag_offset;
 } UIContext;
 
@@ -64,6 +67,9 @@ ui_context_new(Arena* arena, DrawContext* draw_context, Theme* theme);
 
 internal bool32
 ui_is_active(UIContext* ctx, UIID id);
+
+internal void
+ui_active_clear(UIContext* ctx);
 
 internal bool32
 ui_is_hot(UIContext* ctx, UIID id);
@@ -90,8 +96,8 @@ ui_frame_begin(UIContext* ctx, Vec2 pos, Vec2 size);
 internal void
 ui_frame_end(UIContext* ctx);
 
-internal void
-ui_window_begin(UIContext* ctx, String name, Vec2* pos, Vec2 size);
+internal bool32
+ui_window_begin(UIContext* ctx, String name, Vec2* pos, Vec2 size, bool32* is_enabled);
 
 internal void
 ui_window_end(UIContext* ctx);
