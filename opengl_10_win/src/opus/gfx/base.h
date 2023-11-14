@@ -274,7 +274,7 @@ internal RendererDrawState*
 renderer_draw_state_new(Arena* arena);
 
 internal Camera
-camera_new(float32 width, float32 height, float32 near, float32 far, float32 window_width, float32 window_height);
+camera_new(float32 width, float32 height, float32 near_plane, float32 far_plane, float32 window_width, float32 window_height);
 
 internal uint32
 shader_load(String vertex_shader_text, String fragment_shader_text);

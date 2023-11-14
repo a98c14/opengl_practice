@@ -16,6 +16,8 @@
 #include <gfx/utils.h>
 #include <gfx/debug.h>
 
+#include <physics/intersection.c>
+
 #include <engine/layout.h>
 #include <engine/text.h>
 #include <engine/input.h>

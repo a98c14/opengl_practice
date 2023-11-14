@@ -1,3 +1,7 @@
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#pragma comment(lib,"user32.lib")
+
 #include <opus.h>
 #include <opus.c>
 #include "app.h"
@@ -37,22 +41,24 @@ int main(void)
     EngineTime time = engine_time_new();
     Theme* default_theme = theme_init_default(persistent_arena, renderer);
     Bounds screen = { .left = -renderer->camera.world_width / 2, .right = renderer->camera.world_width / 2, .top = renderer->camera.world_height / 2, .bottom = -renderer->camera.world_height / 2};
-    UIContext* ctx = ui_context_new(persistent_arena, dc, default_theme);    
+    UIContext* ctx = ui_context_new(persistent_arena, dc, default_theme);
 
     /* application state */
+    // ShowCursor(0);
 
+    Vec2 window_pos = vec2_zero();
+    InputMouse mouse = {0};
     /* main loop */
     while (!glfwWindowShouldClose(window->glfw_window))
-    { 
+    {
         Profiler main_frame = profiler_begin(string("MainFrame"));
         /* frame: init */
         time = engine_get_time(time);
-        InputMouse mouse = input_mouse_get(window, renderer->camera);
+        mouse = input_mouse_get(window, renderer->camera, mouse);
+        ctx->mouse = mouse;
 
         /* frame: update */
         Profiler update = profiler_begin(string("Update"));
-        float32 size = default_theme->font_window_header.font_size;
-
         StyleRect test_style = default_theme->rect_default;
         test_style.color = color_to_vec4(ColorRed600);
         test_style.border_radius = default_theme->rounded_none;
@@ -64,8 +70,7 @@ int main(void)
 
         draw_line(dc, vec2(-200, 0), vec2(200, 0), ColorRed900, 1.6);
         draw_line(dc, vec2(0, -200), vec2(0, 200), ColorRed900, 1.6);
-
-        ui_window_begin(ctx, string("Test"), vec2(5, -5), vec2(100, 0), AlignmentTopLeft, vec2(4, 4));
+        ui_window_begin(ctx, string("Test"), &window_pos, vec2(100, 0));
             ui_text(ctx, string("First Line"));
             ui_text(ctx, string("Second Line"));
             ui_text(ctx, string("Third Line"));
@@ -79,7 +84,7 @@ int main(void)
         profiler_end(&render);
         profiler_end(&main_frame);
         arena_reset(frame_arena);
-        
+
         float32 font_size = default_theme->font_debug.font_size;
         draw_text(dc, vec2(screen.left, screen.top), string_pushf(frame_arena, "%s: %0.02fms", main_frame.name.value, 1000*(main_frame.end - main_frame.start)), AlignmentTopLeft, default_theme->font_debug);
         draw_text(dc, vec2(screen.left, screen.top-font_size), string_pushf(frame_arena, "%s: %0.02fms", update.name.value, 1000*(update.end - update.start)), AlignmentTopLeft, default_theme->font_debug);

@@ -1,7 +1,9 @@
 #pragma once
 
 #include <core/defines.h>
+#include <physics/intersection.h>
 #include <engine/draw.h>
+#include <engine/input.h>
 #include <theme/base.h>
 #include "debug.h"
 
@@ -27,27 +29,44 @@ typedef struct
 {
 	Rect base;
 	Rect cursor;
-	Vec2 padding;
-    Alignment base_alignment;
 } UIFrame;
 
 typedef struct
 {
     DrawContext* dc;
     Theme* theme;
-    float32 line_height;
-    float32 spacing;
-    
-    /* UI State */
+
+    /* Input */
+    InputMouse mouse;
+
+    /* Layout */
+    uint8 frame_count;
+    UIFrame* frame_stack;
+
+    /* State */
     UIID active;
     UIID hot;
 
-    uint8 frame_count;
-    UIFrame* frame_stack;
+    Vec2 drag_offset;
 } UIContext;
 
-internal UIContext* 
+internal UIID
+uuid_new(int16 id, int16 owner);
+
+internal UIID
+uuid_null();
+
+internal bool32
+uuid_is_null(UIID id);
+
+internal UIContext*
 ui_context_new(Arena* arena, DrawContext* draw_context, Theme* theme);
+
+internal bool32
+ui_is_active(UIContext* ctx, UIID id);
+
+internal bool32
+ui_is_hot(UIContext* ctx, UIID id);
 
 internal UIFrame*
 ui_active_frame(UIContext* ctx);
@@ -66,13 +85,13 @@ ui_row(UIContext* ctx, UIFrame* frame);
 
 // TODO: move to componenents?
 internal void
-ui_frame_begin(UIContext* ctx, Vec2 pos, Vec2 size, Alignment alignment, Vec2 padding);
+ui_frame_begin(UIContext* ctx, Vec2 pos, Vec2 size);
 
 internal void
 ui_frame_end(UIContext* ctx);
 
 internal void
-ui_window_begin(UIContext* ctx, String name, Vec2 pos, Vec2 size, Alignment alignment, Vec2 padding);
+ui_window_begin(UIContext* ctx, String name, Vec2* pos, Vec2 size);
 
 internal void
 ui_window_end(UIContext* ctx);

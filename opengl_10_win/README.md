@@ -1,4 +1,6 @@
 # UI System
+- check if mouse is in rect bounds
+  - if yes higlight
 
 
 

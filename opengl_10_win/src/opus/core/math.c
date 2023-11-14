@@ -466,7 +466,7 @@ mat4_transform(Mat4 translation, Mat4 rotation, Mat4 scale)
 }
 
 internal Mat4
-mat4_ortho(float32 width, float32 height, float32 near, float32 far)
+mat4_ortho(float32 width, float32 height, float32 near_plane, float32 far_plane)
 {
     float32 right  =  width  / 2.0;
     float32 left   = -width  / 2.0;
@@ -476,10 +476,10 @@ mat4_ortho(float32 width, float32 height, float32 near, float32 far)
     Mat4 result = {0};
     result.m[0][0] =  2.0 / (right - left);
     result.m[1][1] =  2.0 / (top - bottom);
-    result.m[2][2] = -2.0 / (far - near);
+    result.m[2][2] = -2.0 / (far_plane - near_plane);
     result.m[0][3] =  -(right + left) / (right - left);
     result.m[1][3] =  -(top + bottom) / (top - bottom);
-    result.m[2][3] =  -(far + near) / (far - near);
+    result.m[2][3] =  -(far_plane + near_plane) / (far_plane - near_plane);
     result.m[3][3] = 1.0;
     return result;
 }

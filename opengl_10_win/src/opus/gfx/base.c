@@ -94,10 +94,10 @@ renderer_draw_state_new(Arena* arena)
 }
 
 internal Camera
-camera_new(float32 width, float32 height, float32 near, float32 far, float32 window_width, float32 window_height)
+camera_new(float32 width, float32 height, float32 near_plane, float32 far_plane, float32 window_width, float32 window_height)
 {
     Camera result;
-    result.projection = mat4_ortho(width, height, near, far);
+    result.projection = mat4_ortho(width, height, near_plane, far_plane);
     result.view = mat4_identity();
     result.world_width = width;
     result.world_height = height;

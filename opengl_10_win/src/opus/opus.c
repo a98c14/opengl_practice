@@ -13,6 +13,8 @@
 #include <gfx/utils.c>
 #include <gfx/debug.c>
 
+#include <physics/intersection.h>
+
 #include <engine/layout.c>
 #include <engine/text.c>
 #include <engine/input.c>
