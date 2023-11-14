@@ -11,9 +11,9 @@ theme_init_default(Arena* arena, Renderer* renderer)
     t->rounded_xl   = (BorderRadius){ .bl = 30, .br = 30, .tr = 30, .tl = 30 };
     
     t->rect_default = (StyleRect){ .softness = 2, .color = color_to_vec4(ColorWhite), .border_radius = t->rounded_sm };
-    t->rect_view = (StyleRect){ .softness = 2, .color = color_to_vec4(ColorWhite), .border_radius = t->rounded_sm };
     t->rect_debug = (StyleRect){ .border_thickness = 2, .softness = 0, .color = color_to_vec4(ColorInvisible), .border_color = color_to_vec4(ColorRed600), .border_radius = t->rounded_none };
-    t->rect_header = (StyleRect){ .border_thickness = 2, .softness = 0, .color = color_to_vec4(ColorInvisible), .border_color = color_to_vec4(ColorRed600), .border_radius = t->rounded_none };
+    t->rect_view = (StyleRect){ .softness = 2, .color = color_to_vec4(ColorWhite100), .border_radius = { .bl = 3, .br = 3, .tr = 0, .tl = 0 } };
+    t->rect_header = (StyleRect){ .border_thickness = 0, .softness = 2, .color = color_to_vec4(ColorSlate700), .border_color = color_to_vec4(ColorInvisible), .border_radius = { .bl = 0, .br = 0, .tr = 3, .tl = 3 } };
 
     t->font_default = (StyleText){ .color = color_to_vec4(ColorBlack), .outline_color = color_to_vec4(ColorInvisible), .softness = 30, .thickness = 0.50, .outline_thickness = 0.20, .font_size = em(18), .base_line = em(3)};
     t->font_default_light = (StyleText){ .color = color_to_vec4(ColorWhite), .outline_color = color_to_vec4(ColorInvisible), .softness = 30, .thickness = 0.50, .outline_thickness = 0.20, .font_size = em(16), .base_line = em(3)};

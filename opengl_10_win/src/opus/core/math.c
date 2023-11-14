@@ -105,6 +105,16 @@ rect(float32 x, float32 y, float32 w, float32 h)
     return result;
 }
 
+/* retuns a rect that is positioned at origin with given width and height */
+internal Rect 
+rect_wh(float32 w, float32 h)
+{
+    Rect result = {0};
+    result.w = w;
+    result.h = h;
+    return result;
+}
+
 /* Basic Operations */
 internal Vec2 
 add_vec2(Vec2 a, Vec2 b)

@@ -62,17 +62,14 @@ int main(void)
         header_style.color = color_to_vec4(ColorRed900);
         header_style.border_radius = (BorderRadius){ .bl = 0, .br = 0, .tr = 2, .tl = 2 };
 
-        draw_line(dc, vec2(-200, 0), vec2(200, 0), ColorRed900, 2);
-        draw_line(dc, vec2(0, -200), vec2(0, 200), ColorRed900, 2);
+        draw_line(dc, vec2(-200, 0), vec2(200, 0), ColorRed900, 1.6);
+        draw_line(dc, vec2(0, -200), vec2(0, 200), ColorRed900, 1.6);
 
-        draw_rect(ctx->dc, rect(0, 100, 100, 100), 0, 1, ctx->theme->rect_debug);
-        draw_rect(ctx->dc, rect(-200, 100, 50, 50), 0, 1, ctx->theme->rect_debug);
-        
-        ui_frame_begin(ctx, vec2(5, -5), vec2(100, 0), AlignmentTopLeft, vec2(2, 2));
+        ui_window_begin(ctx, string("Test"), vec2(5, -5), vec2(100, 0), AlignmentTopLeft, vec2(4, 4));
             ui_text(ctx, string("First Line"));
             ui_text(ctx, string("Second Line"));
             ui_text(ctx, string("Third Line"));
-        ui_frame_end(ctx);
+        ui_window_end(ctx);
 
         profiler_end(&update);
         /* frame: render */

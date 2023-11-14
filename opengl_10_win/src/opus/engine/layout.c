@@ -42,7 +42,7 @@ rect_relative(Rect rect, Alignment alignment)
 }
 
 internal Rect
-rect_expand(Rect rect, float32 v)
+rect_expand_f32(Rect rect, float32 v)
 {
 	rect.w = max(0, rect.w + v);
 	rect.h = max(0, rect.h + v);
@@ -50,9 +50,23 @@ rect_expand(Rect rect, float32 v)
 }
 
 internal Rect
-rect_shrink(Rect rect, float32 v)
+rect_expand(Rect rect, Vec2 v)
 {
-	return rect_expand(rect, -v);
+	rect.w = max(0, rect.w + v.x);
+	rect.h = max(0, rect.h + v.y);
+	return rect;
+}
+
+internal Rect
+rect_shrink_f32(Rect rect, float32 v)
+{
+	return rect_expand_f32(rect, -v);
+}
+
+internal Rect
+rect_shrink(Rect rect, Vec2 v)
+{
+	return rect_expand(rect, mul_vec2_f32(v, -1));
 }
 
 internal Rect

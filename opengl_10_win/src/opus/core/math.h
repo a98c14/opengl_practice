@@ -106,6 +106,7 @@ internal Vec3 vec3_xy_z(Vec2 xy, float32 z);
 internal Vec4 vec4(float32 x, float32 y, float32 z, float32 w);
 
 internal Rect rect(float32 x, float32 y, float32 w, float32 h);
+internal Rect rect_wh(float32 w, float32 h);
 
 /* Basic Operations */
 internal Vec2 add_vec2(Vec2 a, Vec2 b);

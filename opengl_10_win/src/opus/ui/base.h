@@ -52,11 +52,30 @@ ui_context_new(Arena* arena, DrawContext* draw_context, Theme* theme);
 internal UIFrame*
 ui_active_frame(UIContext* ctx);
 
+internal Rect
+ui_cursor_new(UIContext* ctx, Vec2 pos, float width);
+
+internal UIFrame*
+ui_frame_new(UIContext* ctx);
+
+/** pushes a new row to the given frame.
+ *  moves the cursor and returns the available rect */
+internal Rect
+ui_row(UIContext* ctx, UIFrame* frame);
+
+
+// TODO: move to componenents?
 internal void
 ui_frame_begin(UIContext* ctx, Vec2 pos, Vec2 size, Alignment alignment, Vec2 padding);
 
 internal void
 ui_frame_end(UIContext* ctx);
+
+internal void
+ui_window_begin(UIContext* ctx, String name, Vec2 pos, Vec2 size, Alignment alignment, Vec2 padding);
+
+internal void
+ui_window_end(UIContext* ctx);
 
 internal void
 ui_text(UIContext* ctx, String str);

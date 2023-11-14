@@ -61,10 +61,16 @@ internal Vec2
 rect_relative(Rect rect, Alignment alignment);
 
 internal Rect
-rect_expand(Rect rect, float32 v);
+rect_expand_f32(Rect rect, float32 v);
 
 internal Rect
-rect_shrink(Rect rect, float32 v);
+rect_expand(Rect rect, Vec2 v);
+
+internal Rect
+rect_shrink_f32(Rect rect, float32 v);
+
+internal Rect
+rect_shrink(Rect rect, Vec2 v);
 
 internal Rect
 rect_move(Rect rect, Vec2 v);
