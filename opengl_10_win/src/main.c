@@ -78,10 +78,10 @@ int main(void)
             ui_text(ctx, string("First Line"));
             ui_text(ctx, string("Second Line"));
             ui_text(ctx, string("Third Line"));
-            // if(ui_button(ctx, string("Second Line")))
-            // {
+            if(ui_button(ctx, string("Button")))
+            {
 
-            // }
+            }
             
             if(ui_slider(ctx, string("Coords"), range(0, 10), &slider_value))
             {

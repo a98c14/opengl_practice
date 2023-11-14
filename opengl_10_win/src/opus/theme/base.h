@@ -18,6 +18,8 @@ typedef struct
     StyleRect rect_header;
     StyleRect rect_slider_bar;
     StyleRect rect_header_hover;
+    StyleRect rect_button;
+    StyleRect rect_button_hover;
 
     StyleText font_default;
     StyleText font_default_light;

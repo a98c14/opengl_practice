@@ -6,9 +6,14 @@ ui_slider(UIContext* ctx, String label, Range range, float32* value)
     // TODO: use an actual id
     int32 name_hash = hash_string(label);
     UIID id = uuid_new(name_hash, 0);
-    ui_text(ctx, string_pushf(ctx->frame_arena, "%s: %0.2f", label.value, *value));
-
     UIFrame* frame = ui_active_frame(ctx);
+    Rect row = rect(0, 0, frame->cursor.w, ctx->theme->line_height);
+    row = rect_anchor(row, frame->cursor, ANCHOR_TL_TL);
+    frame->cursor = rect_move(frame->cursor, vec2(0, -row.h));
+    Alignment alignment = AlignmentLeft;
+    Rect inner_row = rect_shrink(row, vec2(ctx->theme->padding.x*2, 0));
+    draw_text(ctx->dc, rect_relative(inner_row, alignment), string_pushf(ctx->frame_arena, "%s: %0.2f", label.value, *value), alignment, ctx->theme->font_default);
+
     Rect slider_row = ui_row(ctx, frame);
     slider_row = rect_shrink(slider_row, vec2(ctx->theme->padding.x*2, 5));
     draw_rect(ctx->dc, slider_row, 0, 1, ctx->theme->rect_slider_bar);
@@ -38,5 +43,37 @@ ui_slider(UIContext* ctx, String label, Range range, float32* value)
     Color c = hover ? ColorRed400 : ColorRed600;
     draw_circle_filled(ctx->dc, handle, c);
 
+    return ui_is_active(ctx, id);
+}
+
+
+internal bool32
+ui_button(UIContext* ctx, String label)
+{
+    // TODO: use an actual id
+    int32 name_hash = hash_string(label);
+    UIID id = uuid_new(name_hash, 0);
+
+    UIFrame* frame = ui_active_frame(ctx);
+    Rect row = rect(0, 0, frame->cursor.w, ctx->theme->line_height);
+    row = rect_anchor(row, frame->cursor, ANCHOR_TL_TL);
+
+    frame->cursor = rect_move(frame->cursor, vec2(0, -row.h-ctx->theme->spacing));
+    Alignment alignment = AlignmentCenter;
+    Rect inner_row = rect_shrink(row, vec2(ctx->theme->padding.x*2, 0));
+    draw_text(ctx->dc, rect_relative(inner_row, alignment), label, alignment, ctx->theme->font_default);
+    bool32 hover = intersects_rect_point(row, ctx->mouse.world);
+    if(hover && ui_is_free(ctx) && input_mouse_pressed(ctx->mouse, MouseButtonStateLeft))
+    {
+        ui_activate(ctx, id);
+    }
+    else if(ui_is_active(ctx, id) && input_mouse_released(ctx->mouse, MouseButtonStateLeft))
+    {
+        printf("clicked");
+        ui_active_clear(ctx);
+    }
+
+    StyleRect c = hover ? ctx->theme->rect_button_hover : ctx->theme->rect_button;
+    draw_rect(ctx->dc, inner_row, 0, 1, c);
     return false;
 }

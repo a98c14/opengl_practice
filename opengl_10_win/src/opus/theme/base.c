@@ -20,6 +20,8 @@ theme_init_default(Arena* arena, Renderer* renderer)
     t->rect_view = (StyleRect){ .softness = 2, .color = color_to_vec4(ColorWhite100), .border_radius = { .bl = 3, .br = 3, .tr = 0, .tl = 0 } };
     t->rect_header = (StyleRect){ .border_thickness = 0, .softness = 2, .color = color_to_vec4(ColorSlate700), .border_color = color_to_vec4(ColorInvisible), .border_radius = { .bl = 0, .br = 0, .tr = 3, .tl = 3 } };
     t->rect_slider_bar = (StyleRect){ .softness = 2, .color = color_to_vec4(ColorBlack), .border_radius = t->rounded_sm };
+    t->rect_button = (StyleRect){ .softness = 2, .color = color_to_vec4(ColorAmber600), .border_radius = t->rounded_sm };
+    t->rect_button_hover = (StyleRect){ .softness = 2, .color = color_to_vec4(ColorAmber400), .border_radius = t->rounded_sm };
 
     t->rect_header_hover = t->rect_header;
     t->rect_header_hover.color = color_to_vec4(ColorSlate500);
