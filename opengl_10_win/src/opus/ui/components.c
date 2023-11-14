@@ -19,7 +19,7 @@ ui_slider(UIContext* ctx, String label, Range range, float32* value)
     float32 x = left + slider_row.w * normalized;
     Circle handle = circle(vec2(x, slider_row.y), em(20));
     bool32 hover = intersects_circle_point(handle, ctx->mouse.world);
-    if(hover && !ui_is_active(ctx, id) && input_mouse_pressed(ctx->mouse, MouseButtonStateLeft))
+    if(hover && ui_is_free(ctx) && input_mouse_pressed(ctx->mouse, MouseButtonStateLeft))
     {
         ui_activate(ctx, id);
         ctx->drag_offset = sub_vec2(ctx->mouse.world, handle.center);

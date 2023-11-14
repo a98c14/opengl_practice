@@ -32,7 +32,20 @@ ui_context_new(Arena* arena, Arena* frame_arena, DrawContext* draw_context, Them
     ctx->theme = theme;
     ctx->frame_arena = frame_arena;
     ctx->dc = draw_context;
+    ctx->active = uuid_null();
     return ctx;
+}
+
+internal bool32
+ui_is_active_any(UIContext* ctx)
+{
+    return ctx->active.item >= 0 || ctx->active.owner >= 0;
+}
+
+internal bool32 
+ui_is_free(UIContext* ctx)
+{
+    return !ui_is_active_any(ctx);
 }
 
 internal bool32
@@ -144,7 +157,7 @@ ui_window_begin(UIContext* ctx, String name, Vec2* pos, Vec2 size, bool32* is_en
     Rect header = rect_wh(frame->cursor.w, em(24));
     header = rect_anchor(header, frame->cursor, ANCHOR_TL_TL);
     bool32 hover = intersects_rect_point(header, ctx->mouse.world);
-    if(!ui_is_active(ctx, id) && hover && input_mouse_pressed(ctx->mouse, MouseButtonStateLeft))
+    if(!ui_is_active_any(ctx) && hover && input_mouse_pressed(ctx->mouse, MouseButtonStateLeft))
     {
         ui_activate(ctx, id);
         ctx->drag_offset = sub_vec2(rect_tl(header), ctx->mouse.world);

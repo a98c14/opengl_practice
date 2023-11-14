@@ -70,6 +70,12 @@ ui_context_new(Arena* arena, Arena* frame_arena, DrawContext* draw_context, Them
 internal bool32
 ui_is_active(UIContext* ctx, UIID id);
 
+internal bool32
+ui_is_active_any(UIContext* ctx);
+
+internal bool32 
+ui_is_free(UIContext* ctx);
+
 internal void
 ui_activate(UIContext* ctx, UIID id);
 
