@@ -3,6 +3,11 @@
 #include <core/memory.h>
 #include <engine/draw.h>
 
+typedef enum
+{
+    style_label_default = 0
+} Style;
+
 typedef struct 
 {
     /* Component Styles */
@@ -25,6 +30,8 @@ typedef struct
     StyleText font_default_light;
     StyleText font_debug;
     StyleText font_window_header;
+
+    StyleLabel label_default;
 
     /* Global Styles */
     Vec2 padding;

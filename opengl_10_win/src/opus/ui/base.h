@@ -34,17 +34,9 @@ typedef struct
 
 typedef struct
 {
-    Arena* frame_arena;
     DrawContext* dc;
-    Theme* theme;
-
-    /* Input */
     EngineTime time;
     InputMouse mouse;
-
-    /* Layout */
-    uint8 frame_count;
-    UIFrame* frame_stack;
 
     /* State */
     UIID active;
@@ -53,7 +45,14 @@ typedef struct
     float32 activation_time;
     Vec2 drag_start;
     Vec2 drag_offset;
+
+    // TODO: move these to someplace else
+    Arena* frame_arena;
+    Theme* theme;
+    uint8 frame_count;
+    UIFrame* frame_stack;
 } UIContext;
+
 
 internal UIID
 uuid_new(int16 id, int16 owner);

@@ -197,6 +197,7 @@ ui_text(UIContext* ctx, String str)
 {
     UIFrame* frame = ui_active_frame(ctx);
     Rect row = ui_row(ctx, frame);
+
     Alignment alignment = AlignmentLeft;
     Rect inner_row = rect_shrink(row, vec2(ctx->theme->padding.x*2, 0));
     draw_text(ctx->dc, rect_relative(inner_row, alignment), str, alignment, ctx->theme->font_default);

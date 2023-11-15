@@ -100,7 +100,7 @@ draw_triangle(DrawContext* dc, Vec2 position, float32 rotation, Color color, flo
     ((ShaderDataBasic*)draw_buffer.uniform_data_buffer)[0].color = color_to_vec4(color);
 }
 
-internal void
+internal Rect
 draw_rect(DrawContext* dc, Rect rect, float32 rotation, SortLayerIndex sort_index, StyleRect style)
 {
     DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, ViewTypeWorld, sort_index, FRAME_BUFFER_INDEX_DEFAULT, TEXTURE_INDEX_NULL, dc->geometry_quad, dc->material_rounded_rect, 1);
@@ -115,6 +115,8 @@ draw_rect(DrawContext* dc, Rect rect, float32 rotation, SortLayerIndex sort_inde
     uniform_buffer[0].scale = rect.size;
     uniform_buffer[0].softness = style.softness;
     uniform_buffer[0].edge_thickness = style.border_thickness;
+
+    return rect;
 }
 
 internal void
@@ -135,12 +137,13 @@ internal void
 draw_bounds(DrawContext* dc, float32 left, float32 right, float32 bottom, float32 top, Color color, float32 thickness)
 {
     DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, ViewTypeWorld, SORT_LAYER_INDEX_DEFAULT, FRAME_BUFFER_INDEX_DEFAULT, TEXTURE_INDEX_NULL, dc->geometry_quad, dc->material_line, 4);
-    ShaderDataLine* uniform_buffer = (ShaderDataLine*)draw_buffer.uniform_data_buffer;
-    Vec4 color_vec4 = color_to_vec4(color);
     draw_buffer.model_buffer[0] = transform_line(vec2(left, top), vec2(left, bottom), thickness);
     draw_buffer.model_buffer[1] = transform_line(vec2(left, bottom), vec2(right, bottom), thickness);
     draw_buffer.model_buffer[2] = transform_line(vec2(right, bottom), vec2(right, top), thickness);
     draw_buffer.model_buffer[3] = transform_line(vec2(right, top), vec2(left, top), thickness);
+
+    Vec4 color_vec4 = color_to_vec4(color);
+    ShaderDataLine* uniform_buffer = (ShaderDataLine*)draw_buffer.uniform_data_buffer;
     uniform_buffer[0].color = color_vec4;
     uniform_buffer[1].color = color_vec4;
     uniform_buffer[2].color = color_vec4;

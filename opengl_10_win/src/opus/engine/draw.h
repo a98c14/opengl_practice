@@ -127,5 +127,5 @@ draw_boid(DrawContext* dc, Vec2 position, Vec2 direction, float32 size, Color co
 internal void
 draw_triangle(DrawContext* dc, Vec2 position, float32 rotation, Color color, float32 size, SortLayerIndex sort_index);
 
-internal void
+internal Rect
 draw_rect(DrawContext* dc, Rect rect, float32 rotation, SortLayerIndex sort_index, StyleRect style);

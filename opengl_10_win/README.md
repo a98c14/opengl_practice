@@ -1,6 +1,9 @@
 # UI System
-- check if mouse is in rect bounds
-  - if yes higlight
+- compress
+- engine stats
+  - fps
+  - renderer info
+  - 
 
 
 

@@ -30,5 +30,7 @@ theme_init_default(Arena* arena, Renderer* renderer)
     t->font_default_light = (StyleText){ .color = color_to_vec4(ColorWhite), .outline_color = color_to_vec4(ColorInvisible), .softness = 30, .thickness = 0.50, .outline_thickness = 0.20, .font_size = em(16), .base_line = em(3)};
     t->font_window_header = (StyleText){ .color = color_to_vec4(ColorSlate200), .outline_color = color_to_vec4(ColorInvisible), .softness = 30, .thickness = 0.50, .outline_thickness = 0.20, .font_size = em(16), .base_line = em(3)};    
     t->font_debug = (StyleText){ .color = color_to_vec4(ColorSlate100), .outline_color = color_to_vec4(ColorInvisible), .softness = 30, .thickness = 0.50, .outline_thickness = 0.20, .font_size = em(16), .base_line = em(3)};
+
+    t->label_default = (StyleLabel){.font = t->font_default, .padding = vec2(2, 2), .alignment = AlignmentCenter, .background = t->rect_header };
     return t;
 }

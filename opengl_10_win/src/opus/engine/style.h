@@ -2,6 +2,7 @@
 
 #include <core/defines.h>
 #include <core/math.h>
+#include "layout.h"
 
 typedef union 
 {
@@ -32,6 +33,14 @@ typedef struct
     /** Letter y coordinate is offseted by this amount */
     float32 base_line;
 } StyleText;
+
+typedef struct
+{
+    Vec2 padding;
+    Alignment alignment;
+    StyleRect background;
+    StyleText font;
+} StyleLabel;
 
 internal StyleText
 font_style_override_size(StyleText style, float32 new_size);
