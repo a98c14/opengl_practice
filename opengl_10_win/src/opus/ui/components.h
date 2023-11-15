@@ -4,6 +4,9 @@
 #include <engine/draw.h>
 #include "base.h"
 
+internal Rect
+ui_container(UIContext* ctx, Rect container, StyleContainer style);
+
 internal void
 ui_label(UIContext* ctx, Rect container, String str, StyleLabel style);
 

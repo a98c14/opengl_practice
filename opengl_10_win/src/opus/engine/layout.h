@@ -57,6 +57,10 @@ rect_align(Rect rect, Alignment alignment);
 internal Rect
 rect_anchor(Rect child, Rect parent, Anchor anchor);
 
+/** Similar to anchor but doesn't care about child x,y */
+internal Rect
+rect_place(Rect child, Rect parent, Anchor anchor);
+
 internal Vec2
 rect_relative(Rect rect, Alignment alignment);
 

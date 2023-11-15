@@ -3,14 +3,17 @@
 #include <core/memory.h>
 #include <engine/draw.h>
 
-typedef enum
-{
-    style_label_default = 0
-} Style;
-
 typedef struct 
 {
-    /* Component Styles */
+    /* padding */
+    Vec2 p0;
+    Vec2 p2;
+
+    /* margin */
+    Vec2 m0;
+    Vec2 m2;
+
+    /* border radius */
     BorderRadius rounded_none;
     BorderRadius rounded_sm;
     BorderRadius rounded_md;
@@ -30,6 +33,9 @@ typedef struct
     StyleText font_default_light;
     StyleText font_debug;
     StyleText font_window_header;
+
+    /* components */
+    StyleContainer container_default;
 
     StyleLabel label_default;
 

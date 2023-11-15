@@ -32,6 +32,16 @@ rect_anchor(Rect child, Rect parent, Anchor anchor)
 	return result;
 }
 
+internal Rect
+rect_place(Rect child, Rect parent, Anchor anchor)
+{
+	Rect result = rect_wh(child.w, child.h);
+	result = rect_align(result, anchor.child);
+	result.x = result.x + parent.x + AnchorMultiplierX[anchor.parent] * parent.w;
+	result.y = result.y + parent.y + AnchorMultiplierY[anchor.parent] * parent.h;
+	return result;
+}
+
 internal Vec2
 rect_relative(Rect rect, Alignment alignment)
 {

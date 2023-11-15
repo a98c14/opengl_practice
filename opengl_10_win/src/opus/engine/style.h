@@ -36,6 +36,13 @@ typedef struct
 
 typedef struct
 {
+    Vec2 margin;
+    Vec2 padding;
+    StyleRect background;
+} StyleContainer;
+
+typedef struct
+{
     Vec2 padding;
     Alignment alignment;
     StyleRect background;

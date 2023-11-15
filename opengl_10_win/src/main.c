@@ -82,7 +82,6 @@ int main(void)
             {
 
             }
-            
             if(ui_slider(ctx, string("Coords"), range(0, 10), &slider_value))
             {
                 
@@ -99,13 +98,11 @@ int main(void)
         profiler_end(&main_frame);
         arena_reset(frame_arena);
 
-        Rect settings_panel = draw_rect(dc, rect_anchor(rect_wh(screen.w, 100), screen, ANCHOR_BL_BL), 0, SORT_LAYER_INDEX_DEFAULT, default_theme->rect_default);
-        Rect first = draw_rect(dc, rect_anchor(rect_wh(100, 20), settings_panel, ANCHOR_TL_TL), 0, SORT_LAYER_INDEX_DEFAULT+1, default_theme->rect_debug);
-        Rect second = draw_rect(dc, rect_anchor(rect_wh(100, 20), first, ANCHOR_TR_TL), 0, SORT_LAYER_INDEX_DEFAULT+1, default_theme->rect_debug);
-        Rect third = draw_rect(dc, rect_anchor(rect_wh(100, 20), second, ANCHOR_BL_TL), 0, SORT_LAYER_INDEX_DEFAULT+1, default_theme->rect_debug);
-        Rect fourth = draw_rect(dc, rect_anchor(rect_wh(100, 20), third, ANCHOR_TL_TR), 0, SORT_LAYER_INDEX_DEFAULT+1, default_theme->rect_debug);
-        // StyleLabel t = style_label();
-        ui_label(ctx, fourth, string("label"), default_theme->label_default);
+        Rect container = ui_container(ctx, rect_anchor(rect_wh(screen.w, 100), screen, ANCHOR_BL_BL), default_theme->container_default);
+        Rect inner_cell = ui_container(ctx, rect_place(rect_wh(100, 20), container, ANCHOR_TL_TL), default_theme->container_default);
+        ui_label(ctx, inner_cell, string("FPS:"), default_theme->label_default);
+        inner_cell = rect_place(inner_cell, inner_cell, ANCHOR_BL_TL);
+        ui_label(ctx, inner_cell, string("Boys:"), default_theme->label_default);
 
         float32 font_size = default_theme->font_debug.font_size;
         draw_text(dc, rect_tl(screen), string_pushf(frame_arena, "%s: %0.02fms", main_frame.name.value, 1000*(main_frame.end - main_frame.start)), AlignmentTopLeft, default_theme->font_debug);

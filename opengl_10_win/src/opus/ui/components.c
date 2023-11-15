@@ -1,5 +1,15 @@
 #include "components.h"
 
+internal Rect
+ui_container(UIContext* ctx, Rect container, StyleContainer style)
+{
+    Rect outer = rect_shrink(container, style.margin);
+    Rect inner = rect_shrink(container, style.padding);
+    if(style.background.color.a > 0)
+        draw_rect(ctx->dc, outer, 0, SORT_LAYER_INDEX_DEFAULT, style.background);
+    return inner;
+}
+
 internal void
 ui_label(UIContext* ctx, Rect container, String str, StyleLabel style)
 {
