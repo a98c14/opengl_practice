@@ -44,7 +44,7 @@ int main(void)
     EngineTime time = engine_time_new();
     Theme* default_theme = theme_init_default(persistent_arena, renderer);
     Rect screen = rect_from_wh(renderer->world_width, renderer->world_height);
-    UIContext* ctx = ui_context_new(persistent_arena, frame_arena, dc, default_theme);
+    UIContext* ctx = ui_context_new(persistent_arena, dc);
 
     /* application state */
     // ShowCursor(0);
@@ -98,15 +98,15 @@ int main(void)
         if(window.is_expanded)
         {
             LayoutStack layout = layout_stack(window.header, em(1), vec2(4, 4), 2);
-            ui_label(ctx, layout_stack_push(&layout), string("First line"), default_theme->label_debug);
-            ui_label(ctx, layout_stack_push(&layout), string("Second line"), default_theme->label_debug);
-            ui_label(ctx, layout_stack_push(&layout), string_pushf(frame_arena, "Slider: %f", slider_value), default_theme->label_debug);
+            ui_label(ctx, layout_stack_push(&layout), string("First line"), default_theme->label_default);
+            ui_label(ctx, layout_stack_push(&layout), string("Second line"), default_theme->label_default);
+            ui_label(ctx, layout_stack_push(&layout), string_pushf(frame_arena, "Slider: %f", slider_value), default_theme->label_default);
             ui_slider(ctx, layout_stack_push(&layout), uuid_new(2, 0), string("Coords"), range(0, 10), &slider_value, default_theme->slider_default);
             if(ui_button(ctx, layout_stack_push_scaled(&layout, 1.5), uuid_new(3, 0), string("Button"), default_theme->button_default))
             {
                 log_info("Clicked");
             }
-            ui_label(ctx, layout_stack_push(&layout), string("Padtest"), default_theme->label_debug);
+            ui_label(ctx, layout_stack_push(&layout), string("Padtest"), default_theme->label_default);
             ui_container(ctx, layout_stack_container(&layout), default_theme->container_light);
         }
 
