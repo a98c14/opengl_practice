@@ -143,7 +143,8 @@ layout_stack(Rect container, float row_height, Vec2 padding, float32 spacing)
 	result.padding = mul_vec2_f32(padding, 2);
 	result.base_container = rect_shrink(container, result.padding);
 	result.row_height = row_height;
-	result.row = rect_place(rect_from_wh(result.base_container.w, row_height), result.base_container, ANCHOR_TL_TL);
+	// move initial y for `spacing` amount to prevent applying the spacing for the first row.
+	result.row = rect_anchor(rect(0, spacing, result.base_container.w, 0), result.base_container, ANCHOR_TL_TL);
 	result.spacing = spacing;
 	return result;
 }
@@ -151,9 +152,20 @@ layout_stack(Rect container, float row_height, Vec2 padding, float32 spacing)
 internal Rect
 layout_stack_push(LayoutStack* layout)
 {
-	Rect result = layout->row;
-	layout->row = rect_place(result, result, ANCHOR_BL_TL);
-	layout->row.y -= layout->spacing;
+	Rect result = rect_from_wh(layout->row.w, layout->row_height);
+	result = rect_place(result, layout->row, ANCHOR_BL_TL);
+	result = rect_move(result, vec2(0, -layout->spacing));
+	layout->row = result;
+	return result;
+}
+
+internal Rect
+layout_stack_push_scaled(LayoutStack* layout, float32 scale)
+{
+	Rect result = rect_from_wh(layout->row.w, layout->row_height*scale);
+	result = rect_place(result, layout->row, ANCHOR_BL_TL);
+	result = rect_move(result, vec2(0, -layout->spacing));
+	layout->row = result;
 	return result;
 }
 
@@ -165,7 +177,7 @@ layout_stack_container(LayoutStack* layout)
 	// have height larger than padding but this needs to be fixed.
 	Rect base = rect_expand(layout->base_container, layout->padding);
 	Rect row = layout->row;
-	Vec2 bl = vec2(rect_left(base), min(rect_bottom(base), rect_top(row) - layout->padding.y / 2.0f + layout->spacing));
-	Vec2 tr = vec2(rect_right(base), max(rect_top(base), rect_top(row)));
+	Vec2 bl = vec2(rect_left(base), min(rect_bottom(base), rect_bottom(row) - layout->padding.y / 2.0f + layout->spacing));
+	Vec2 tr = vec2(rect_right(base), max(rect_top(base), rect_bottom(row)));
 	return rect_from_bl_tr(bl, tr);
 }

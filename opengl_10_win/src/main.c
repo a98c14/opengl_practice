@@ -86,18 +86,6 @@ int main(void)
         header_style.border_radius = (BorderRadius){ .bl = 0, .br = 0, .tr = 2, .tl = 2 };
         draw_line(dc, vec2(-50, 0), vec2(50, 0), ColorRed900, 1.6);
         draw_line(dc, vec2(0, -50), vec2(0, 50), ColorRed900, 1.6);
-        if(ui_window_begin(ctx, string("Test"), &window_pos, vec2(100, 0), &window_is_enabled))
-        {
-            ui_text(ctx, string("First Line"));
-            ui_text(ctx, string("Second Line"));
-            ui_text(ctx, string("Third Line"));
-            if(ui_button(ctx, string("Button")))
-            {
-
-            }
-            
-        }
-        ui_window_end(ctx);
 
         profiler_end(update);
         /* frame: render */
@@ -109,11 +97,16 @@ int main(void)
         UIWindow window = ui_window(ctx, &window_rect, uuid_new(1, 0), string("new window"), &is_expanded, default_theme->window_default);
         if(window.is_expanded)
         {
-            LayoutStack layout = layout_stack(window.header, em(1), vec2(4, 4), 4);
-            ui_label(ctx, layout_stack_push(&layout), string("First line"), default_theme->label_default);
-            ui_label(ctx, layout_stack_push(&layout), string("Second line"), default_theme->label_default);
-            ui_label(ctx, layout_stack_push(&layout), string_pushf(frame_arena, "Slider: %f", slider_value), default_theme->label_default);
+            LayoutStack layout = layout_stack(window.header, em(1), vec2(4, 4), 2);
+            ui_label(ctx, layout_stack_push(&layout), string("First line"), default_theme->label_debug);
+            ui_label(ctx, layout_stack_push(&layout), string("Second line"), default_theme->label_debug);
+            ui_label(ctx, layout_stack_push(&layout), string_pushf(frame_arena, "Slider: %f", slider_value), default_theme->label_debug);
             ui_slider(ctx, layout_stack_push(&layout), uuid_new(2, 0), string("Coords"), range(0, 10), &slider_value, default_theme->slider_default);
+            if(ui_button(ctx, layout_stack_push_scaled(&layout, 1.5), uuid_new(3, 0), string("Button"), default_theme->button_default))
+            {
+                log_info("Clicked");
+            }
+            ui_label(ctx, layout_stack_push(&layout), string("Padtest"), default_theme->label_debug);
             ui_container(ctx, layout_stack_container(&layout), default_theme->container_light);
         }
 

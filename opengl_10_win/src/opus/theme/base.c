@@ -55,6 +55,11 @@ theme_init_default(Arena* arena, Renderer* renderer)
 
     t->slider_default.slider = t->rect_slider_bar;
 
+    t->button_default.background = t->rect_button;
+    t->button_default.background_hover = t->rect_button_hover;
+    t->button_default.font = t->font_default_light;
+    t->button_default.padding = t->p0;
+
     /* labels */
     t->label_default.font = t->font_default_light;
     // t->label_default.font.font_size = px(20);

@@ -43,7 +43,7 @@ ui_container(UIContext* ctx, Rect container, StyleContainer style)
     Rect outer = rect_shrink(container, style.margin);
     Rect inner = rect_shrink(container, style.padding);
     if(style.background.color.a > 0)
-        draw_rect(ctx->dc, outer, 0, SORT_LAYER_INDEX_DEFAULT, style.background);
+        draw_rect(ctx->dc, outer, 0, SORT_LAYER_INDEX_DEFAULT-1, style.background);
     return inner;
 }
 
@@ -90,21 +90,12 @@ ui_slider(UIContext* ctx, Rect rect, UIID id, String label, Range range, float32
 
 
 internal bool32
-ui_button(UIContext* ctx, String label)
+ui_button(UIContext* ctx, Rect rect, UIID id, String label, StyleButton style)
 {
-    // TODO: use an actual id
-    int32 name_hash = hash_string(label);
-    UIID id = uuid_new(name_hash, 0);
-
-    UIFrame* frame = ui_active_frame(ctx);
-    Rect row = rect(0, 0, frame->cursor.w, ctx->theme->line_height);
-    row = rect_anchor(row, frame->cursor, ANCHOR_TL_TL);
-
-    frame->cursor = rect_move(frame->cursor, vec2(0, -row.h-ctx->theme->spacing));
     Alignment alignment = AlignmentCenter;
-    Rect inner_row = rect_shrink(row, vec2(ctx->theme->padding.x*2, 0));
-    draw_text(ctx->dc, rect_relative(inner_row, alignment), label, alignment, ctx->theme->font_default);
-    bool32 hover = intersects_rect_point(row, ctx->mouse.world);
+    Rect inner_row = rect_shrink(rect, style.padding);
+    draw_text(ctx->dc, rect_relative(inner_row, alignment), label, alignment, style.font);
+    bool32 hover = intersects_rect_point(rect, ctx->mouse.world);
     bool32 clicked = ui_is_active(ctx, id) && input_mouse_released(ctx->mouse, MouseButtonStateLeft);
     if(hover && ui_is_free(ctx) && input_mouse_pressed(ctx->mouse, MouseButtonStateLeft))
     {
@@ -115,7 +106,7 @@ ui_button(UIContext* ctx, String label)
         ui_active_clear(ctx);
     }
 
-    StyleRect c = hover ? ctx->theme->rect_button_hover : ctx->theme->rect_button;
-    draw_rect(ctx->dc, inner_row, 0, 1, c);
+    StyleRect c = hover ? style.background_hover : style.background;
+    draw_rect(ctx->dc, inner_row, 0, SORT_LAYER_INDEX_DEFAULT, c);
     return clicked;
 }

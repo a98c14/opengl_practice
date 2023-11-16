@@ -59,10 +59,18 @@ typedef struct
     StyleText font;
 } StyleLabel;
 
+
+typedef struct
+{
+    Vec2 padding;
+    StyleText font;
+    StyleRect background;
+    StyleRect background_hover;
+} StyleButton;
+
 typedef struct
 {
     StyleRect slider;
-
 } StyleSlider;
 
 internal StyleText

@@ -24,7 +24,7 @@ typedef struct
 	Alignment child;
 } Anchor;
 
-                                                                // Center,  Bottom,   Top,  Right,  Left,  BottomLeft,  BottomRight,  TopLeft,  TopRight
+//                                                         Center,  Bottom,   Top,  Right,  Left,  BottomLeft,  BottomRight,  TopLeft,  TopRight
 const float32 AlignmentMultiplierX[AlignmentCount]     = {      0,       0,     0,   -0.5,   0.5,         0.5,         -0.5,      0.5,      -0.5 };
 const float32 AlignmentMultiplierY[AlignmentCount]     = {      0,     0.5,  -0.5,      0,     0,         0.5,          0.5,     -0.5,      -0.5 };
 const float32 AnchorMultiplierX[AlignmentCount]        = {      0,       0,     0,    0.5,  -0.5,        -0.5,          0.5,     -0.5,       0.5 };
@@ -125,6 +125,9 @@ layout_stack(Rect container, float row_height, Vec2 padding, float32 spacing);
 
 internal Rect
 layout_stack_push(LayoutStack* layout);
+
+internal Rect
+layout_stack_push_scaled(LayoutStack* layout, float32 scale);
 
 internal Rect
 layout_stack_container(LayoutStack* layout);

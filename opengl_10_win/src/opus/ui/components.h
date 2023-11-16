@@ -23,4 +23,4 @@ internal bool32
 ui_slider(UIContext* ctx, Rect rect, UIID id, String label, Range range, float32* value, StyleSlider style);
 
 internal bool32
-ui_button(UIContext* ctx, String label);
+ui_button(UIContext* ctx, Rect rect, UIID id, String label, StyleButton style);

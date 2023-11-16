@@ -49,6 +49,8 @@ typedef struct
 
     StyleSlider slider_default;
 
+    StyleButton button_default;
+
     /* Global Styles */
     Vec2 padding;
     float32 line_height;
