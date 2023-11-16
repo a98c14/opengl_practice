@@ -24,6 +24,11 @@
 #define gb(x) ((x) << 30)
 #define tb(x) ((x) << 40)
 
+#define to_kb(x) ((x) >> 10)
+#define to_mb(x) ((x) >> 20)
+#define to_gb(x) ((x) >> 30)
+#define to_tb(x) ((x) >> 40)
+
 /* Primitive Types */
 typedef uint8_t uint8;
 typedef uint16_t uint16;
