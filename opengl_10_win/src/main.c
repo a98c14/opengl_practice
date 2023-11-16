@@ -104,8 +104,10 @@ int main(void)
         // LayoutStack layout = layout_stack(pos, w);
         // layout_stack_get(layout);
 
-        Rect timing_info_container = ui_container(ctx, rect_anchor(rect(4, 4, 200, 80), screen, ANCHOR_BL_BL), default_theme->container_default);
-        LayoutGrid layout = layout_grid(timing_info_container, 4, 8, vec2(4, 4));
+        int32 row_count = 6;
+        int32 row_height = 10;
+        Rect timing_info_container = ui_container(ctx, rect_anchor(rect(4, 4, 200, row_height * row_count), screen, ANCHOR_BL_BL), default_theme->container_default);
+        LayoutGrid layout = layout_grid(timing_info_container, 4, row_count, vec2(4, 4));
         // header
         ui_label(ctx, layout_grid_cell(layout, 1, 0), string("Avg"), default_theme->label_bold);
         ui_label(ctx, layout_grid_cell(layout, 2, 0), string("Max"), default_theme->label_bold);
@@ -122,8 +124,8 @@ int main(void)
         ui_label(ctx, layout_grid_cell(layout, 0, 5), string_pushf(frame_arena, "%s:", render.name.value), default_theme->label_bold);
         ui_label(ctx, layout_grid_cell(layout, 1, 5), string_pushf(frame_arena, "%0.02fms", render.end - render.start), default_theme->label_default);
 
-        Rect input_info_container = ui_container(ctx, rect_anchor(rect(2, 0, 120, 80), timing_info_container, ANCHOR_TR_TL), default_theme->container_default);
-        LayoutGrid input_layout = layout_grid(input_info_container, 2, 8, vec2(4, 4));
+        Rect input_info_container = ui_container(ctx, rect_anchor(rect(2, 0, 120, row_height * row_count), timing_info_container, ANCHOR_TR_TL), default_theme->container_default);
+        LayoutGrid input_layout = layout_grid(input_info_container, 2, row_count, vec2(4, 4));
         ui_label(ctx, layout_grid_cell(input_layout, 0, 1), string("Mouse:"), default_theme->label_bold);
         ui_label(ctx, layout_grid_cell(input_layout, 1, 1), string_pushf(frame_arena, "[%0.2f, %0.2f]", mouse.world.x, mouse.world.y), default_theme->label_default);
         ui_label(ctx, layout_grid_cell(input_layout, 0, 2), string("MouseButton:"), default_theme->label_bold);
