@@ -112,6 +112,9 @@ int main(void)
         draw_rect(dc, layout_stack_push(&layout), 0, 10, default_theme->rect_debug);
         ui_container(ctx, layout_stack_container(&layout), default_theme->container_light);
         
+        bool32 is_expanded = false;
+        ui_window(ctx, rect(200, 100, 100, 100), string("new window"), &is_expanded, default_theme->window_default);
+        
         if(cache_clock > cache_rate)
         {
             profiler_refresh_cache(main_frame);

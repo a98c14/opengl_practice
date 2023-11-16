@@ -87,6 +87,9 @@ rect_anchor(Rect child, Rect parent, Anchor anchor);
 internal Rect 
 rect_place(Rect child, Rect parent, Anchor anchor);
 
+internal Rect
+rect_place_under(Rect child, Rect parent);
+
 internal Vec2
 rect_relative(Rect rect, Alignment alignment);
 

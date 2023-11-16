@@ -154,7 +154,7 @@ ui_window_begin(UIContext* ctx, String name, Vec2* pos, Vec2 size, bool32* is_en
     frame->cursor = ui_cursor_new(ctx, *pos, size.x);
 
     /* draw header */
-    Rect header = rect_from_wh(frame->cursor.w, em(24));
+    Rect header = rect_from_wh(frame->cursor.w, px(24));
     header = rect_anchor(header, frame->cursor, ANCHOR_TL_TL);
     bool32 hover = intersects_rect_point(header, ctx->mouse.world);
     if(!ui_is_active_any(ctx) && hover && input_mouse_pressed(ctx->mouse, MouseButtonStateLeft))

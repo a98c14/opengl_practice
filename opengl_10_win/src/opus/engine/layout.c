@@ -44,6 +44,12 @@ rect_place(Rect child, Rect parent, Anchor anchor)
 	return result;
 }
 
+internal Rect
+rect_place_under(Rect child, Rect parent)
+{
+	return rect_place(child, parent, ANCHOR_BL_TL);
+}
+
 internal Vec2
 rect_relative(Rect rect, Alignment alignment)
 {

@@ -33,10 +33,10 @@ theme_init_default(Arena* arena, Renderer* renderer)
     t->rect_header_hover = t->rect_header;
     t->rect_header_hover.color = color_to_vec4(ColorSlate500);
 
-    t->font_default = (StyleText){ .color = color_to_vec4(ColorBlack), .outline_color = color_to_vec4(ColorInvisible), .softness = 30, .thickness = 0.50, .outline_thickness = 0.20, .font_size = em(18), .base_line = em(3)};
-    t->font_default_light = (StyleText){ .color = color_to_vec4(ColorWhite), .outline_color = color_to_vec4(ColorInvisible), .softness = 30, .thickness = 0.50, .outline_thickness = 0.20, .font_size = em(16), .base_line = em(3)};
-    t->font_window_header = (StyleText){ .color = color_to_vec4(ColorSlate200), .outline_color = color_to_vec4(ColorInvisible), .softness = 30, .thickness = 0.50, .outline_thickness = 0.20, .font_size = em(16), .base_line = em(3)};    
-    t->font_debug = (StyleText){ .color = color_to_vec4(ColorSlate100), .outline_color = color_to_vec4(ColorInvisible), .softness = 30, .thickness = 0.50, .outline_thickness = 0.20, .font_size = em(16), .base_line = em(3)};
+    t->font_default = (StyleText){ .color = color_to_vec4(ColorBlack), .outline_color = color_to_vec4(ColorInvisible), .softness = 30, .thickness = 0.50, .outline_thickness = 0.20, .font_size = px(18), .base_line = px(3)};
+    t->font_default_light = (StyleText){ .color = color_to_vec4(ColorWhite), .outline_color = color_to_vec4(ColorInvisible), .softness = 30, .thickness = 0.50, .outline_thickness = 0.20, .font_size = px(16), .base_line = px(3)};
+    t->font_window_header = (StyleText){ .color = color_to_vec4(ColorSlate200), .outline_color = color_to_vec4(ColorInvisible), .softness = 30, .thickness = 0.50, .outline_thickness = 0.20, .font_size = px(16), .base_line = px(3)};    
+    t->font_debug = (StyleText){ .color = color_to_vec4(ColorSlate100), .outline_color = color_to_vec4(ColorInvisible), .softness = 30, .thickness = 0.50, .outline_thickness = 0.20, .font_size = px(16), .base_line = px(3)};
 
     /* containers */
     t->container_default.background = t->rect_container;
@@ -46,9 +46,15 @@ theme_init_default(Arena* arena, Renderer* renderer)
     t->container_light = t->container_default;
     t->container_light.background = t->rect_default;
 
+    /* windows */
+    t->window_default.background = t->rect_default;
+    t->window_default.header_background = t->rect_header;
+    t->window_default.header_font = t->font_window_header;
+    t->window_default.padding = t->p2;
+
     /* labels */
     t->label_default.font = t->font_default_light;
-    t->label_default.font.font_size = em(20);
+    t->label_default.font.font_size = px(20);
     t->label_default.padding = vec2(2, 2);
     t->label_default.alignment = AlignmentLeft;
 

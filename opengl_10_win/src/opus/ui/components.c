@@ -1,5 +1,23 @@
 #include "components.h"
 
+internal UIWindow
+ui_window(UIContext* ctx, Rect container, String name, bool32* is_expanded, StyleWindow style)
+{
+    const Vec2 header_padding = vec2(4, 4);
+    Rect header = rect_from_wh(container.w, em(1) + header_padding.y);
+    header = rect_anchor(header, container, ANCHOR_TL_TL);
+    draw_rect(ctx->dc,header, 0, SORT_LAYER_INDEX_DEFAULT, style.header_background);
+    Rect header_inner = rect_shrink(header, header_padding);
+    draw_text(ctx->dc, rect_cl(header_inner), name, AlignmentLeft, style.header_font);
+    Rect inner = rect_from_wh(container.w, container.h - header_inner.h);
+    inner = rect_place_under(inner, header);
+    draw_rect(ctx->dc, inner, 0, SORT_LAYER_INDEX_DEFAULT, style.background);
+    UIWindow result;
+    result.container = rect_shrink(inner, style.padding);
+    result.is_expanded = *is_expanded;
+    return result;
+}
+
 internal Rect
 ui_container(UIContext* ctx, Rect container, StyleContainer style)
 {
@@ -41,7 +59,7 @@ ui_slider(UIContext* ctx, String label, Range range, float32* value)
     float32 left = rect_left(slider_row);
     float32 right = rect_right(slider_row);
     float32 x = left + slider_row.w * normalized;
-    Circle handle = circle(vec2(x, slider_row.y), em(20));
+    Circle handle = circle(vec2(x, slider_row.y), px(20));
     bool32 hover = intersects_circle_point(handle, ctx->mouse.world);
     if(hover && ui_is_free(ctx) && input_mouse_pressed(ctx->mouse, MouseButtonStateLeft))
     {
@@ -95,17 +113,4 @@ ui_button(UIContext* ctx, String label)
     StyleRect c = hover ? ctx->theme->rect_button_hover : ctx->theme->rect_button;
     draw_rect(ctx->dc, inner_row, 0, 1, c);
     return clicked;
-}
-
-
-internal void
-ui_grid_begin(UIContext* ctx, Rect rect, uint32 rows, uint32 columns)
-{
-    UIFrame* frame = ui_active_frame(ctx);
-    // add bottom padding remove the last element spacing (spacing only needs to be applied between the elements)
-    frame->cursor = rect_move(frame->cursor, vec2(0, -ctx->theme->padding.y+ctx->theme->spacing));
-    Rect base_rect = rect_from_wh(frame->base.w, rect_bottom(frame->base)-rect_bottom(frame->cursor));
-    base_rect = rect_anchor(base_rect, frame->cursor, ANCHOR_BL_BL);
-    draw_rect(ctx->dc, base_rect, 0, 0, ctx->theme->rect_view);
-    ctx->frame_count--;
 }

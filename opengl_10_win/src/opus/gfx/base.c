@@ -623,7 +623,13 @@ texture_shader_data_set(Renderer* renderer, const Texture* texture)
 }
 
 internal float32
-em(float32 px)
+px(float32 u)
 {
-    return _pixel_per_unit * px;
+    return _pixel_per_unit * u;
+}
+
+internal float32 
+em(float32 v)
+{
+    return px(v) * DEFAULT_FONT_SIZE;
 }

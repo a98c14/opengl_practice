@@ -21,6 +21,7 @@
 
 // TEMP: testing global variable solution out. Potentially dangerous?
 global float32 _pixel_per_unit = 1;
+#define DEFAULT_FONT_SIZE 16
 
 enum
 {
@@ -328,6 +329,6 @@ renderer_render(Renderer* renderer, float32 dt);
 internal void
 texture_shader_data_set(Renderer* renderer, const Texture* texture);
 
-/* returns the resolution independent pixel value. */
-internal float32
-em(float32 px);
+/* converts the unit value to actual screen pixel*/
+internal float32 px(float32 u);
+internal float32 em(float32 v);

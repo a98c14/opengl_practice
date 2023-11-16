@@ -35,10 +35,14 @@ typedef struct
     StyleText font_debug;
     StyleText font_window_header;
 
-    /* components */
+    /* containers */
     StyleContainer container_default;
     StyleContainer container_light;
 
+    /* windows */
+    StyleWindow window_default;
+
+    /* labels */
     StyleLabel label_default;
     StyleLabel label_bold;
     StyleLabel label_debug;

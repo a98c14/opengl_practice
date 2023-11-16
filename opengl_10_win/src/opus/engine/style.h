@@ -44,6 +44,14 @@ typedef struct
 typedef struct
 {
     Vec2 padding;
+    StyleRect background;
+    StyleRect header_background;
+    StyleText header_font;
+} StyleWindow;
+
+typedef struct
+{
+    Vec2 padding;
     Alignment alignment;
     StyleRect background;
     StyleText font;
