@@ -60,6 +60,8 @@ int main(void)
     const float32 cache_rate = 0.2;
     float32 cache_clock = 0;
     Rect window_rect = rect(200, 100, 100, 100);
+    bool32 is_expanded = false;
+
 
     /* main loop */
     while (!glfwWindowShouldClose(window->glfw_window))
@@ -107,14 +109,19 @@ int main(void)
         window_update(window);
         profiler_end(render);
 
-        LayoutStack layout = layout_stack(rect(-200, -100, 100, 0), 10, vec2(4, 4), 4);
-        draw_rect(dc, layout_stack_push(&layout), 0, 10, default_theme->rect_debug);
-        draw_rect(dc, layout_stack_push(&layout), 0, 10, default_theme->rect_debug);
-        draw_rect(dc, layout_stack_push(&layout), 0, 10, default_theme->rect_debug);
-        ui_container(ctx, layout_stack_container(&layout), default_theme->container_light);
         
-        bool32 is_expanded = false;
-        ui_window(ctx, &window_rect, uuid_new(1, 0), string("new window"), &is_expanded, default_theme->window_default);
+        
+        UIWindow window = ui_window(ctx, &window_rect, uuid_new(1, 0), string("new window"), &is_expanded, default_theme->window_default);
+        if(window.is_expanded)
+        {
+            LayoutStack layout = layout_stack(window.header, em(1), vec2(4, 4), 4);
+            ui_label(ctx, layout_stack_push(&layout), string("First line"), default_theme->label_default);
+            ui_label(ctx, layout_stack_push(&layout), string("Second line"), default_theme->label_default);
+            ui_label(ctx, layout_stack_push(&layout), string("Third line"), default_theme->label_default);
+            ui_container(ctx, layout_stack_container(&layout), default_theme->container_light);
+        }
+
+
         
         if(cache_clock > cache_rate)
         {

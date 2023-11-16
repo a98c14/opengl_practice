@@ -33,8 +33,8 @@ theme_init_default(Arena* arena, Renderer* renderer)
     t->rect_header_hover = t->rect_header;
     t->rect_header_hover.color = color_to_vec4(ColorSlate500);
 
-    t->font_default = (StyleText){ .color = color_to_vec4(ColorBlack), .outline_color = color_to_vec4(ColorInvisible), .softness = 30, .thickness = 0.50, .outline_thickness = 0.20, .font_size = px(18), .base_line = px(3)};
-    t->font_default_light = (StyleText){ .color = color_to_vec4(ColorWhite), .outline_color = color_to_vec4(ColorInvisible), .softness = 30, .thickness = 0.50, .outline_thickness = 0.20, .font_size = px(16), .base_line = px(3)};
+    t->font_default = (StyleText){ .color = color_to_vec4(ColorBlack), .outline_color = color_to_vec4(ColorInvisible), .softness = 30, .thickness = 0.50, .outline_thickness = 0.20, .font_size = em(1), .base_line = px(3)};
+    t->font_default_light = (StyleText){ .color = color_to_vec4(ColorWhite), .outline_color = color_to_vec4(ColorInvisible), .softness = 30, .thickness = 0.50, .outline_thickness = 0.20, .font_size = em(1), .base_line = px(3)};
     t->font_window_header = (StyleText){ .color = color_to_vec4(ColorSlate200), .outline_color = color_to_vec4(ColorInvisible), .softness = 30, .thickness = 0.50, .outline_thickness = 0.20, .font_size = px(16), .base_line = px(3)};    
     t->font_debug = (StyleText){ .color = color_to_vec4(ColorSlate100), .outline_color = color_to_vec4(ColorInvisible), .softness = 30, .thickness = 0.50, .outline_thickness = 0.20, .font_size = px(16), .base_line = px(3)};
 
@@ -55,7 +55,7 @@ theme_init_default(Arena* arena, Renderer* renderer)
 
     /* labels */
     t->label_default.font = t->font_default_light;
-    t->label_default.font.font_size = px(20);
+    // t->label_default.font.font_size = px(20);
     t->label_default.padding = vec2(2, 2);
     t->label_default.alignment = AlignmentLeft;
 

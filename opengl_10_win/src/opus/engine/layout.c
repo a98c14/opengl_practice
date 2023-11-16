@@ -160,6 +160,9 @@ layout_stack_push(LayoutStack* layout)
 internal Rect
 layout_stack_container(LayoutStack* layout)
 {
+	// TODO(selim): If the base container height (or width) is smaller than
+	// padding, expanding it messes up the layout. Currently all containers
+	// have height larger than padding but this needs to be fixed.
 	Rect base = rect_expand(layout->base_container, layout->padding);
 	Rect row = layout->row;
 	Vec2 bl = vec2(rect_left(base), min(rect_bottom(base), rect_top(row) - layout->padding.y / 2.0f + layout->spacing));

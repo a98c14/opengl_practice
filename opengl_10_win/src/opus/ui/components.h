@@ -6,7 +6,7 @@
 
 typedef struct
 {
-    Rect container;
+    Rect header;
     bool32 is_expanded;
 } UIWindow;
 

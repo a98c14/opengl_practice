@@ -6,9 +6,10 @@ editor_draw_stats(Arena* persistent_arena, Arena* frame_arena, Renderer* rendere
 {
     int32 row_count = 6;
     int32 row_height = 10;
+    int32 col_width = 50;
 
     /* timing info */
-    Rect timing_info_container = ui_container(ctx, rect_anchor(rect(4, 4, 200, row_height * row_count), screen, ANCHOR_BL_BL), default_theme->container_default);
+    Rect timing_info_container = ui_container(ctx, rect_anchor(rect(4, 4, 4 * 40, row_height * row_count), screen, ANCHOR_BL_BL), default_theme->container_default);
     LayoutGrid layout = layout_grid(timing_info_container, 4, row_count, vec2(4, 4));
     ui_label(ctx, layout_grid_cell(layout, 1, 0), string("Avg"), default_theme->label_bold);
     ui_label(ctx, layout_grid_cell(layout, 2, 0), string("Min"), default_theme->label_bold);
@@ -35,7 +36,7 @@ editor_draw_stats(Arena* persistent_arena, Arena* frame_arena, Renderer* rendere
     ui_label(ctx, layout_grid_cell(layout, 3, 5), string_pushf(frame_arena, "%0.02fms", render->cached_max), default_theme->label_default);
     
     /* input info */
-    Rect input_info_container = ui_container(ctx, rect_anchor(rect(2, 0, 120, row_height * row_count), timing_info_container, ANCHOR_TR_TL), default_theme->container_default);
+    Rect input_info_container = ui_container(ctx, rect_anchor(rect(2, 0, 2 * col_width, row_height * row_count), timing_info_container, ANCHOR_TR_TL), default_theme->container_default);
     LayoutGrid input_layout = layout_grid(input_info_container, 2, row_count, vec2(4, 4));
     ui_label(ctx, layout_grid_cell(input_layout, 0, 1), string("Mouse:"), default_theme->label_bold);
     ui_label(ctx, layout_grid_cell(input_layout, 1, 1), string_pushf(frame_arena, "[%0.2f, %0.2f]", mouse.world.x, mouse.world.y), default_theme->label_default);
@@ -43,7 +44,7 @@ editor_draw_stats(Arena* persistent_arena, Arena* frame_arena, Renderer* rendere
     ui_label(ctx, layout_grid_cell(input_layout, 1, 2), string_pushf(frame_arena, "0x%x", mouse.button_state), default_theme->label_default);
 
     /* memory info */
-    Rect memory_info_container = ui_container(ctx, rect_anchor(rect(2, 0, 200, row_height * row_count), input_info_container, ANCHOR_TR_TL), default_theme->container_default);
+    Rect memory_info_container = ui_container(ctx, rect_anchor(rect(2, 0, 4 * col_width, row_height * row_count), input_info_container, ANCHOR_TR_TL), default_theme->container_default);
     LayoutGrid memory_layout = layout_grid(memory_info_container, 4, row_count, vec2(4, 4));
     ui_label(ctx, layout_grid_cell(memory_layout, 0, 0), string("Memory"), default_theme->label_bold);
     ui_label(ctx, layout_grid_cell(memory_layout, 1, 0), string("Used"), default_theme->label_bold);
@@ -59,7 +60,7 @@ editor_draw_stats(Arena* persistent_arena, Arena* frame_arena, Renderer* rendere
     ui_label(ctx, layout_grid_cell(memory_layout, 3, 2), string_pushf(frame_arena, "%0.2f%%", 100 * (float32)to_mb(frame_arena->pos) / (float32)to_mb(frame_arena->cap)), default_theme->label_default);
 
     /* renderer info */
-    Rect renderer_info_container = ui_container(ctx, rect_anchor(rect(2, 0, 200, row_height * row_count), memory_info_container, ANCHOR_TR_TL), default_theme->container_default);
+    Rect renderer_info_container = ui_container(ctx, rect_anchor(rect(2, 0, 4 * col_width, row_height * row_count), memory_info_container, ANCHOR_TR_TL), default_theme->container_default);
     LayoutGrid renderer_layout = layout_grid(renderer_info_container, 4, row_count, vec2(4, 4));
     ui_label(ctx, layout_grid_cell(renderer_layout, 0, 0), string("Renderer"), default_theme->label_bold);
     ui_label(ctx, layout_grid_cell(renderer_layout, 0, 1), string("Window"), default_theme->label_bold);

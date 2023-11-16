@@ -21,7 +21,7 @@
 
 // TEMP: testing global variable solution out. Potentially dangerous?
 global float32 _pixel_per_unit = 1;
-#define DEFAULT_FONT_SIZE 16
+#define DEFAULT_FONT_SIZE 18
 
 enum
 {

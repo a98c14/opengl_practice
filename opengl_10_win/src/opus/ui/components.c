@@ -8,15 +8,11 @@ ui_window(UIContext* ctx, Rect* container, UIID id, String name, bool32* is_expa
     Rect header = rect_from_wh(base_container.w, em(1) + header_padding.y);
     header = rect_anchor(header, base_container, ANCHOR_TL_TL);
     Rect header_inner = rect_shrink(header, header_padding);
-    Rect inner = rect_from_wh(base_container.w, base_container.h - header_inner.h);
-    inner = rect_place_under(inner, header);
 
     bool32 hover = intersects_rect_point(header, ctx->mouse.world);
     StyleRect header_style = hover ? style.header_background_hover : style.header_background;
     draw_rect(ctx->dc,header, 0, SORT_LAYER_INDEX_DEFAULT, header_style);
     draw_text(ctx->dc, rect_cl(header_inner), name, AlignmentLeft, style.header_font);
-    draw_rect(ctx->dc, inner, 0, SORT_LAYER_INDEX_DEFAULT, style.background);
-
     if(!ui_is_active_any(ctx) && hover && input_mouse_pressed(ctx->mouse, MouseButtonStateLeft))
     {
         ui_activate(ctx, id);
@@ -36,7 +32,7 @@ ui_window(UIContext* ctx, Rect* container, UIID id, String name, bool32* is_expa
     }
 
     UIWindow result;
-    result.container = rect_shrink(inner, style.padding);
+    result.header = rect_place_under(rect_from_wh(container->w, 30), header);
     result.is_expanded = *is_expanded;
     return result;
 }
