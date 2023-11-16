@@ -50,10 +50,18 @@ int main(void)
     bool32 window_is_enabled = 1;
     float32 slider_value = 4;
     InputMouse mouse = {0};
+    
+    Profiler* main_frame = profiler_new(persistent_arena, string("Total"));
+    Profiler* update = profiler_new(persistent_arena, string("Update"));
+    Profiler* render = profiler_new(persistent_arena, string("Render"));
+    const float32 cache_rate = 0.2;
+    float32 cache_clock = 0;
+
     /* main loop */
     while (!glfwWindowShouldClose(window->glfw_window))
     {
-        Profiler main_frame = profiler_begin(string("MainFrame"));
+        profiler_end(main_frame);
+        profiler_begin(main_frame);
         /* frame: init */
         time = engine_get_time(time);
         mouse = input_mouse_get(window, renderer->camera, mouse);
@@ -61,7 +69,7 @@ int main(void)
         ctx->time = time;
 
         /* frame: update */
-        Profiler update = profiler_begin(string("Update"));
+        profiler_begin(update);
         StyleRect test_style = default_theme->rect_default;
         test_style.color = color_to_vec4(ColorRed600);
         test_style.border_radius = default_theme->rounded_none;
@@ -89,40 +97,51 @@ int main(void)
         }
         ui_window_end(ctx);
 
-        profiler_end(&update);
+        profiler_end(update);
         /* frame: render */
-        Profiler render = profiler_begin(string("Render"));
+        profiler_begin(render);
         renderer_render(renderer, time.dt);
         window_update(window);
-        profiler_end(&render);
-        profiler_end(&main_frame);
+        profiler_end(render);
         arena_reset(frame_arena);
 
-        // LayoutGrid layout = layout_grid();
-        // layout_grid_get(1, 2, 1, 1);
-
-        // LayoutStack layout = layout_stack(pos, w);
-        // layout_stack_get(layout);
+        
+        if(cache_clock > cache_rate)
+        {
+            profiler_refresh_cache(main_frame);
+            profiler_refresh_cache(update);
+            profiler_refresh_cache(render);
+            cache_clock = 0;
+        }
+        cache_clock += time.dt;
 
         int32 row_count = 6;
         int32 row_height = 10;
         Rect timing_info_container = ui_container(ctx, rect_anchor(rect(4, 4, 200, row_height * row_count), screen, ANCHOR_BL_BL), default_theme->container_default);
         LayoutGrid layout = layout_grid(timing_info_container, 4, row_count, vec2(4, 4));
         // header
-        ui_label(ctx, layout_grid_cell(layout, 1, 0), string("Avg"), default_theme->label_bold);
-        ui_label(ctx, layout_grid_cell(layout, 2, 0), string("Max"), default_theme->label_bold);
-        ui_label(ctx, layout_grid_cell(layout, 3, 0), string("Min"), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(layout, 1, 1), string("Avg"), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(layout, 2, 1), string("Min"), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(layout, 3, 1), string("Max"), default_theme->label_bold);
         
-        ui_label(ctx, layout_grid_cell(layout, 0, 1), string("Time:"), default_theme->label_bold);
-        ui_label(ctx, layout_grid_cell(layout, 1, 1), string_pushf(frame_arena, "%0.2fs", time.current_frame / 1000), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(layout, 0, 0), string("Time:"), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(layout, 1, 0), string_pushf(frame_arena, "%0.2fs", time.current_frame / 1000), default_theme->label_default);
         ui_label(ctx, layout_grid_cell(layout, 0, 2), string("FPS:"), default_theme->label_bold);
-        ui_label(ctx, layout_grid_cell(layout, 1, 2), string_pushf(frame_arena, "%d", (int32)(1000 / time.dt)), default_theme->label_default);
-        ui_label(ctx, layout_grid_cell(layout, 0, 3), string_pushf(frame_arena, "%s:", main_frame.name.value), default_theme->label_bold);
-        ui_label(ctx, layout_grid_cell(layout, 1, 3), string_pushf(frame_arena, "%0.02fms", main_frame.end - main_frame.start), default_theme->label_default);
-        ui_label(ctx, layout_grid_cell(layout, 0, 4), string_pushf(frame_arena, "%s:", update.name.value), default_theme->label_bold);
-        ui_label(ctx, layout_grid_cell(layout, 1, 4), string_pushf(frame_arena, "%0.02fms", update.end - update.start), default_theme->label_default);
-        ui_label(ctx, layout_grid_cell(layout, 0, 5), string_pushf(frame_arena, "%s:", render.name.value), default_theme->label_bold);
-        ui_label(ctx, layout_grid_cell(layout, 1, 5), string_pushf(frame_arena, "%0.02fms", render.end - render.start), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(layout, 1, 2), string_pushf(frame_arena, "%d", (int32)(1000 / main_frame->cached_avg)), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(layout, 2, 2), string_pushf(frame_arena, "%d", (int32)(1000 / main_frame->cached_max)), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(layout, 3, 2), string_pushf(frame_arena, "%d", (int32)(1000 / main_frame->cached_min)), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(layout, 0, 3), string_pushf(frame_arena, "%s:", main_frame->name.value), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(layout, 1, 3), string_pushf(frame_arena, "%0.02fms", main_frame->cached_avg), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(layout, 2, 3), string_pushf(frame_arena, "%0.02fms", main_frame->cached_min), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(layout, 3, 3), string_pushf(frame_arena, "%0.02fms", main_frame->cached_max), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(layout, 0, 4), string_pushf(frame_arena, "%s:", update->name.value), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(layout, 1, 4), string_pushf(frame_arena, "%0.02fms", update->cached_avg), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(layout, 2, 4), string_pushf(frame_arena, "%0.02fms", update->cached_min), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(layout, 3, 4), string_pushf(frame_arena, "%0.02fms", update->cached_max), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(layout, 0, 5), string_pushf(frame_arena, "%s:", render->name.value), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(layout, 1, 5), string_pushf(frame_arena, "%0.02fms", render->cached_avg), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(layout, 2, 5), string_pushf(frame_arena, "%0.02fms", render->cached_min), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(layout, 3, 5), string_pushf(frame_arena, "%0.02fms", render->cached_max), default_theme->label_default);
 
         Rect input_info_container = ui_container(ctx, rect_anchor(rect(2, 0, 120, row_height * row_count), timing_info_container, ANCHOR_TR_TL), default_theme->container_default);
         LayoutGrid input_layout = layout_grid(input_info_container, 2, row_count, vec2(4, 4));

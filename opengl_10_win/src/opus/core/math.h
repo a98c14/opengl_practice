@@ -23,6 +23,9 @@
 global float32 EPSILON_FLOAT32 = 1.1920929e-7f;
 global float32 PI_FLOAT32      = 3.14159265359f;
 global float32 TAU_FLOAT32     = 6.28318530718f;
+// TODO: Find the actual min/max float values
+global float32 FLOAT32_MIN     = -1000000; 
+global float32 FLOAT32_MAX     =  1000000; 
 
 /* Vectors */
 typedef struct { int32 x; int32 y; } IVec2;
