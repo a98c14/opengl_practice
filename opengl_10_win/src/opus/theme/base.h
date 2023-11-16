@@ -37,6 +37,7 @@ typedef struct
 
     /* components */
     StyleContainer container_default;
+    StyleContainer container_light;
 
     StyleLabel label_default;
     StyleLabel label_bold;

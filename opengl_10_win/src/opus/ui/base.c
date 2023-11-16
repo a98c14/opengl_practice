@@ -128,7 +128,7 @@ ui_frame_end(UIContext* ctx)
     UIFrame* frame = ui_active_frame(ctx);
     // add bottom padding remove the last element spacing (spacing only needs to be applied between the elements)
     frame->cursor = rect_move(frame->cursor, vec2(0, -ctx->theme->padding.y+ctx->theme->spacing));
-    Rect base_rect = rect_wh(frame->base.w, rect_bottom(frame->base)-rect_bottom(frame->cursor));
+    Rect base_rect = rect_from_wh(frame->base.w, rect_bottom(frame->base)-rect_bottom(frame->cursor));
     base_rect = rect_anchor(base_rect, frame->cursor, ANCHOR_BL_BL);
     draw_rect(ctx->dc, base_rect, 0, 0, ctx->theme->rect_view);
     ctx->frame_count--;
@@ -154,7 +154,7 @@ ui_window_begin(UIContext* ctx, String name, Vec2* pos, Vec2 size, bool32* is_en
     frame->cursor = ui_cursor_new(ctx, *pos, size.x);
 
     /* draw header */
-    Rect header = rect_wh(frame->cursor.w, em(24));
+    Rect header = rect_from_wh(frame->cursor.w, em(24));
     header = rect_anchor(header, frame->cursor, ANCHOR_TL_TL);
     bool32 hover = intersects_rect_point(header, ctx->mouse.world);
     if(!ui_is_active_any(ctx) && hover && input_mouse_pressed(ctx->mouse, MouseButtonStateLeft))

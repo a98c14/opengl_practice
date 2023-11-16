@@ -43,6 +43,9 @@ theme_init_default(Arena* arena, Renderer* renderer)
     t->container_default.margin = t->m0;
     t->container_default.padding = t->p0;
 
+    t->container_light = t->container_default;
+    t->container_light.background = t->rect_default;
+
     /* labels */
     t->label_default.font = t->font_default_light;
     t->label_default.font.font_size = em(20);

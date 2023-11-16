@@ -105,9 +105,22 @@ rect(float32 x, float32 y, float32 w, float32 h)
     return result;
 }
 
+internal Rect
+rect_from_bl_tr(Vec2 bl, Vec2 tr)
+{
+    Rect result;
+    float32 w = tr.x - bl.x;
+    float32 h = tr.y - bl.y;
+    result.x = bl.x + w / 2.0f;
+    result.y = bl.y + h / 2.0f;
+    result.w = w;
+    result.h = h;
+    return result;
+}
+
 /* retuns a rect that is positioned at origin with given width and height */
 internal Rect 
-rect_wh(float32 w, float32 h)
+rect_from_wh(float32 w, float32 h)
 {
     Rect result = {0};
     result.w = w;

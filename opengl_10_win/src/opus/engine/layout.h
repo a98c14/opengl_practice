@@ -47,6 +47,14 @@ const Anchor ANCHOR_TR_TR = { AlignmentTopRight, AlignmentTopRight };
 const Anchor ANCHOR_TR_TL = { AlignmentTopRight, AlignmentTopLeft };
 const Anchor ANCHOR_TR_BL = { AlignmentTopRight, AlignmentBottomLeft };
 const Anchor ANCHOR_TR_BR = { AlignmentTopRight, AlignmentBottomRight };
+const Anchor ANCHOR_T_TL = { AlignmentTop, AlignmentTopLeft };
+const Anchor ANCHOR_T_TR = { AlignmentTop, AlignmentTopRight };
+const Anchor ANCHOR_T_BL = { AlignmentTop, AlignmentBottomLeft };
+const Anchor ANCHOR_T_BR = { AlignmentTop, AlignmentBottomRight };
+const Anchor ANCHOR_T_T = { AlignmentTop, AlignmentTop };
+const Anchor ANCHOR_T_L = { AlignmentTop, AlignmentLeft };
+const Anchor ANCHOR_T_B = { AlignmentTop, AlignmentBottom };
+const Anchor ANCHOR_T_R = { AlignmentTop, AlignmentRight };
 
 typedef struct
 {
@@ -56,6 +64,15 @@ typedef struct
 	Rect base_container;
 	Vec2 cell_size;
 } LayoutGrid;
+
+typedef struct
+{
+	Vec2 padding;
+	Rect base_container;
+	Rect row;
+	float32 row_height;
+	float32 spacing;
+} LayoutStack;
 
 internal Rect
 rect_aligned(float32 x, float32 y, float32 w, float32 h, Alignment alignment);
@@ -99,3 +116,12 @@ layout_grid_cell(LayoutGrid layout, int32 column, int32 row);
 
 internal Rect
 layout_grid_multicell(LayoutGrid layout, int32 column, int32 row, int32 column_count, int32 row_count);
+
+internal LayoutStack
+layout_stack(Rect container, float row_height, Vec2 padding, float32 spacing);
+
+internal Rect
+layout_stack_push(LayoutStack* layout);
+
+internal Rect
+layout_stack_container(LayoutStack* layout);

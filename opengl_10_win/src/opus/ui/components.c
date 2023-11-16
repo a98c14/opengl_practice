@@ -104,7 +104,7 @@ ui_grid_begin(UIContext* ctx, Rect rect, uint32 rows, uint32 columns)
     UIFrame* frame = ui_active_frame(ctx);
     // add bottom padding remove the last element spacing (spacing only needs to be applied between the elements)
     frame->cursor = rect_move(frame->cursor, vec2(0, -ctx->theme->padding.y+ctx->theme->spacing));
-    Rect base_rect = rect_wh(frame->base.w, rect_bottom(frame->base)-rect_bottom(frame->cursor));
+    Rect base_rect = rect_from_wh(frame->base.w, rect_bottom(frame->base)-rect_bottom(frame->cursor));
     base_rect = rect_anchor(base_rect, frame->cursor, ANCHOR_BL_BL);
     draw_rect(ctx->dc, base_rect, 0, 0, ctx->theme->rect_view);
     ctx->frame_count--;
