@@ -48,9 +48,6 @@ int main(void)
 
     /* application state */
     // ShowCursor(0);
-
-    Vec2 window_pos = vec2_zero();
-    bool32 window_is_enabled = 1;
     float32 slider_value = 4;
     InputMouse mouse = {0};
 
@@ -61,7 +58,6 @@ int main(void)
     float32 cache_clock = 0;
     Rect window_rect = rect(200, 100, 100, 100);
     bool32 is_expanded = false;
-
 
     /* main loop */
     while (!glfwWindowShouldClose(window->glfw_window))
@@ -92,7 +88,7 @@ int main(void)
         profiler_begin(render);
         renderer_render(renderer, time.dt);
         window_update(window);
-        profiler_end(render);
+            profiler_end(render);
 
         UIWindow window = ui_window(ctx, &window_rect, uuid_new(1, 0), string("new window"), &is_expanded, default_theme->window_default);
         if(window.is_expanded)
@@ -100,7 +96,7 @@ int main(void)
             LayoutStack layout = layout_stack(window.header, em(1), vec2(4, 4), 2);
             ui_label(ctx, layout_stack_push(&layout), string("First line"), default_theme->label_default);
             ui_label(ctx, layout_stack_push(&layout), string("Second line"), default_theme->label_default);
-            ui_label(ctx, layout_stack_push(&layout), string_pushf(frame_arena, "Slider: %f", slider_value), default_theme->label_default);
+            ui_label(ctx, layout_stack_push(&layout), string_pushf(frame_arena, "Slider: %0.2f", slider_value), default_theme->label_default);
             ui_slider(ctx, layout_stack_push(&layout), uuid_new(2, 0), string("Coords"), range(0, 10), &slider_value, default_theme->slider_default);
             if(ui_button(ctx, layout_stack_push_scaled(&layout, 1.5), uuid_new(3, 0), string("Button"), default_theme->button_default))
             {

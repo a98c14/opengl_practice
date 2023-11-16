@@ -1,7 +1,4 @@
 # UI System
-- compress
-- `px(1)` should represent height of a single line
-
 
 ## Commands
 ### Build & Run
