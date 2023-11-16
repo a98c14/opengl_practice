@@ -81,6 +81,9 @@ ui_activate(UIContext* ctx, UIID id);
 internal void
 ui_active_clear(UIContext* ctx);
 
+internal float32
+ui_active_time(UIContext* ctx);
+
 internal bool32
 ui_is_hot(UIContext* ctx, UIID id);
 

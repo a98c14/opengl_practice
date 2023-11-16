@@ -1,17 +1,40 @@
 #include "components.h"
 
 internal UIWindow
-ui_window(UIContext* ctx, Rect container, String name, bool32* is_expanded, StyleWindow style)
+ui_window(UIContext* ctx, Rect* container, UIID id, String name, bool32* is_expanded, StyleWindow style)
 {
+    Rect base_container = *container;
     const Vec2 header_padding = vec2(4, 4);
-    Rect header = rect_from_wh(container.w, em(1) + header_padding.y);
-    header = rect_anchor(header, container, ANCHOR_TL_TL);
-    draw_rect(ctx->dc,header, 0, SORT_LAYER_INDEX_DEFAULT, style.header_background);
+    Rect header = rect_from_wh(base_container.w, em(1) + header_padding.y);
+    header = rect_anchor(header, base_container, ANCHOR_TL_TL);
     Rect header_inner = rect_shrink(header, header_padding);
-    draw_text(ctx->dc, rect_cl(header_inner), name, AlignmentLeft, style.header_font);
-    Rect inner = rect_from_wh(container.w, container.h - header_inner.h);
+    Rect inner = rect_from_wh(base_container.w, base_container.h - header_inner.h);
     inner = rect_place_under(inner, header);
+
+    bool32 hover = intersects_rect_point(header, ctx->mouse.world);
+    StyleRect header_style = hover ? style.header_background_hover : style.header_background;
+    draw_rect(ctx->dc,header, 0, SORT_LAYER_INDEX_DEFAULT, header_style);
+    draw_text(ctx->dc, rect_cl(header_inner), name, AlignmentLeft, style.header_font);
     draw_rect(ctx->dc, inner, 0, SORT_LAYER_INDEX_DEFAULT, style.background);
+
+    if(!ui_is_active_any(ctx) && hover && input_mouse_pressed(ctx->mouse, MouseButtonStateLeft))
+    {
+        ui_activate(ctx, id);
+        ctx->drag_offset = sub_vec2(container->center, ctx->mouse.world);
+    }
+    else if(ui_is_active(ctx, id) && input_mouse_pressed(ctx->mouse, MouseButtonStateLeft))
+    {
+        container->x = ctx->mouse.world.x + ctx->drag_offset.x;
+        container->y = ctx->mouse.world.y + ctx->drag_offset.y;
+    }
+    else if(ui_is_active(ctx, id) && input_mouse_released(ctx->mouse, MouseButtonStateLeft))
+    {
+        if(ui_active_time(ctx) < 200)
+            b32_flip(is_expanded);
+
+        ui_active_clear(ctx);
+    }
+
     UIWindow result;
     result.container = rect_shrink(inner, style.padding);
     result.is_expanded = *is_expanded;

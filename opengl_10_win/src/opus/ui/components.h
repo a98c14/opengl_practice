@@ -14,7 +14,7 @@ internal Rect
 ui_container(UIContext* ctx, Rect container, StyleContainer style);
 
 internal UIWindow
-ui_window(UIContext* ctx, Rect container, String name, bool32* is_expanded, StyleWindow style);
+ui_window(UIContext* ctx, Rect* container, UIID id, String name, bool32* is_expanded, StyleWindow style);
 
 internal void
 ui_label(UIContext* ctx, Rect container, String str, StyleLabel style);

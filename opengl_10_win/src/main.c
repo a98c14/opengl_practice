@@ -59,6 +59,7 @@ int main(void)
     Profiler* render = profiler_new(persistent_arena, string("Render"));
     const float32 cache_rate = 0.2;
     float32 cache_clock = 0;
+    Rect window_rect = rect(200, 100, 100, 100);
 
     /* main loop */
     while (!glfwWindowShouldClose(window->glfw_window))
@@ -113,7 +114,7 @@ int main(void)
         ui_container(ctx, layout_stack_container(&layout), default_theme->container_light);
         
         bool32 is_expanded = false;
-        ui_window(ctx, rect(200, 100, 100, 100), string("new window"), &is_expanded, default_theme->window_default);
+        ui_window(ctx, &window_rect, uuid_new(1, 0), string("new window"), &is_expanded, default_theme->window_default);
         
         if(cache_clock > cache_rate)
         {

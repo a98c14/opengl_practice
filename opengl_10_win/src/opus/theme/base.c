@@ -49,6 +49,7 @@ theme_init_default(Arena* arena, Renderer* renderer)
     /* windows */
     t->window_default.background = t->rect_default;
     t->window_default.header_background = t->rect_header;
+    t->window_default.header_background_hover = t->rect_header_hover;
     t->window_default.header_font = t->font_window_header;
     t->window_default.padding = t->p2;
 

@@ -46,6 +46,7 @@ typedef struct
     Vec2 padding;
     StyleRect background;
     StyleRect header_background;
+    StyleRect header_background_hover;
     StyleText header_font;
 } StyleWindow;
 
