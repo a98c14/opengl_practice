@@ -33,6 +33,7 @@ typedef union
 {
     struct { float32 x; float32 y; };
     struct { float32 u; float32 v; };
+    struct { float32 w; float32 h; };
     float32 elements[2];
 } Vec2;
 

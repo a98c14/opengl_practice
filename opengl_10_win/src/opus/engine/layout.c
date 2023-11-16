@@ -87,3 +87,41 @@ rect_move(Rect rect, Vec2 v)
 	result.y += v.y;
 	return result;
 }
+
+internal LayoutGrid
+layout_grid(Rect container, int32 columns, int32 rows, Vec2 padding)
+{
+	LayoutGrid result = {0};
+	result.base_container = rect_shrink(container, mul_vec2_f32(padding, 2));
+	result.padding = padding;
+	result.rows = rows;
+	result.columns = columns;
+	result.cell_size = vec2(result.base_container.w / columns, result.base_container.h / rows);
+	return result;
+}
+
+internal Rect
+layout_grid_container(LayoutGrid layout)
+{
+	return rect_expand(layout.base_container, layout.padding);
+}
+
+internal Rect
+layout_grid_cell(LayoutGrid layout, int32 column, int32 row)
+{
+	Vec2 tl = rect_tl(layout.base_container);
+	float32 x = tl.x + column * layout.cell_size.w + layout.cell_size.w / 2;
+	float32 y = tl.y - row * layout.cell_size.h - layout.cell_size.h / 2;
+	return rect(x, y, layout.cell_size.w, layout.cell_size.h);
+}
+
+internal Rect
+layout_grid_multicell(LayoutGrid layout, int32 column, int32 row, int32 column_count, int32 row_count)
+{
+	float32 w = layout.cell_size.w * column_count;
+	float32 h = layout.cell_size.h * row_count;
+	Vec2 tl = rect_tl(layout.base_container);
+	float32 x = tl.x + column * layout.cell_size.w + w / 2;
+	float32 y = tl.y + row * layout.cell_size.h + h / 2;
+	return rect(x, y, w, h);
+}

@@ -98,11 +98,24 @@ int main(void)
         profiler_end(&main_frame);
         arena_reset(frame_arena);
 
+        // LayoutGrid layout = layout_grid();
+        // layout_grid_get(1, 2, 1, 1);
+
+        // LayoutStack layout = layout_stack(pos, w);
+        // layout_stack_get(layout);
         Rect container = ui_container(ctx, rect_anchor(rect_wh(screen.w, 100), screen, ANCHOR_BL_BL), default_theme->container_default);
         Rect inner_cell = ui_container(ctx, rect_place(rect_wh(100, 20), container, ANCHOR_TL_TL), default_theme->container_default);
         ui_label(ctx, inner_cell, string("FPS:"), default_theme->label_default);
         inner_cell = rect_place(inner_cell, inner_cell, ANCHOR_BL_TL);
         ui_label(ctx, inner_cell, string("Boys:"), default_theme->label_default);
+
+        Rect grid_container = ui_container(ctx, rect(-200, 100, 250, 50), default_theme->container_default);
+        LayoutGrid layout = layout_grid(grid_container, 3, 4, vec2(4, 4));
+        ui_label(ctx, layout_grid_cell(layout, 0, 0), string("First Cell"), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(layout, 1, 0), string("Second Cell"), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(layout, 2, 0), string("Third Cell"), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(layout, 0, 1), string("Second Row First Cell"), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(layout, 1, 2), string("Second Row First Cell"), default_theme->label_default);
 
         float32 font_size = default_theme->font_debug.font_size;
         draw_text(dc, rect_tl(screen), string_pushf(frame_arena, "%s: %0.02fms", main_frame.name.value, 1000*(main_frame.end - main_frame.start)), AlignmentTopLeft, default_theme->font_debug);

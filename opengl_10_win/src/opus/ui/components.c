@@ -14,7 +14,7 @@ internal void
 ui_label(UIContext* ctx, Rect container, String str, StyleLabel style)
 {
     Rect inner = rect_shrink(container, style.padding);
-    if(style.background.color.a > 0)
+    if(style.background.color.a > 0 || style.background.border_color.a > 0)
         draw_rect(ctx->dc, container, 0, SORT_LAYER_INDEX_DEFAULT, style.background);
     draw_text(ctx->dc, rect_relative(inner, style.alignment), str, style.alignment, style.font);
 }

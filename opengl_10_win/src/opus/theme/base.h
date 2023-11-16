@@ -38,6 +38,7 @@ typedef struct
     StyleContainer container_default;
 
     StyleLabel label_default;
+    StyleLabel label_debug;
 
     /* Global Styles */
     Vec2 padding;

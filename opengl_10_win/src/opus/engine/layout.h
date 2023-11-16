@@ -48,6 +48,15 @@ const Anchor ANCHOR_TR_TL = { AlignmentTopRight, AlignmentTopLeft };
 const Anchor ANCHOR_TR_BL = { AlignmentTopRight, AlignmentBottomLeft };
 const Anchor ANCHOR_TR_BR = { AlignmentTopRight, AlignmentBottomRight };
 
+typedef struct
+{
+	int32 columns;
+	int32 rows;
+	Vec2 padding;
+	Rect base_container;
+	Vec2 cell_size;
+} LayoutGrid;
+
 internal Rect
 rect_aligned(float32 x, float32 y, float32 w, float32 h, Alignment alignment);
 
@@ -58,7 +67,7 @@ internal Rect
 rect_anchor(Rect child, Rect parent, Anchor anchor);
 
 /** Similar to anchor but doesn't care about child x,y */
-internal Rect
+internal Rect 
 rect_place(Rect child, Rect parent, Anchor anchor);
 
 internal Vec2
@@ -78,3 +87,15 @@ rect_shrink(Rect rect, Vec2 v);
 
 internal Rect
 rect_move(Rect rect, Vec2 v);
+
+internal LayoutGrid
+layout_grid(Rect container, int32 columns, int32 rows, Vec2 padding);
+
+internal Rect
+layout_grid_container(LayoutGrid layout);
+
+internal Rect
+layout_grid_cell(LayoutGrid layout, int32 column, int32 row);
+
+internal Rect
+layout_grid_multicell(LayoutGrid layout, int32 column, int32 row, int32 column_count, int32 row_count);

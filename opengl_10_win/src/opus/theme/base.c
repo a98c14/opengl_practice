@@ -28,7 +28,7 @@ theme_init_default(Arena* arena, Renderer* renderer)
     t->rect_slider_bar = (StyleRect){ .softness = 2, .color = color_to_vec4(ColorBlack), .border_radius = t->rounded_sm };
     t->rect_button = (StyleRect){ .softness = 2, .color = color_to_vec4(ColorAmber600), .border_radius = t->rounded_sm };
     t->rect_button_hover = (StyleRect){ .softness = 2, .color = color_to_vec4(ColorAmber400), .border_radius = t->rounded_sm };
-
+    
     t->rect_header_hover = t->rect_header;
     t->rect_header_hover.color = color_to_vec4(ColorSlate500);
 
@@ -47,5 +47,10 @@ theme_init_default(Arena* arena, Renderer* renderer)
     t->label_default.font.font_size = em(20);
     t->label_default.padding = vec2(2, 2);
     t->label_default.alignment = AlignmentLeft;
+
+    t->label_debug = t->label_default;
+    t->label_debug.background = t->rect_debug;
+
+
     return t;
 }
