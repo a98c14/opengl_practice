@@ -1,5 +1,7 @@
 #pragma once
 
+#include <core/defines.h>
+#include <core/asserts.h>
 #include "layout.h"
 
 internal Rect
@@ -109,6 +111,7 @@ layout_grid_container(LayoutGrid layout)
 internal Rect
 layout_grid_cell(LayoutGrid layout, int32 column, int32 row)
 {
+	xassert(column < layout.columns && row < layout.rows, "invalid column or row provided for grid layout");
 	Vec2 tl = rect_tl(layout.base_container);
 	float32 x = tl.x + column * layout.cell_size.w + layout.cell_size.w / 2;
 	float32 y = tl.y - row * layout.cell_size.h - layout.cell_size.h / 2;
@@ -118,6 +121,7 @@ layout_grid_cell(LayoutGrid layout, int32 column, int32 row)
 internal Rect
 layout_grid_multicell(LayoutGrid layout, int32 column, int32 row, int32 column_count, int32 row_count)
 {
+	xassert(column + column_count <= layout.columns && row + row_count <= layout.rows, "invalid column or row provided for grid layout");
 	float32 w = layout.cell_size.w * column_count;
 	float32 h = layout.cell_size.h * row_count;
 	Vec2 tl = rect_tl(layout.base_container);

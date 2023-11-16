@@ -297,3 +297,5 @@ global const Color ColorBlueGrey700 = { .r= 0x45, .g = 0x5a, .b=0x64, .a = 0xff 
 global const Color ColorBlueGrey800 = { .r= 0x37, .g = 0x47, .b=0x4f, .a = 0xff };
 global const Color ColorBlueGrey900 = { .r= 0x26, .g = 0x32, .b=0x38, .a = 0xff };
 global const Color ColorSlate300Fade = { .r = 0xcb, .g = 0xd5, .b = 0xe1, .a = 0xaa };
+
+global const Color ColorBlueShadow100 = { .r = 0x0f, .g = 0x0f, .b = 0x1f, .a = 0xcf };

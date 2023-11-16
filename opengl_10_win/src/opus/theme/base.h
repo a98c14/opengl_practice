@@ -28,6 +28,7 @@ typedef struct
     StyleRect rect_header_hover;
     StyleRect rect_button;
     StyleRect rect_button_hover;
+    StyleRect rect_container;
 
     StyleText font_default;
     StyleText font_default_light;
@@ -38,6 +39,7 @@ typedef struct
     StyleContainer container_default;
 
     StyleLabel label_default;
+    StyleLabel label_bold;
     StyleLabel label_debug;
 
     /* Global Styles */

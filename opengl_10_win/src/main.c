@@ -103,27 +103,31 @@ int main(void)
 
         // LayoutStack layout = layout_stack(pos, w);
         // layout_stack_get(layout);
-        Rect container = ui_container(ctx, rect_anchor(rect_wh(screen.w, 100), screen, ANCHOR_BL_BL), default_theme->container_default);
-        Rect inner_cell = ui_container(ctx, rect_place(rect_wh(100, 20), container, ANCHOR_TL_TL), default_theme->container_default);
-        ui_label(ctx, inner_cell, string("FPS:"), default_theme->label_default);
-        inner_cell = rect_place(inner_cell, inner_cell, ANCHOR_BL_TL);
-        ui_label(ctx, inner_cell, string("Boys:"), default_theme->label_default);
 
-        Rect grid_container = ui_container(ctx, rect(-200, 100, 250, 50), default_theme->container_default);
-        LayoutGrid layout = layout_grid(grid_container, 3, 4, vec2(4, 4));
-        ui_label(ctx, layout_grid_cell(layout, 0, 0), string("First Cell"), default_theme->label_default);
-        ui_label(ctx, layout_grid_cell(layout, 1, 0), string("Second Cell"), default_theme->label_default);
-        ui_label(ctx, layout_grid_cell(layout, 2, 0), string("Third Cell"), default_theme->label_default);
-        ui_label(ctx, layout_grid_cell(layout, 0, 1), string("Second Row First Cell"), default_theme->label_default);
-        ui_label(ctx, layout_grid_cell(layout, 1, 2), string("Second Row First Cell"), default_theme->label_default);
+        Rect timing_info_container = ui_container(ctx, rect_anchor(rect(4, 4, 200, 80), screen, ANCHOR_BL_BL), default_theme->container_default);
+        LayoutGrid layout = layout_grid(timing_info_container, 4, 8, vec2(4, 4));
+        // header
+        ui_label(ctx, layout_grid_cell(layout, 1, 0), string("Avg"), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(layout, 2, 0), string("Max"), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(layout, 3, 0), string("Min"), default_theme->label_bold);
+        
+        ui_label(ctx, layout_grid_cell(layout, 0, 1), string("Time:"), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(layout, 1, 1), string_pushf(frame_arena, "%0.2fs", time.current_frame / 1000), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(layout, 0, 2), string("FPS:"), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(layout, 1, 2), string_pushf(frame_arena, "%d", (int32)(1000 / time.dt)), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(layout, 0, 3), string_pushf(frame_arena, "%s:", main_frame.name.value), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(layout, 1, 3), string_pushf(frame_arena, "%0.02fms", main_frame.end - main_frame.start), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(layout, 0, 4), string_pushf(frame_arena, "%s:", update.name.value), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(layout, 1, 4), string_pushf(frame_arena, "%0.02fms", update.end - update.start), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(layout, 0, 5), string_pushf(frame_arena, "%s:", render.name.value), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(layout, 1, 5), string_pushf(frame_arena, "%0.02fms", render.end - render.start), default_theme->label_default);
 
-        float32 font_size = default_theme->font_debug.font_size;
-        draw_text(dc, rect_tl(screen), string_pushf(frame_arena, "%s: %0.02fms", main_frame.name.value, 1000*(main_frame.end - main_frame.start)), AlignmentTopLeft, default_theme->font_debug);
-        draw_text(dc, add_vec2(rect_tl(screen), vec2(0, -font_size*1)), string_pushf(frame_arena, "Time: %0.2fs", time.current_frame / 1000), AlignmentTopLeft, default_theme->font_debug);
-        draw_text(dc, add_vec2(rect_tl(screen), vec2(0, -font_size*2)), string_pushf(frame_arena, "%s: %0.02fms", update.name.value, 1000*(update.end - update.start)), AlignmentTopLeft, default_theme->font_debug);
-        draw_text(dc, add_vec2(rect_tl(screen), vec2(0, -font_size*3)), string_pushf(frame_arena, "%s: %0.02fms", render.name.value, 1000*(render.end - render.start)), AlignmentTopLeft, default_theme->font_debug);
-        draw_text(dc, add_vec2(rect_tl(screen), vec2(0, -font_size*4)), string_pushf(frame_arena, "Mouse: [%0.02f, %0.02f]", mouse.world.x, mouse.world.y), AlignmentTopLeft, default_theme->font_debug);
-        draw_text(dc, add_vec2(rect_tl(screen), vec2(0, -font_size*5)), string_pushf(frame_arena, "MouseButtonState: 0x%x", mouse.button_state), AlignmentTopLeft, default_theme->font_debug);
+        Rect input_info_container = ui_container(ctx, rect_anchor(rect(2, 0, 120, 80), timing_info_container, ANCHOR_TR_TL), default_theme->container_default);
+        LayoutGrid input_layout = layout_grid(input_info_container, 2, 8, vec2(4, 4));
+        ui_label(ctx, layout_grid_cell(input_layout, 0, 1), string("Mouse:"), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(input_layout, 1, 1), string_pushf(frame_arena, "[%0.2f, %0.2f]", mouse.world.x, mouse.world.y), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(input_layout, 0, 2), string("MouseButton:"), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(input_layout, 1, 2), string_pushf(frame_arena, "0x%x", mouse.button_state), default_theme->label_default);
     }
 
     window_destroy(window);
