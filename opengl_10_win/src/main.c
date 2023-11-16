@@ -175,7 +175,7 @@ int main(void)
         ui_label(ctx, layout_grid_cell(renderer_layout, 0, 2), string("Object Count"), default_theme->label_bold);
         ui_label(ctx, layout_grid_cell(renderer_layout, 1, 2), string_pushf(frame_arena, "%d", renderer->stat_object_count), default_theme->label_default);
         ui_label(ctx, layout_grid_cell(renderer_layout, 0, 3), string("Buffer Count"), default_theme->label_bold);
-        ui_label(ctx, layout_grid_cell(renderer_layout, 1, 3), string_pushf(frame_arena, "%d", renderer->stat_initialized_buffer_count), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(renderer_layout, 1, 3), string_pushf(frame_arena, "%d / %d", renderer->stat_initialized_buffer_count, MATERIAL_DRAW_BUFFER_CAPACITY), default_theme->label_default);
         ui_label(ctx, layout_grid_cell(renderer_layout, 2, 1), string("Avg. Probe"), default_theme->label_bold);
         ui_label(ctx, layout_grid_cell(renderer_layout, 3, 1), string_pushf(frame_arena, "%0.2f", renderer->stat_probe_count_sum / (float32)renderer->stat_probe_count), default_theme->label_default);
         ui_label(ctx, layout_grid_cell(renderer_layout, 2, 2), string("Max Probe"), default_theme->label_bold);
