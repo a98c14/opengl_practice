@@ -57,28 +57,14 @@ ui_label(UIContext* ctx, Rect container, String str, StyleLabel style)
 }
 
 internal bool32
-ui_slider(UIContext* ctx, String label, Range range, float32* value)
+ui_slider(UIContext* ctx, Rect rect, UIID id, String label, Range range, float32* value, StyleSlider style)
 {
-    // TODO: use an actual id
-    int32 name_hash = hash_string(label);
-    UIID id = uuid_new(name_hash, 0);
-    UIFrame* frame = ui_active_frame(ctx);
-    Rect row = rect(0, 0, frame->cursor.w, ctx->theme->line_height);
-    row = rect_anchor(row, frame->cursor, ANCHOR_TL_TL);
-    frame->cursor = rect_move(frame->cursor, vec2(0, -row.h));
-    Alignment alignment = AlignmentLeft;
-    Rect inner_row = rect_shrink(row, vec2(ctx->theme->padding.x*2, 0));
-    draw_text(ctx->dc, rect_relative(inner_row, alignment), string_pushf(ctx->frame_arena, "%s: %0.2f", label.value, *value), alignment, ctx->theme->font_default);
-
-    Rect slider_row = ui_row(ctx, frame);
-    slider_row = rect_shrink(slider_row, vec2(ctx->theme->padding.x*2, 5));
-    draw_rect(ctx->dc, slider_row, 0, 1, ctx->theme->rect_slider_bar);
-
+    draw_rect(ctx->dc, rect, 0, SORT_LAYER_INDEX_DEFAULT+1, style.slider);
     float32 normalized = (*value - range.min) / (range.max - range.min);
-    float32 left = rect_left(slider_row);
-    float32 right = rect_right(slider_row);
-    float32 x = left + slider_row.w * normalized;
-    Circle handle = circle(vec2(x, slider_row.y), px(20));
+    float32 left = rect_left(rect);
+    float32 right = rect_right(rect);
+    float32 x = left + rect.w * normalized;
+    Circle handle = circle(vec2(x, rect.y), px(20));
     bool32 hover = intersects_circle_point(handle, ctx->mouse.world);
     if(hover && ui_is_free(ctx) && input_mouse_pressed(ctx->mouse, MouseButtonStateLeft))
     {
@@ -89,7 +75,7 @@ ui_slider(UIContext* ctx, String label, Range range, float32* value)
     {
         float32 new_x = sub_vec2(ctx->mouse.world, ctx->drag_offset).x;
         new_x = clamp(left, new_x, right);
-        *value = (new_x - left) / slider_row.w * (range.max - range.min);
+        *value = (new_x - left) / rect.w * (range.max - range.min);
     }
     else if(ui_is_active(ctx, id) && input_mouse_released(ctx->mouse, MouseButtonStateLeft))
     {

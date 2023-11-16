@@ -53,6 +53,8 @@ theme_init_default(Arena* arena, Renderer* renderer)
     t->window_default.header_font = t->font_window_header;
     t->window_default.padding = t->p2;
 
+    t->slider_default.slider = t->rect_slider_bar;
+
     /* labels */
     t->label_default.font = t->font_default_light;
     // t->label_default.font.font_size = px(20);

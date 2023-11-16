@@ -47,6 +47,8 @@ typedef struct
     StyleLabel label_bold;
     StyleLabel label_debug;
 
+    StyleSlider slider_default;
+
     /* Global Styles */
     Vec2 padding;
     float32 line_height;

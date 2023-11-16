@@ -53,7 +53,7 @@ int main(void)
     bool32 window_is_enabled = 1;
     float32 slider_value = 4;
     InputMouse mouse = {0};
-    
+
     Profiler* main_frame = profiler_new(persistent_arena, string("Total"));
     Profiler* update = profiler_new(persistent_arena, string("Update"));
     Profiler* render = profiler_new(persistent_arena, string("Render"));
@@ -95,10 +95,7 @@ int main(void)
             {
 
             }
-            if(ui_slider(ctx, string("Coords"), range(0, 10), &slider_value))
-            {
-                
-            }
+            
         }
         ui_window_end(ctx);
 
@@ -109,20 +106,17 @@ int main(void)
         window_update(window);
         profiler_end(render);
 
-        
-        
         UIWindow window = ui_window(ctx, &window_rect, uuid_new(1, 0), string("new window"), &is_expanded, default_theme->window_default);
         if(window.is_expanded)
         {
             LayoutStack layout = layout_stack(window.header, em(1), vec2(4, 4), 4);
             ui_label(ctx, layout_stack_push(&layout), string("First line"), default_theme->label_default);
             ui_label(ctx, layout_stack_push(&layout), string("Second line"), default_theme->label_default);
-            ui_label(ctx, layout_stack_push(&layout), string("Third line"), default_theme->label_default);
+            ui_label(ctx, layout_stack_push(&layout), string_pushf(frame_arena, "Slider: %f", slider_value), default_theme->label_default);
+            ui_slider(ctx, layout_stack_push(&layout), uuid_new(2, 0), string("Coords"), range(0, 10), &slider_value, default_theme->slider_default);
             ui_container(ctx, layout_stack_container(&layout), default_theme->container_light);
         }
 
-
-        
         if(cache_clock > cache_rate)
         {
             profiler_refresh_cache(main_frame);
@@ -130,7 +124,7 @@ int main(void)
             profiler_refresh_cache(render);
             cache_clock = 0;
         }
-        
+
         editor_draw_stats(persistent_arena, frame_arena, renderer, ctx, default_theme, time, main_frame, update, render, screen, mouse);
         cache_clock += time.dt;
         arena_reset(frame_arena);

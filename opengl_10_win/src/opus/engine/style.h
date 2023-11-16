@@ -1,3 +1,4 @@
+// TODO: Move styles to `/ui` folder
 #pragma once
 
 #include <core/defines.h>
@@ -57,6 +58,12 @@ typedef struct
     StyleRect background;
     StyleText font;
 } StyleLabel;
+
+typedef struct
+{
+    StyleRect slider;
+
+} StyleSlider;
 
 internal StyleText
 font_style_override_size(StyleText style, float32 new_size);

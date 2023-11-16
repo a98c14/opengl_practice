@@ -20,7 +20,7 @@ internal void
 ui_label(UIContext* ctx, Rect container, String str, StyleLabel style);
 
 internal bool32
-ui_slider(UIContext* ctx, String label, Range range, float32* value);
+ui_slider(UIContext* ctx, Rect rect, UIID id, String label, Range range, float32* value, StyleSlider style);
 
 internal bool32
 ui_button(UIContext* ctx, String label);
