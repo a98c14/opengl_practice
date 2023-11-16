@@ -238,19 +238,29 @@ renderer_get_material_buffer(Renderer* renderer, ViewType view_type, SortLayerIn
     MaterialDrawBuffer* buffer = NULL;
     for(int16 draw_buffer_index = initial_index; draw_buffer_index < initial_index + MATERIAL_DRAW_BUFFER_MAX_PROBE; draw_buffer_index++)
     {
+        int32 probe_count = draw_buffer_index - initial_index;
         buffer = &renderer->draw_state->material_draw_buffers[draw_buffer_index % MATERIAL_DRAW_BUFFER_CAPACITY];
 
         // if the buffer doesn't have enough space for the request, skip it
         if(buffer->key == key && buffer->element_count + available_space >= MATERIAL_DRAW_BUFFER_ELEMENT_CAPACITY) 
             continue;
-
+        
         // if target buffer is found, exit
         if(buffer->key == key)
+        {
+            renderer->stat_probe_count_max = max(renderer->stat_probe_count_max, probe_count);
+            renderer->stat_probe_count_sum += probe_count;
+            renderer->stat_probe_count++;
             break;
+        }
 
         // if the slot is empty and we are still in probe range, initialize the buffer
         if(buffer->key == MATERIAL_DRAW_BUFFER_EMPTY_KEY)
         {
+            renderer->stat_probe_count_max = max(renderer->stat_probe_count_max, probe_count);
+            renderer->stat_probe_count_sum += probe_count;
+            renderer->stat_probe_count++;
+
             log_debug("initializing material buffer, sort:%d layer:%d view:%d texture:%d geometry:%d material:%d buffer_index:%03d instanced:%d", sort_layer, layer, view_type, texture, geometry, material_index, draw_buffer_index, renderer->materials[material_index].is_instanced);
             const Material* material = &renderer->materials[material_index];
             xassert(material->is_initialized, "material isn't initialized");
@@ -358,9 +368,10 @@ renderer_get_material_buffer(Renderer* renderer, ViewType view_type, SortLayerIn
             int32 setting_internal_index = geometry_draw_buffer->material_count;
             log_trace("draw buffer internal_index: %d", setting_internal_index);
             xassert(setting_internal_index < MATERIAL_DRAW_BUFFER_CAPACITY_PER_SETTING, "material internal index exceeded MATERIAL_CAPACITY");
-             geometry_draw_buffer->material_buffer_indices[setting_internal_index];
-             geometry_draw_buffer->material_buffer_indices[setting_internal_index] = draw_buffer_index;
-             geometry_draw_buffer->material_count++;
+            geometry_draw_buffer->material_buffer_indices[setting_internal_index];
+            geometry_draw_buffer->material_buffer_indices[setting_internal_index] = draw_buffer_index;
+            geometry_draw_buffer->material_count++;
+            renderer->stat_initialized_buffer_count++;
             break;
         }
     }
@@ -493,6 +504,8 @@ renderer_render(Renderer* renderer, float32 dt)
     Camera* camera = &renderer->camera;
     RendererDrawState* state = renderer->draw_state;
     renderer->timer += dt;
+    renderer->stat_draw_count = 0;
+    renderer->stat_object_count = 0;
 
     /* setup global shader data */
     GlobalUniformData global_shader_data = {0};
@@ -569,6 +582,8 @@ renderer_render(Renderer* renderer, float32 dt)
                                 glBindBuffer(GL_SHADER_STORAGE_BUFFER, material->uniform_buffer_id);
                                 glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, material->uniform_data_size * material_draw_buffer->element_count, material_draw_buffer->shader_data_buffer);
                                 glDrawElementsInstanced(GL_TRIANGLES, geometry.index_count, GL_UNSIGNED_INT, 0, material_draw_buffer->element_count);
+                                renderer->stat_draw_count++;
+                                renderer->stat_object_count += material_draw_buffer->element_count;
                             }
                             else
                             {
@@ -581,7 +596,9 @@ renderer_render(Renderer* renderer, float32 dt)
                                     glBufferSubData(GL_UNIFORM_BUFFER, 0, material->uniform_data_size, shader_data);
                                     glUniformMatrix4fv(material->location_model, 1, GL_FALSE, model.v);
                                     glDrawElements(GL_TRIANGLES, geometry.index_count, GL_UNSIGNED_INT, 0);
+                                    renderer->stat_draw_count++;
                                 }
+                                renderer->stat_object_count += material_draw_buffer->element_count;
                             }
                             material_draw_buffer->element_count = 0;
                         }

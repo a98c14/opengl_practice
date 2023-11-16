@@ -15,9 +15,9 @@
 #define SORTING_LAYER_CAPACITY 16
 #define SORT_LAYER_INDEX_DEFAULT 8
 
-#define MATERIAL_DRAW_BUFFER_CAPACITY_PER_SETTING 128
+#define MATERIAL_DRAW_BUFFER_CAPACITY_PER_SETTING 16
 #define MATERIAL_DRAW_BUFFER_CAPACITY 512
-#define MATERIAL_DRAW_BUFFER_ELEMENT_CAPACITY 8192*4
+#define MATERIAL_DRAW_BUFFER_ELEMENT_CAPACITY 8192
 
 // TEMP: testing global variable solution out. Potentially dangerous?
 global float32 _pixel_per_unit = 1;
@@ -254,6 +254,13 @@ typedef struct
     uint8 material_count;
     Material* materials;
 
+    /* stats */
+    uint32 stat_draw_count;
+    uint32 stat_object_count;
+    uint16 stat_initialized_buffer_count;
+    uint32 stat_probe_count_max;
+    uint64 stat_probe_count;
+    float32 stat_probe_count_sum;
 } Renderer;
 
 typedef struct

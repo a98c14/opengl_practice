@@ -150,21 +150,36 @@ int main(void)
         ui_label(ctx, layout_grid_cell(input_layout, 0, 2), string("MouseButton:"), default_theme->label_bold);
         ui_label(ctx, layout_grid_cell(input_layout, 1, 2), string_pushf(frame_arena, "0x%x", mouse.button_state), default_theme->label_default);
 
-        /* engine info */
-        Rect engine_info_container = ui_container(ctx, rect_anchor(rect(2, 0, 200, row_height * row_count), input_info_container, ANCHOR_TR_TL), default_theme->container_default);
-        LayoutGrid engine_layout = layout_grid(engine_info_container, 4, row_count, vec2(4, 4));
-        ui_label(ctx, layout_grid_cell(engine_layout, 0, 0), string("Memory"), default_theme->label_bold);
-        ui_label(ctx, layout_grid_cell(engine_layout, 1, 0), string("Used"), default_theme->label_bold);
-        ui_label(ctx, layout_grid_cell(engine_layout, 2, 0), string("Available"), default_theme->label_bold);
-        ui_label(ctx, layout_grid_cell(engine_layout, 3, 0), string("Percentage"), default_theme->label_bold);
-        ui_label(ctx, layout_grid_cell(engine_layout, 0, 1), string("Persistent"), default_theme->label_bold);
-        ui_label(ctx, layout_grid_cell(engine_layout, 1, 1), string_pushf(frame_arena, "%0.2fmb", (float32)to_mb(persistent_arena->pos)), default_theme->label_default);
-        ui_label(ctx, layout_grid_cell(engine_layout, 2, 1), string_pushf(frame_arena, "%0.2fmb", (float32)to_mb(persistent_arena->cap)), default_theme->label_default);
-        ui_label(ctx, layout_grid_cell(engine_layout, 3, 1), string_pushf(frame_arena, "%0.2f%%", 100 * (float32)to_mb(persistent_arena->pos) / (float32)to_mb(persistent_arena->cap)), default_theme->label_default);
-        ui_label(ctx, layout_grid_cell(engine_layout, 0, 2), string("Frame"), default_theme->label_bold);
-        ui_label(ctx, layout_grid_cell(engine_layout, 1, 2), string_pushf(frame_arena, "%0.2fmb", (float32)to_mb(frame_arena->pos)), default_theme->label_default);
-        ui_label(ctx, layout_grid_cell(engine_layout, 2, 2), string_pushf(frame_arena, "%0.2fmb", (float32)to_mb(frame_arena->cap)), default_theme->label_default);
-        ui_label(ctx, layout_grid_cell(engine_layout, 3, 2), string_pushf(frame_arena, "%0.2f%%", 100 * (float32)to_mb(frame_arena->pos) / (float32)to_mb(frame_arena->cap)), default_theme->label_default);
+        /* memory info */
+        Rect memory_info_container = ui_container(ctx, rect_anchor(rect(2, 0, 200, row_height * row_count), input_info_container, ANCHOR_TR_TL), default_theme->container_default);
+        LayoutGrid memory_layout = layout_grid(memory_info_container, 4, row_count, vec2(4, 4));
+        ui_label(ctx, layout_grid_cell(memory_layout, 0, 0), string("Memory"), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(memory_layout, 1, 0), string("Used"), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(memory_layout, 2, 0), string("Available"), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(memory_layout, 3, 0), string("Ratio"), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(memory_layout, 0, 1), string("Persistent"), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(memory_layout, 1, 1), string_pushf(frame_arena, "%0.2fmb", (float32)to_mb(persistent_arena->pos)), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(memory_layout, 2, 1), string_pushf(frame_arena, "%0.2fmb", (float32)to_mb(persistent_arena->cap)), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(memory_layout, 3, 1), string_pushf(frame_arena, "%0.2f%%", 100 * (float32)to_mb(persistent_arena->pos) / (float32)to_mb(persistent_arena->cap)), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(memory_layout, 0, 2), string("Frame"), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(memory_layout, 1, 2), string_pushf(frame_arena, "%0.2fmb", (float32)to_mb(frame_arena->pos)), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(memory_layout, 2, 2), string_pushf(frame_arena, "%0.2fmb", (float32)to_mb(frame_arena->cap)), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(memory_layout, 3, 2), string_pushf(frame_arena, "%0.2f%%", 100 * (float32)to_mb(frame_arena->pos) / (float32)to_mb(frame_arena->cap)), default_theme->label_default);
+
+        /* renderer info */
+        Rect renderer_info_container = ui_container(ctx, rect_anchor(rect(2, 0, 200, row_height * row_count), memory_info_container, ANCHOR_TR_TL), default_theme->container_default);
+        LayoutGrid renderer_layout = layout_grid(renderer_info_container, 4, row_count, vec2(4, 4));
+        ui_label(ctx, layout_grid_cell(renderer_layout, 0, 0), string("Renderer"), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(renderer_layout, 0, 1), string("Draw Count"), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(renderer_layout, 1, 1), string_pushf(frame_arena, "%d", renderer->stat_draw_count), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(renderer_layout, 0, 2), string("Object Count"), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(renderer_layout, 1, 2), string_pushf(frame_arena, "%d", renderer->stat_object_count), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(renderer_layout, 0, 3), string("Buffer Count"), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(renderer_layout, 1, 3), string_pushf(frame_arena, "%d", renderer->stat_initialized_buffer_count), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(renderer_layout, 2, 1), string("Avg. Probe"), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(renderer_layout, 3, 1), string_pushf(frame_arena, "%0.2f", renderer->stat_probe_count_sum / (float32)renderer->stat_probe_count), default_theme->label_default);
+        ui_label(ctx, layout_grid_cell(renderer_layout, 2, 2), string("Max Probe"), default_theme->label_bold);
+        ui_label(ctx, layout_grid_cell(renderer_layout, 3, 2), string_pushf(frame_arena, "%d", renderer->stat_probe_count_max), default_theme->label_default);
         arena_reset(frame_arena);
     }
 
