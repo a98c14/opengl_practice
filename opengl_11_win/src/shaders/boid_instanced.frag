@@ -1,5 +1,10 @@
 #version 430 core
 
+struct ShaderData
+{
+    vec4 color;
+};
+
 layout(location = 0) in vec3 a_pos;
 layout(location = 1) in vec3 a_color;
 layout(location = 2) in vec2 a_tex_coord;
@@ -15,16 +20,27 @@ layout (std140, binding = 1) uniform Texture
     float texture_layer_count;
 };
 
-layout (std140, binding = 2) uniform Custom
+layout (std140, binding = 2) uniform Camera
 {
-    vec4 u_color;
+    mat4 projection;
+    mat4 view;
 };
 
-uniform mat4 u_mvp;
+layout (std140, binding = 3) buffer Matrices
+{
+    mat4 model[];
+};
+
+layout (std140, binding = 4) buffer Custom
+{
+    ShaderData data[];
+};
+
 uniform sampler2D u_main_texture;
 
 /* Vertex Data */
 in vec2 v_tex_coord;
+flat in int v_instance_id;
 
 out vec4 color;
 
@@ -48,5 +64,5 @@ void main() {
     float d = sd_triangle_isosceles(uv, vec2(0.8, 1.6));
     d = smoothstep(0.0, dxy.x * smoothness, d);
     d = 1 - d;
-    color = vec4(u_color.xyz, d * u_color.a);
+    color = vec4(data[v_instance_id].color.xyz, d * data[v_instance_id].color.a);
 }

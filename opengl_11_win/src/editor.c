@@ -36,7 +36,7 @@ editor_draw_stats(Arena* persistent_arena, Arena* frame_arena, Renderer* rendere
     ui_label(ctx, layout_grid_cell(layout, 3, 5), string_pushf(frame_arena, "%0.02fms", render->cached_max), default_theme->label_default);
     
     /* input info */
-    Rect input_info_container = ui_container(ctx, rect_anchor(rect(2, 0, 2 * col_width, row_height * row_count), timing_info_container, ANCHOR_TR_TL), default_theme->container_default);
+    Rect input_info_container = ui_container(ctx, rect_anchor(rect(2, 0, 2 * (col_width+5), row_height * row_count), timing_info_container, ANCHOR_TR_TL), default_theme->container_default);
     LayoutGrid input_layout = layout_grid(input_info_container, 2, row_count, vec2(4, 4));
     ui_label(ctx, layout_grid_cell(input_layout, 0, 1), string("Mouse:"), default_theme->label_bold);
     ui_label(ctx, layout_grid_cell(input_layout, 1, 1), string_pushf(frame_arena, "[%0.2f, %0.2f]", mouse.world.x, mouse.world.y), default_theme->label_default);

@@ -46,10 +46,10 @@ draw_context_new(Arena* arena, Renderer* renderer)
 
     draw_context->material_boid = material_new(
         renderer,
-        file_read_all_as_string(arena, string("..\\src\\shaders\\boid.vert")),
-        file_read_all_as_string(arena, string("..\\src\\shaders\\boid.frag")),
+        file_read_all_as_string(arena, string("..\\src\\shaders\\boid_instanced.vert")),
+        file_read_all_as_string(arena, string("..\\src\\shaders\\boid_instanced.frag")),
         sizeof(ShaderDataBoid),
-        false);
+        true);
 
     draw_context->material_circle = material_new(
         renderer,

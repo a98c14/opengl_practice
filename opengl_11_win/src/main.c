@@ -56,7 +56,7 @@ int main(void)
     Profiler* render = profiler_new(persistent_arena, string("Render"));
     const float32 cache_rate = 0.2;
     float32 cache_clock = 0;
-    Rect window_rect = rect(200, 100, 100, 100);
+    Rect window_rect = rect(200, 100, 70, 100);
     bool32 is_expanded = false;
 
     /* main loop */
@@ -80,15 +80,21 @@ int main(void)
         StyleRect header_style = default_theme->rect_default;
         header_style.color = color_to_vec4(ColorRed900);
         header_style.border_radius = (BorderRadius){ .bl = 0, .br = 0, .tr = 2, .tl = 2 };
-        draw_line(dc, vec2(-50, 0), vec2(50, 0), ColorRed900, 1.6);
-        draw_line(dc, vec2(0, -50), vec2(0, 50), ColorRed900, 1.6);
+        draw_line(dc, vec2(-50, 0), vec2(50, 0), ColorRed900, 1.1);
+        draw_line(dc, vec2(0, -50), vec2(0, 50), ColorRed900, 1.1);
+
+        
+        draw_boid(dc, vec2(10, 10), vec2_zero(), 10, ColorWhite);
+        draw_boid(dc, vec2(30, 10), vec2_zero(), 10, ColorWhite);
+        draw_boid(dc, vec2(10, 30), vec2_zero(), 10, ColorWhite);
+
 
         profiler_end(update);
         /* frame: render */
         profiler_begin(render);
         renderer_render(renderer, time.dt);
         window_update(window);
-            profiler_end(render);
+        profiler_end(render);
 
         UIWindow window = ui_window(ctx, &window_rect, uuid_new(1, 0), string("new window"), &is_expanded, default_theme->window_default);
         if(window.is_expanded)

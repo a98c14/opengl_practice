@@ -59,12 +59,21 @@ ui_label(UIContext* ctx, Rect container, String str, StyleLabel style)
 internal bool32
 ui_slider(UIContext* ctx, Rect rect, UIID id, String label, Range range, float32* value, StyleSlider style)
 {
-    draw_rect(ctx->dc, rect, 0, SORT_LAYER_INDEX_DEFAULT+1, style.slider);
+    const float32 handle_radius = px(20);
+
+    // draw bar
+    Rect bar = rect;
+    draw_rect(ctx->dc, bar, 0, SORT_LAYER_INDEX_DEFAULT+1, style.slider);
+
+    // since handle is centered at the origin, this reduces the overflow
+    // that happens when the handle is at max/min
+    rect.w -= handle_radius / 2; 
     float32 normalized = (*value - range.min) / (range.max - range.min);
     float32 left = rect_left(rect);
     float32 right = rect_right(rect);
     float32 x = left + rect.w * normalized;
-    Circle handle = circle(vec2(x, rect.y), px(20));
+
+    Circle handle = circle(vec2(x, rect.y), handle_radius);
     bool32 hover = intersects_circle_point(handle, ctx->mouse.world);
     if(hover && ui_is_free(ctx) && input_mouse_pressed(ctx->mouse, MouseButtonStateLeft))
     {
@@ -84,7 +93,6 @@ ui_slider(UIContext* ctx, Rect rect, UIID id, String label, Range range, float32
 
     Color c = hover ? ColorRed400 : ColorRed600;
     draw_circle_filled(ctx->dc, handle, c);
-
     return ui_is_active(ctx, id);
 }
 
