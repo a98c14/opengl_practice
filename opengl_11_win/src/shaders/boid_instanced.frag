@@ -56,7 +56,7 @@ float sd_triangle_isosceles(in vec2 p, in vec2 q)
 }
 
 void main() {
-    float smoothness = 3;
+    float smoothness = 5;
     vec2 dxy = fwidth(v_tex_coord);
     vec2 uv = v_tex_coord;
     uv = uv * 2.0 - 1.0;
