@@ -5,7 +5,7 @@ global FILE* log_file;
 internal void 
 log_output(LogLevel level, const char* message, ...)
 {
-    const char* level_strings[6] = { "[FATAL]: ", "[ERROR]: ", "[WARN]: ", "[INFO]: ", "[DEBUG]: ", "[TRACE]: "};
+    const char* level_strings[6] = { "[FATAL] ", "[ERROR] ", "[WARN] ", "[INFO] ", "[DEBUG] ", "[TRACE] "};
     bool32 is_error = level <= LogLevelError;
 
     char out_buffer[LOG_MESSAGE_SIZE_LIMIT];
@@ -17,7 +17,7 @@ log_output(LogLevel level, const char* message, ...)
     va_end(arg_ptr);
 
     char print_buffer[LOG_MESSAGE_SIZE_LIMIT];
-    sprintf(print_buffer, "%s%s\n", level_strings[level], out_buffer);
+    sprintf(print_buffer, "%-8s%s\n", level_strings[level], out_buffer);
 
 #if LOG_TO_FILE == 1
     char date_buffer[128];

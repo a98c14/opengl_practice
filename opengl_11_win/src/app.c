@@ -10,6 +10,7 @@ key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 internal Engine*
 engine_init()
 {
+    logger_init();
     Arena* persistent_arena = make_arena_reserve(mb(512));
     Arena* frame_arena = make_arena_reserve(mb(256));
     Window* window = window_create(persistent_arena, WINDOW_WIDTH, WINDOW_HEIGHT, "Simple Example", key_callback);
@@ -49,6 +50,7 @@ engine_init()
     engine->mouse = (InputMouse){0};
     engine->cache_rate = 0.2;
     engine->cache_clock = 0;
+    log_info("engine initialized successfully");
     return engine;
 }
 
@@ -63,6 +65,9 @@ engine_frame_start(Engine* engine)
     engine->ctx->mouse = engine->mouse;
     engine->ctx->time = engine->time;
     profiler_begin(engine->update);
+    
+    draw_line(engine->draw_context, vec2(-50, 0), vec2(50, 0), ColorRed900, 1.1);
+    draw_line(engine->draw_context, vec2(0, -50), vec2(0, 50), ColorRed900, 1.1);
 }
 
 internal void

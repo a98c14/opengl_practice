@@ -26,5 +26,5 @@ Push-Location $PSScriptRoot/../
 New-Item -ItemType Directory -Force -Path $output_path;
 $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 cl $compile_args $source_file_path /link $link_args;
-Write-Host "Build Time: $(($stopwatch.ElapsedMilliseconds / 1000).ToString())s"
+Write-Host "[BUILD] time: $(($stopwatch.ElapsedMilliseconds / 1000).ToString())s"
 Pop-Location
