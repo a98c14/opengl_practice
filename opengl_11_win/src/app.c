@@ -65,9 +65,24 @@ engine_frame_start(Engine* engine)
     engine->ctx->mouse = engine->mouse;
     engine->ctx->time = engine->time;
     profiler_begin(engine->update);
-    
-    draw_line(engine->draw_context, vec2(-50, 0), vec2(50, 0), ColorRed900, 1.1);
-    draw_line(engine->draw_context, vec2(0, -50), vec2(0, 50), ColorRed900, 1.1);
+
+    float32 left = -engine->renderer->world_width / 2.0f;
+    float32 right = engine->renderer->world_width / 2.0f;
+    float32 bottom = -engine->renderer->world_height / 2.0f;
+    float32 top = engine->renderer->world_height / 2.0f;
+    int32 grid_cols = 10;
+    int32 grid_rows = (int32)(1+grid_cols*engine->renderer->world_height/engine->renderer->world_width);
+    float32 col_width = (right - left) / grid_cols;
+
+    for(int32 y = 0; y < grid_rows; y++)
+    {
+        draw_line(engine->draw_context, vec2(left, bottom + col_width * y), vec2(right, bottom + col_width * y), ColorSlate700, 1.1);
+    }
+
+    for(int32 x = 0; x < grid_cols; x++)
+    {
+        draw_line(engine->draw_context, vec2(left + x * col_width, top), vec2(left + x * col_width, bottom), ColorSlate700, 1.1);
+    }
 }
 
 internal void

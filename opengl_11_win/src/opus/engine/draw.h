@@ -122,7 +122,7 @@ internal void
 draw_circle_filled(DrawContext* dc, Circle circle, Color color);
 
 internal void
-draw_boid(DrawContext* dc, Vec2 position, Vec2 direction, float32 size, Color color);
+draw_boid(DrawContext* dc, Vec2 position, float32 rotation, float32 size, Color color);
 
 internal void
 draw_triangle(DrawContext* dc, Vec2 position, float32 rotation, Color color, float32 size, SortLayerIndex sort_index);
