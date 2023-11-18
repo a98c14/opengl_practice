@@ -3,7 +3,7 @@ $output_path = ".\dist";
 $source_file_path = ".\src\main.c";
 
 $compile_args = @(
-    "/O2",
+    # "/O2",
     "/Zi",
     "/nologo",
     "/Fd:""$output_path\$app_name.pdb""",
@@ -24,5 +24,7 @@ $link_args = @(
 
 Push-Location $PSScriptRoot/../
 New-Item -ItemType Directory -Force -Path $output_path;
+$stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 cl $compile_args $source_file_path /link $link_args;
+Write-Host "Build Time: $(($stopwatch.ElapsedMilliseconds / 1000).ToString())s"
 Pop-Location
