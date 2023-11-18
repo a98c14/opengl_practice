@@ -31,6 +31,11 @@ int main(void)
         directions[i] = mul_vec2_f32(vec2_right(), 50);
     }
 
+    float32 world_width = e->renderer->world_width;
+    float32 world_height = e->renderer->world_height;
+    float32 world_half_width = e->renderer->world_width  / 2.0f;
+    float32 world_half_height = e->renderer->world_height / 2.0f;
+
     /* main loop */
     while (!glfwWindowShouldClose(e->window->glfw_window))
     {
@@ -39,7 +44,12 @@ int main(void)
 
         /* move */
         for(int32 i = 0; i < boid_count; i++ )
-            positions[i] = add_vec2(positions[i], mul_vec2_f32(directions[i], e->time.dt));
+        {
+            Vec2 new_pos = add_vec2(positions[i], mul_vec2_f32(directions[i], e->time.dt));
+            // teleport to the otherside of the screen if out of vision
+            positions[i].x = fmod((new_pos.x + world_half_width), world_width) - world_half_width;
+            positions[i].y = fmod((new_pos.y + world_half_height), world_height) - world_half_height;
+        }
 
         /* calculate rotations */
         for(int32 i = 0; i < boid_count; i++ )
