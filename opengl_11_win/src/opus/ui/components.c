@@ -60,6 +60,7 @@ internal bool32
 ui_slider(UIContext* ctx, Rect rect, UIID id, String label, Range range, float32* value, StyleSlider style)
 {
     const float32 handle_radius = px(20);
+    *value = clamp(range.min, *value, range.max);
 
     // draw bar
     Rect bar = rect;

@@ -111,7 +111,7 @@ layout_grid(Rect container, int32 columns, int32 rows, Vec2 padding)
 internal Rect
 layout_grid_container(LayoutGrid layout)
 {
-	return rect_expand(layout.base_container, layout.padding);
+	return rect_expand(layout.base_container, mul_vec2_f32(layout.padding, 2));
 }
 
 internal Rect
@@ -132,7 +132,7 @@ layout_grid_multicell(LayoutGrid layout, int32 column, int32 row, int32 column_c
 	float32 h = layout.cell_size.h * row_count;
 	Vec2 tl = rect_tl(layout.base_container);
 	float32 x = tl.x + column * layout.cell_size.w + w / 2;
-	float32 y = tl.y + row * layout.cell_size.h + h / 2;
+	float32 y = tl.y + row * layout.cell_size.h - h / 2;
 	return rect(x, y, w, h);
 }
 

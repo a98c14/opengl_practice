@@ -66,6 +66,7 @@ engine_frame_start(Engine* engine)
     engine->ctx->time = engine->time;
     profiler_begin(engine->update);
 
+    // draw grid
     float32 left = -engine->renderer->world_width / 2.0f;
     float32 right = engine->renderer->world_width / 2.0f;
     float32 bottom = -engine->renderer->world_height / 2.0f;

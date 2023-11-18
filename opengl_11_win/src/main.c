@@ -17,9 +17,9 @@ int main(void)
     Theme* t = e->theme;
 
     /* app initialization */
-    Rect window_rect = rect(200, 100, 70, 100);
+    Rect window_rect = rect(200, 100, 180, 100);
     bool32 is_expanded = false;
-    float32 slider_value = 4;
+    float32 dt_scale = 1;
 
     int32 boid_count = 1;
     Vec2* positions = arena_push_array_zero(e->persistent_arena, Vec2, boid_count);
@@ -28,13 +28,14 @@ int main(void)
 
     for(int32 i = 0; i < boid_count; i++)
     {
-        directions[i] = mul_vec2_f32(vec2_right(), 10);
+        directions[i] = mul_vec2_f32(vec2_right(), 50);
     }
 
     /* main loop */
     while (!glfwWindowShouldClose(e->window->glfw_window))
     {
         engine_frame_start(e);
+        e->time.dt *= dt_scale;
 
         /* move */
         for(int32 i = 0; i < boid_count; i++ )
@@ -49,20 +50,20 @@ int main(void)
             draw_boid(dc, positions[i], rotations[i], 5, ColorWhite);
 
         /* editor */
-        UIWindow window = ui_window(e->ctx, &window_rect, uuid_new(1, 0), string("new window"), &is_expanded, t->window_default);
+        UIWindow window = ui_window(e->ctx, &window_rect, uuid_new(1, 0), string("simulation"), &is_expanded, t->window_default);
         if(window.is_expanded)
         {
-            LayoutStack layout = layout_stack(window.header, em(1), vec2(4, 4), 2);
-            ui_label(e->ctx, layout_stack_push(&layout), string("First line"), t->label_default);
-            ui_label(e->ctx, layout_stack_push(&layout), string("Second line"), t->label_default);
-            ui_label(e->ctx, layout_stack_push(&layout), string_pushf(e->frame_arena, "Slider: %0.2f", slider_value), t->label_default);
-            ui_slider(e->ctx, layout_stack_push(&layout), uuid_new(2, 0), string("Coords"), range(0, 10), &slider_value, t->slider_default);
-            if(ui_button(e->ctx, layout_stack_push_scaled(&layout, 1.5), uuid_new(3, 0), string("Button"), t->button_default))
-            {
-                log_info("Clicked");
-            }
-            ui_label(e->ctx, layout_stack_push(&layout), string("Padtest"), t->label_default);
-            ui_container(e->ctx, layout_stack_container(&layout), t->container_light);
+            LayoutGrid layout = layout_grid(window.header, 3, 4, e->theme->p2);
+            ui_container(e->ctx, layout_grid_container(layout), t->container_light);
+            ui_label(e->ctx, layout_grid_cell(layout, 0, 0), string_pushf(e->frame_arena, "sim. speed: %0.2f", dt_scale), t->label_default);
+            ui_slider(e->ctx, layout_grid_multicell(layout, 1, 0, 2, 1), uuid_new(2, 0), string("Coords"), range(0, 4), &dt_scale, t->slider_default);
+            // ui_label(e->ctx, layout_stack_push(&layout), string("First line"), t->label_default);
+            // ui_label(e->ctx, layout_stack_push(&layout), string("Second line"), t->label_default);
+            // if(ui_button(e->ctx, layout_stack_push_scaled(&layout, 1.5), uuid_new(3, 0), string("Button"), t->button_default))
+            // {
+            //     log_info("Clicked");
+            // }
+            // ui_label(e->ctx, layout_stack_push(&layout), string("Padtest"), t->label_default);
         }
 
         engine_render(e);
