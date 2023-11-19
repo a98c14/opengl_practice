@@ -34,7 +34,7 @@ int main(void)
     float32 min_speed = 12;
     float32 max_speed = 64;
     float32 sight_range = -0.2;
-    int32 boid_count = 200;
+    int32 boid_count = 800;
     Vec2* positions = arena_push_array_zero(e->persistent_arena, Vec2, boid_count);
     Vec2* directions = arena_push_array_zero(e->persistent_arena, Vec2, boid_count);
     float32* rotations = arena_push_array_zero(e->persistent_arena, float32, boid_count);
@@ -180,7 +180,7 @@ int main(void)
 
         /* draw */
         for(int32 i = 0; i < boid_count; i++)
-            draw_boid(dc, positions[i], rotations[i], 5, ColorWhite);
+            draw_boid(dc, positions[i], rotations[i], 2, ColorWhite);
 
         /* editor */
         for(int32 i = 0; i < 1; i++)

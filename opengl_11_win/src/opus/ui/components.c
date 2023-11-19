@@ -85,7 +85,7 @@ ui_slider(UIContext* ctx, Rect rect, UIID id, Range range, float32* value, Style
     {
         float32 new_x = sub_vec2(ctx->mouse.world, ctx->drag_offset).x;
         new_x = clamp(left, new_x, right);
-        *value = (new_x - left) / rect.w * (range.max - range.min);
+        *value = (range.min + new_x - left) / rect.w * (range.max - range.min);
     }
     else if(ui_is_active(ctx, id) && input_mouse_released(ctx->mouse, MouseButtonStateLeft))
     {
