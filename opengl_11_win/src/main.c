@@ -119,7 +119,7 @@ int main(void)
                         
                         if(i == 0)
                         {
-                            draw_line(dc, pos, boid_pos, ColorTeal200, 2);
+                            draw_line(dc, pos, boid_pos, ColorTeal200, 1.8);
                         }
                     }
                 }
@@ -170,8 +170,8 @@ int main(void)
         {
             Vec2 new_pos = add_vec2(positions[i], mul_vec2_f32(directions[i], dt));
             // teleport to the otherside of the screen if out of vision
-            positions[i].x = fmod((new_pos.x + world_half_width), world_width) - world_half_width;
-            positions[i].y = fmod((new_pos.y + world_half_height), world_height) - world_half_height;
+            positions[i].x = fmod((new_pos.x + world_half_width + world_width), world_width) - world_half_width;
+            positions[i].y = fmod((new_pos.y + world_half_height + world_height), world_height) - world_half_height;
         }
 
         /* calculate rotations */
@@ -185,16 +185,18 @@ int main(void)
         /* editor */
         for(int32 i = 0; i < 1; i++)
         {
-            draw_line(dc, positions[i], add_vec2(positions[i], avoid_vectors[i]), ColorRed100, 2);
+            draw_line(dc, positions[i], add_vec2(positions[i], avoid_vectors[i]), ColorRed400, 2);
             draw_line(dc, positions[i], add_vec2(positions[i], cohesion_vectors[i]), ColorAmber200, 2);
             draw_line(dc, positions[i], add_vec2(positions[i], mul_vec2_f32(directions[i], 0.5)), ColorSlate300, 1.2);
             draw_circle(dc, positions[i], visual_range*2, ColorWhite);
+            draw_circle(dc, positions[i], avoid_range*2, ColorRed400);
         }
 
         UIWindow window = ui_window(e->ctx, &window_rect, uuid_new(1, 0), string("simulation"), &is_expanded, t->window_default);
         if(window.is_expanded)
         {
-            LayoutGrid layout = layout_grid(rect_anchor(rect_from_wh(window.header.w, em(2) * 4), window.header, ANCHOR_TL_TL), 3, 4, e->theme->p2);
+            uint32 row_count = 6;
+            LayoutGrid layout = layout_grid(rect_anchor(rect_from_wh(window.header.w, em(2) * row_count), window.header, ANCHOR_TL_TL), 3, row_count, e->theme->p2);
             ui_container(e->ctx, layout_grid_container(layout), t->container_light);
             ui_label(e->ctx, layout_grid_cell(layout, 0, 0), string_pushf(e->frame_arena, "sim.speed: %0.2f", dt_scale), t->label_default);
             ui_slider(e->ctx, layout_grid_multicell(layout, 1, 0, 2, 1), uuid_new(2, 0), range(0, 4), &dt_scale, t->slider_default);
@@ -204,6 +206,10 @@ int main(void)
             ui_slider(e->ctx, layout_grid_multicell(layout, 1, 2, 2, 1), uuid_new(4, 0), range(0, 1), &cohesion_factor, t->slider_default);
             ui_label(e->ctx, layout_grid_cell(layout, 0, 3), string_pushf(e->frame_arena, "alignment: %0.2f", alignment_factor), t->label_default);
             ui_slider(e->ctx, layout_grid_multicell(layout, 1, 3, 2, 1), uuid_new(5, 0), range(0, 1), &alignment_factor, t->slider_default);
+            ui_label(e->ctx, layout_grid_cell(layout, 0, 4), string_pushf(e->frame_arena, "visual_range: %0.0f", visual_range), t->label_default);
+            ui_slider(e->ctx, layout_grid_multicell(layout, 1, 4, 2, 1), uuid_new(6, 0), range(8, 128), &visual_range, t->slider_default);
+            ui_label(e->ctx, layout_grid_cell(layout, 0, 5), string_pushf(e->frame_arena, "avoid_range: %0.0f", avoid_range), t->label_default);
+            ui_slider(e->ctx, layout_grid_multicell(layout, 1, 5, 2, 1), uuid_new(7, 0), range(8, 128), &avoid_range, t->slider_default);
         }
 
         engine_render(e);
