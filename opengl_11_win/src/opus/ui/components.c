@@ -57,7 +57,7 @@ ui_label(UIContext* ctx, Rect container, String str, StyleLabel style)
 }
 
 internal bool32
-ui_slider(UIContext* ctx, Rect rect, UIID id, String label, Range range, float32* value, StyleSlider style)
+ui_slider(UIContext* ctx, Rect rect, UIID id, Range range, float32* value, StyleSlider style)
 {
     const float32 handle_radius = px(20);
     *value = clamp(range.min, *value, range.max);

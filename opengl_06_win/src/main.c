@@ -155,7 +155,6 @@ int main(void)
 
         draw_bounds(dc, bounds_left, bounds_right, bounds_bottom, bounds_top, ColorRed400);
 
-
         uint16* boid_bucket_indices = arena_push_array(frame_arena, uint16, boid_count);
         BoidBucketLookupArray* boid_lookup_buckets = arena_push_array(frame_arena, BoidBucketLookupArray, boid_count);
         calculate_bucket_indices(frame_arena, hash_map, positions, boid_bucket_indices, boid_lookup_buckets, boid_count);

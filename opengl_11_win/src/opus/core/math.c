@@ -344,6 +344,12 @@ len_vec2(Vec2 a)
 }
 
 internal float32 
+distsqr_vec2(Vec2 a, Vec2 b)
+{
+    return lensqr_vec2(sub_vec2(b, a));
+}
+
+internal float32 
 dist_vec2(Vec2 a, Vec2 b)
 {
     return len_vec2(sub_vec2(b, a));

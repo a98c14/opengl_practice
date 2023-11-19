@@ -153,6 +153,7 @@ internal Vec2 norm_vec2(Vec2 a);
 internal Vec3 norm_vec3(Vec3 a);
 internal float32 lensqr_vec2(Vec2 a);
 internal float32 len_vec2(Vec2 a);
+internal float32 distsqr_vec2(Vec2 a, Vec2 b);
 internal float32 dist_vec2(Vec2 a, Vec2 b);
 internal float32 angle_vec2(Vec2 v);
 
