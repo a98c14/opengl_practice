@@ -7,8 +7,8 @@
 
 #define WINDOW_WIDTH 2560
 #define WINDOW_HEIGHT 1440
-#define WORLD_WIDTH 1280.0f
-#define WORLD_HEIGHT 960.0f
+#define WORLD_WIDTH 640.0f
+#define WORLD_HEIGHT 480.0f
 #define PPU (1.0f / (WINDOW_WIDTH / WORLD_WITH)) // pixel per unit
 
 typedef struct

@@ -39,7 +39,6 @@ int main(void)
     Vec2* directions = arena_push_array_zero(e->persistent_arena, Vec2, boid_count);
     float32* rotations = arena_push_array_zero(e->persistent_arena, float32, boid_count);
     
-
     srand(632939018);
     for(int32 i = 0; i < boid_count; i++)
     {
@@ -70,7 +69,6 @@ int main(void)
         Vec2* alignment_vectors = arena_push_array_zero(e->frame_arena, Vec2, boid_count);
         Vec2* avoid_vectors = arena_push_array_zero(e->frame_arena, Vec2, boid_count);
         float32* speeds = arena_push_array_zero(e->frame_arena, float32, boid_count);
-
 
         /* preparation */
         calculate_bucket_indices(e->frame_arena, hash_map, positions, boid_bucket_indices, boid_lookup_buckets, boid_count);
@@ -106,7 +104,8 @@ int main(void)
 
                     if(d < avoid_range_sqr)
                     {
-                        Vec2 boid_avoid_vector = mul_vec2_f32(sub_vec2(boid_pos, pos), avoid_factor);
+                        Vec2 boid_avoid_vector = sub_vec2(boid_pos, pos);
+                        boid_avoid_vector = mul_vec2_f32(boid_avoid_vector, (d / avoid_range_sqr) * (d / avoid_range_sqr) * avoid_factor);
                         avoid_vector = add_vec2(avoid_vector, boid_avoid_vector);
                     }
 
@@ -140,6 +139,23 @@ int main(void)
             directions[i] = add_vec2(directions[i], mul_vec2_f32(cohesion_vectors[i], dt));
             directions[i] = add_vec2(directions[i], mul_vec2_f32(alignment_vectors[i], dt));
             directions[i] = add_vec2(directions[i], mul_vec2_f32(avoid_vectors[i], dt));
+        }
+        
+        if(e->mouse.button_state & MouseButtonStateLeft)
+        {
+            for(int i = 0; i < boid_count; i++)
+            {
+                Vec2 mouse_dir = sub_vec2(e->mouse.world, positions[i]);
+                directions[i] = add_vec2(directions[i], mul_vec2_f32(mouse_dir, dt));
+            }
+        }
+        else if (e->mouse.button_state & MouseButtonStateRight)
+        {
+            for(int i = 0; i < boid_count; i++)
+            {
+                Vec2 mouse_dir = sub_vec2(positions[i], e->mouse.world);
+                directions[i] = add_vec2(directions[i], mul_vec2_f32(mouse_dir, dt));
+            }
         }
 
         // calculate speeds
@@ -201,13 +217,13 @@ int main(void)
             ui_label(e->ctx, layout_grid_cell(layout, 0, 0), string_pushf(e->frame_arena, "sim.speed: %0.2f", dt_scale), t->label_default);
             ui_slider(e->ctx, layout_grid_multicell(layout, 1, 0, 2, 1), uuid_new(2, 0), range(0, 4), &dt_scale, t->slider_default);
             ui_label(e->ctx, layout_grid_cell(layout, 0, 1), string_pushf(e->frame_arena, "avoidance: %0.2f", avoid_factor), t->label_default);
-            ui_slider(e->ctx, layout_grid_multicell(layout, 1, 1, 2, 1), uuid_new(3, 0), range(0, 1), &avoid_factor, t->slider_default);
+            ui_slider(e->ctx, layout_grid_multicell(layout, 1, 1, 2, 1), uuid_new(3, 0), range(0, 3), &avoid_factor, t->slider_default);
             ui_label(e->ctx, layout_grid_cell(layout, 0, 2), string_pushf(e->frame_arena, "cohesion: %0.2f", cohesion_factor), t->label_default);
-            ui_slider(e->ctx, layout_grid_multicell(layout, 1, 2, 2, 1), uuid_new(4, 0), range(0, 1), &cohesion_factor, t->slider_default);
+            ui_slider(e->ctx, layout_grid_multicell(layout, 1, 2, 2, 1), uuid_new(4, 0), range(0, 3), &cohesion_factor, t->slider_default);
             ui_label(e->ctx, layout_grid_cell(layout, 0, 3), string_pushf(e->frame_arena, "alignment: %0.2f", alignment_factor), t->label_default);
-            ui_slider(e->ctx, layout_grid_multicell(layout, 1, 3, 2, 1), uuid_new(5, 0), range(0, 1), &alignment_factor, t->slider_default);
+            ui_slider(e->ctx, layout_grid_multicell(layout, 1, 3, 2, 1), uuid_new(5, 0), range(0, 3), &alignment_factor, t->slider_default);
             ui_label(e->ctx, layout_grid_cell(layout, 0, 4), string_pushf(e->frame_arena, "visual_range: %0.0f", visual_range), t->label_default);
-            ui_slider(e->ctx, layout_grid_multicell(layout, 1, 4, 2, 1), uuid_new(6, 0), range(8, 128), &visual_range, t->slider_default);
+            ui_slider(e->ctx, layout_grid_multicell(layout, 1, 4, 2, 1), uuid_new(6, 0), range(8, 256), &visual_range, t->slider_default);
             ui_label(e->ctx, layout_grid_cell(layout, 0, 5), string_pushf(e->frame_arena, "avoid_range: %0.0f", avoid_range), t->label_default);
             ui_slider(e->ctx, layout_grid_multicell(layout, 1, 5, 2, 1), uuid_new(7, 0), range(8, 128), &avoid_range, t->slider_default);
         }
