@@ -21,13 +21,16 @@ theme_init_default(Arena* arena, Renderer* renderer)
     t->rounded_lg   = (BorderRadius){ .bl = 20, .br = 20, .tr = 20, .tl = 20 };
     t->rounded_xl   = (BorderRadius){ .bl = 30, .br = 30, .tr = 30, .tl = 30 };
 
-    t->rect_default = (StyleRect){ .softness = 2, .color = color_to_vec4(ColorSlate800), .border_radius = t->rounded_sm };
+    t->rect_default = (StyleRect){ .softness = 2, .color = color_to_vec4(ColorSlate800_Transparent), .border_radius = t->rounded_sm };
     t->rect_debug = (StyleRect){ .border_thickness = 2, .softness = 0, .color = color_to_vec4(ColorInvisible), .border_color = color_to_vec4(ColorRed600), .border_radius = t->rounded_none };
     t->rect_view = (StyleRect){ .softness = 2, .color = color_to_vec4(ColorWhite100), .border_radius = { .bl = 3, .br = 3, .tr = 0, .tl = 0 } };
     t->rect_header = (StyleRect){ .border_thickness = 0, .softness = 2, .color = color_to_vec4(ColorSlate700), .border_color = color_to_vec4(ColorInvisible), .border_radius = { .bl = 0, .br = 0, .tr = 3, .tl = 3 } };
     t->rect_slider_bar = (StyleRect){ .softness = 2, .color = color_to_vec4(ColorBlack), .border_radius = t->rounded_sm };
     t->rect_button = (StyleRect){ .softness = 2, .color = color_to_vec4(ColorAmber600), .border_radius = t->rounded_sm };
     t->rect_button_hover = (StyleRect){ .softness = 2, .color = color_to_vec4(ColorAmber400), .border_radius = t->rounded_sm };
+    t->rect_toggle = (StyleRect){ .softness = 2, .color = color_to_vec4(ColorBlack), .border_radius = t->rounded_sm };
+    t->rect_toggle_active = (StyleRect){ .softness = 2, .color = color_to_vec4(ColorWhite), .border_radius = t->rounded_sm };
+    t->rect_toggle_hover = (StyleRect){ .softness = 2, .color = color_to_vec4(ColorBlack), .border_radius = t->rounded_sm };
     t->rect_container = (StyleRect){ .softness = 2, .color = color_to_vec4(ColorBlueShadow100), .border_radius = t->rounded_sm };
     
     t->rect_header_hover = t->rect_header;
@@ -59,6 +62,14 @@ theme_init_default(Arena* arena, Renderer* renderer)
     t->button_default.background_hover = t->rect_button_hover;
     t->button_default.font = t->font_default_light;
     t->button_default.padding = t->p0;
+
+    t->toggle_default.background = t->rect_button;
+    t->toggle_default.background_hover = t->rect_button_hover;
+    t->toggle_default.inner_background = t->rect_toggle;
+    t->toggle_default.inner_background_hover = t->rect_toggle_hover;
+    t->toggle_default.inner_background_active = t->rect_toggle_active;
+    t->toggle_default.font = t->font_default_light;
+    t->toggle_default.padding = t->p0;
 
     /* labels */
     t->label_default.font = t->font_default_light;

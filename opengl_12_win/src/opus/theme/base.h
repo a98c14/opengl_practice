@@ -29,6 +29,9 @@ typedef struct
     StyleRect rect_button;
     StyleRect rect_button_hover;
     StyleRect rect_container;
+    StyleRect rect_toggle;
+    StyleRect rect_toggle_active;
+    StyleRect rect_toggle_hover;
 
     StyleText font_default;
     StyleText font_default_light;
@@ -50,6 +53,7 @@ typedef struct
     StyleSlider slider_default;
 
     StyleButton button_default;
+    StyleToggleButton toggle_default;
 
     /* Global Styles */
     Vec2 padding;

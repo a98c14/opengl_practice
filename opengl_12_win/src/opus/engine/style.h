@@ -70,6 +70,17 @@ typedef struct
 
 typedef struct
 {
+    Vec2 padding;
+    StyleText font;
+    StyleRect background;
+    StyleRect background_hover;
+    StyleRect inner_background;
+    StyleRect inner_background_hover;
+    StyleRect inner_background_active;
+} StyleToggleButton;
+
+typedef struct
+{
     StyleRect slider;
 } StyleSlider;
 

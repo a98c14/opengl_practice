@@ -28,6 +28,11 @@ int main(void)
     float32 world_half_width = world_width / 2.0f;
     float32 world_half_height = world_height / 2.0f;
 
+    /* ui stuff */
+    Rect window_rect = rect(200, 100, 180, 100);
+    bool32 is_expanded = false;
+    bool32 is_lock_to_parent = false;
+
     const int32 joint_count = 3;
     const float32 length = 100;
     const float32 thickness = 3;
@@ -56,14 +61,21 @@ int main(void)
         Vec2 root_position = vec2_zero();
         Vec2 current_position = root_position;
 
-        angles[0] = 360 * fmod(e->time.current_frame / 4000.0f, 1.0f);
-        angles[1] = 360 * sin(e->time.current_frame / 2000.0f);
-        angles[2] = 360 * cos(e->time.current_frame / 1000.0f);
+        // angles[0] = 360 * fmod(e->time.current_frame / 4000.0f, 1.0f);
+        // angles[1] = 360 * sin(e->time.current_frame / 2000.0f);
+        // angles[2] = 360 * cos(e->time.current_frame / 1000.0f);
         
         for(int32 i = 0; i < joint_count; i++)
         {
             Vec2 position = current_position;
             float32 angle = angles[i];
+            if(is_lock_to_parent)
+            {
+                for(int j = 0; j < i; j++) 
+                {
+                    angle += angles[j];
+                }
+            }
             float32 radian = angle * PI_FLOAT32 / 180.0;
             float32 cosx = (float32)cosf(radian);
             float32 sinx = (float32)sinf(radian);
@@ -86,6 +98,21 @@ int main(void)
          * - set angle of each joint separately
          * - draw arrows from joins
          */
+        UIWindow window = ui_window(e->ctx, &window_rect, uuid_new(1, 0), string("simulation"), &is_expanded, t->window_default);
+        if(window.is_expanded)
+        {
+            uint32 row_count = 4;
+            LayoutGrid layout = layout_grid(rect_anchor(rect_from_wh(window.header.w, em(2) * row_count), window.header, ANCHOR_TL_TL), 3, row_count, e->theme->p2);
+            ui_container(e->ctx, layout_grid_container(layout), t->container_light);
+            ui_label(e->ctx, layout_grid_cell(layout, 0, 0), string_pushf(e->frame_arena, "Angle [0]: %0.2f", angles[0]), t->label_default);
+            ui_slider(e->ctx, layout_grid_multicell(layout, 1, 0, 2, 1), uuid_new(2, 0), range(-360, 360), &angles[0], t->slider_default);
+            ui_label(e->ctx, layout_grid_cell(layout, 0, 1), string_pushf(e->frame_arena, "Angle [1]: %0.2f", angles[1]), t->label_default);
+            ui_slider(e->ctx, layout_grid_multicell(layout, 1, 1, 2, 1), uuid_new(3, 0), range(-360, 360), &angles[1], t->slider_default);
+            ui_label(e->ctx, layout_grid_cell(layout, 0, 2), string_pushf(e->frame_arena, "Angle [2] %0.2f", angles[2]), t->label_default);
+            ui_slider(e->ctx, layout_grid_multicell(layout, 1, 2, 2, 1), uuid_new(4, 0), range(-360, 360), &angles[2], t->slider_default);
+            ui_label(e->ctx, layout_grid_cell(layout, 0, 3), string("Lock Parent:"), t->label_default);
+            ui_toggle(e->ctx, layout_grid_multicell(layout, 1, 3, 2, 1), uuid_new(5, 0), &is_lock_to_parent, t->toggle_default);
+        }
         
 
         /** Control Panel */

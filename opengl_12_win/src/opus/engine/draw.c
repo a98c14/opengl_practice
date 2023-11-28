@@ -118,9 +118,9 @@ draw_arrow(DrawContext* dc, Vec2 position, float32 length, float32 angle, Color 
     Mat4 arrow = transform_quad(position, vec2(thickness*2, thickness*2), angle-90);
     draw_buffer.model_buffer[0] = line;
     ((ShaderDataLine*)draw_buffer.uniform_data_buffer)[0].color = color_to_vec4(color);
-    DrawBuffer draw_buffer_arrow = renderer_buffer_request(dc->renderer, ViewTypeWorld, SORT_LAYER_INDEX_DEFAULT, FRAME_BUFFER_INDEX_DEFAULT, TEXTURE_INDEX_NULL, dc->geometry_triangle, dc->material_basic, 1);
+    DrawBuffer draw_buffer_arrow = renderer_buffer_request(dc->renderer, ViewTypeWorld, SORT_LAYER_INDEX_DEFAULT-1, FRAME_BUFFER_INDEX_DEFAULT, TEXTURE_INDEX_NULL, dc->geometry_triangle, dc->material_basic, 1);
     draw_buffer_arrow.model_buffer[0] = arrow;
-    ((ShaderDataLine*)draw_buffer_arrow.uniform_data_buffer)[0].color = color_to_vec4(color);;
+    ((ShaderDataLine*)draw_buffer_arrow.uniform_data_buffer)[0].color = color_to_vec4(color);
 }
 
 internal void

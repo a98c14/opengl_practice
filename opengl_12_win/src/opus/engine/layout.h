@@ -55,6 +55,14 @@ const Anchor ANCHOR_T_T = { AlignmentTop, AlignmentTop };
 const Anchor ANCHOR_T_L = { AlignmentTop, AlignmentLeft };
 const Anchor ANCHOR_T_B = { AlignmentTop, AlignmentBottom };
 const Anchor ANCHOR_T_R = { AlignmentTop, AlignmentRight };
+const Anchor ANCHOR_L_TL = { AlignmentLeft, AlignmentTopLeft };
+const Anchor ANCHOR_L_TR = { AlignmentLeft, AlignmentTopRight };
+const Anchor ANCHOR_L_BL = { AlignmentLeft, AlignmentBottomLeft };
+const Anchor ANCHOR_L_BR = { AlignmentLeft, AlignmentBottomRight };
+const Anchor ANCHOR_L_T = { AlignmentLeft, AlignmentTop };
+const Anchor ANCHOR_L_L = { AlignmentLeft, AlignmentLeft };
+const Anchor ANCHOR_L_B = { AlignmentLeft, AlignmentBottom };
+const Anchor ANCHOR_L_R = { AlignmentLeft, AlignmentRight };
 
 typedef struct
 {

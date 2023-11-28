@@ -24,3 +24,6 @@ ui_slider(UIContext* ctx, Rect rect, UIID id, Range range, float32* value, Style
 
 internal bool32
 ui_button(UIContext* ctx, Rect rect, UIID id, String label, StyleButton style);
+
+internal bool32
+ui_toggle(UIContext* ctx, Rect rect, UIID id, bool32* is_toggled, StyleToggleButton style);

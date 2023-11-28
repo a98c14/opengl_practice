@@ -22,6 +22,7 @@ global const Color ColorSlate500 = { .r = 0x64, .g = 0x74, .b = 0x8b, .a = 0xff 
 global const Color ColorSlate600 = { .r = 0x47, .g = 0x55, .b = 0x69, .a = 0xff };
 global const Color ColorSlate700 = { .r = 0x33, .g = 0x41, .b = 0x55, .a = 0xff };
 global const Color ColorSlate800 = { .r = 0x1e, .g = 0x29, .b = 0x3b, .a = 0xff };
+global const Color ColorSlate800_Transparent = { .r = 0x1e, .g = 0x29, .b = 0x3b, .a = 0xbb };
 global const Color ColorSlate900 = { .r = 0x0f, .g = 0x17, .b = 0x2a, .a = 0xff };
 global const Color ColorRed = { .r= 0x44, .g = 0x33, .b=0x6 , .a = 0xff };
 global const Color ColorRed50 = { .r= 0xff, .g = 0xeb, .b=0xee, .a = 0xff };

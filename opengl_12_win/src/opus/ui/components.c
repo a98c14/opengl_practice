@@ -43,7 +43,7 @@ ui_container(UIContext* ctx, Rect container, StyleContainer style)
     Rect outer = rect_shrink(container, style.margin);
     Rect inner = rect_shrink(container, style.padding);
     if(style.background.color.a > 0)
-        draw_rect(ctx->dc, outer, 0, SORT_LAYER_INDEX_DEFAULT-1, style.background);
+        draw_rect(ctx->dc, outer, 0, SORT_LAYER_INDEX_DEFAULT, style.background);
     return inner;
 }
 
@@ -64,6 +64,7 @@ ui_slider(UIContext* ctx, Rect rect, UIID id, Range range, float32* value, Style
 
     // draw bar
     Rect bar = rect;
+    bar.h = em(0.5);
     draw_rect(ctx->dc, bar, 0, SORT_LAYER_INDEX_DEFAULT+1, style.slider);
 
     // since handle is centered at the origin, this reduces the overflow
@@ -85,7 +86,7 @@ ui_slider(UIContext* ctx, Rect rect, UIID id, Range range, float32* value, Style
     {
         float32 new_x = sub_vec2(ctx->mouse.world, ctx->drag_offset).x;
         new_x = clamp(left, new_x, right);
-        *value = (range.min + new_x - left) / rect.w * (range.max - range.min);
+        *value = range.min + ((new_x - left) / rect.w) * (range.max - range.min);
     }
     else if(ui_is_active(ctx, id) && input_mouse_released(ctx->mouse, MouseButtonStateLeft))
     {
@@ -95,6 +96,30 @@ ui_slider(UIContext* ctx, Rect rect, UIID id, Range range, float32* value, Style
     Color c = hover ? ColorRed400 : ColorRed600;
     draw_circle_filled(ctx->dc, handle, c);
     return ui_is_active(ctx, id);
+}
+
+internal bool32
+ui_toggle(UIContext* ctx, Rect rect, UIID id, bool32* is_toggled, StyleToggleButton style)
+{
+    bool32 hover = intersects_rect_point(rect, ctx->mouse.world);
+    bool32 clicked = ui_is_active(ctx, id) && input_mouse_released(ctx->mouse, MouseButtonStateLeft);
+    if(hover && ui_is_free(ctx) && input_mouse_pressed(ctx->mouse, MouseButtonStateLeft))
+    {
+        ui_activate(ctx, id);
+    }
+    else if(clicked)
+    {
+        *is_toggled = !(*is_toggled);
+        ui_active_clear(ctx);
+    }
+
+    StyleRect c = hover ? style.background_hover : style.background;
+    Rect inner_row = rect_shrink(rect, style.padding);
+    Rect toggle_box = rect_anchor(rect_from_wh(em(1), em(1)), inner_row, ANCHOR_L_L);
+    Rect toggle_inside_box = rect_shrink(toggle_box, vec2(2, 2));
+    draw_rect(ctx->dc, toggle_box, 0, SORT_LAYER_INDEX_DEFAULT, c);
+    draw_rect(ctx->dc, toggle_inside_box, 0, SORT_LAYER_INDEX_DEFAULT, *is_toggled ? style.inner_background_active : style.inner_background);
+    return *is_toggled;
 }
 
 
