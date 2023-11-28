@@ -34,10 +34,27 @@ int main(void)
     bool32 is_lock_to_parent = false;
 
     const int32 joint_count = 3;
-    const float32 length = 100;
+    const float32 arm_length = 100;
     const float32 thickness = 3;
     const Vec4 color = color_to_vec4(ColorWhite);
     float32 angles[3] = { 30, 60, 90};
+
+    Joint root;
+    root.start = vec2_zero();
+    root.rotation = 0;
+    root.length = arm_length;
+    root.end = calculate_joint_end(root);
+
+    Joint joints[3] = {0};
+    joints[0] = root;
+    for(int i = 1; i < joint_count; i++)
+    {
+        joints[i].start = joints[i-1].end;
+        joints[i].rotation = 90;
+        joints[i].length = arm_length;
+        joints[i].end = calculate_joint_end(joints[i]);
+    }
+
 
     /* main loop */
     while (!glfwWindowShouldClose(e->window->glfw_window))
@@ -45,59 +62,45 @@ int main(void)
         engine_frame_start(e);
         float32 dt = e->time.dt * dt_scale;
 
-        // draw_line(dc, vec2(-20, -1), vec2(20, -1), ColorWhite, 3.5);
-        // draw_line(dc, vec2(0, 0), vec2(-100, 100), ColorWhite, 3);
-        // draw_line(dc, vec2(-100, 100), vec2(0, 100), ColorWhite, 3);
-        // draw_line(dc, vec2(0, 100), vec2(0, 200), ColorWhite, 3);
-        // draw_circle(dc, vec2(-100, 100), 20, ColorWhite);
-        // draw_circle(dc, vec2(0, 100), 20, ColorWhite);
-        // draw_circle(dc, vec2(0, 200), 20, ColorWhite);
-        // draw_line_fixed(dc, vec2(10, 10 * sin(e->time.current_frame / 1000)), 100, 0, ColorWhite, 3);
-        // draw_line_fixed(dc, vec2(10, 10 * sin(e->time.current_frame / 1000)), 100, 360 * (fmod(e->time.current_frame / 1000.0f, 1.0f)), ColorRed500, 3);
-        // draw_line_fixed(dc, vec2(10, 10 * sin(e->time.current_frame / 1000)), 100, 45, ColorBlue500, 3);
-        
-        Mat4 scale = mat4_scale(vec3(length, thickness, 0));
-        DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, ViewTypeWorld, SORT_LAYER_INDEX_DEFAULT, FRAME_BUFFER_INDEX_DEFAULT, TEXTURE_INDEX_NULL, dc->geometry_quad, dc->material_line, joint_count);
-        Vec2 root_position = vec2_zero();
-        Vec2 current_position = root_position;
+        Vec2 target = e->mouse.world;
+        float32 max_reach_length = joint_count * arm_length;
+        float32 distance_to_target = dist_vec2(root.start, target);
+        target = scaled_heading_to_vec2(root.start, target, min(distance_to_target, max_reach_length));
 
-        // angles[0] = 360 * fmod(e->time.current_frame / 4000.0f, 1.0f);
-        // angles[1] = 360 * sin(e->time.current_frame / 2000.0f);
-        // angles[2] = 360 * cos(e->time.current_frame / 1000.0f);
-        
+        if(distance_to_target > 1)
+        {
+            Vec2 current_target = target;
+            // reach forward
+            for(int i = joint_count-1; i >= 0; i--)
+            {
+               joints[i].end = current_target;
+               joints[i].start = add_vec2(current_target, scaled_heading_to_vec2(current_target, joints[i].start, joints[i].length));
+               joints[i].rotation = angle_vec2(sub_vec2(joints[i].end, joints[i].start));
+               current_target = joints[i].start;
+            }
+
+            current_target = root.start;
+            // reach backward
+            for(int i = 0; i < joint_count; i++)
+            {
+                joints[i].start = current_target;
+                joints[i].end = add_vec2(current_target, scaled_heading_to_vec2(current_target, joints[i].end, joints[i].length));
+                joints[i].rotation = angle_vec2(sub_vec2(joints[i].end, joints[i].start));
+                current_target = joints[i].end;
+            }
+        }
+
+        // draw
         for(int32 i = 0; i < joint_count; i++)
         {
-            Vec2 position = current_position;
-            float32 angle = angles[i];
-            if(is_lock_to_parent)
-            {
-                for(int j = 0; j < i; j++) 
-                {
-                    angle += angles[j];
-                }
-            }
-            float32 radian = angle * PI_FLOAT32 / 180.0;
-            float32 cosx = (float32)cosf(radian);
-            float32 sinx = (float32)sinf(radian);
-            draw_circle(dc, position, 20, ColorWhite);
+            Vec2 position = joints[i].start;
+            float32 angle = joints[i].rotation;
+            draw_line(dc, joints[i].start, joints[i].end, ColorWhite, 2);
             draw_arrow(dc, position, 20, angle+90, ColorBlue500, 2);
             draw_arrow(dc, position, 20, angle, ColorRed500, 2);
-            position.x += cosx * (length / 2.0f);
-            position.y += sinx * (length / 2.0f);
-            current_position.x += cosx * length;
-            current_position.y += sinx * length;
-            Mat4 translation = mat4_translation(vec3_xy_z(position, 0));
-            Mat4 rotation = mat4_rotation(angle);
-            draw_buffer.model_buffer[i] = mat4_transform(translation, rotation, scale);
-            ((ShaderDataLine*)draw_buffer.uniform_data_buffer)[i].color = color;
+            draw_circle(dc, position, 20, ColorWhite);
         }
-        draw_circle(dc, current_position, 20, ColorRed500);
 
-        /** TODO:
-         * - draw a control panel
-         * - set angle of each joint separately
-         * - draw arrows from joins
-         */
         UIWindow window = ui_window(e->ctx, &window_rect, uuid_new(1, 0), string("simulation"), &is_expanded, t->window_default);
         if(window.is_expanded)
         {

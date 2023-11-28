@@ -46,6 +46,37 @@ vec2_right()
     return result;
 }
 
+internal Vec2 
+vec2_heading(float32 angle)
+{
+    float32 radian = angle * PI_FLOAT32 / 180.0;
+    float32 cosx = (float32)cosf(radian);
+    float32 sinx = (float32)sinf(radian);
+
+    Vec2 result;
+    result.x = cosx;
+    result.y = sinx;
+    return result;
+}
+
+internal Vec2 
+vec2_inverse_heading(float32 angle)
+{
+    return mul_vec2_f32(vec2_heading(angle), -1);
+}
+
+internal Vec2 
+vec2_heading_scaled(float32 angle, float32 scale)
+{
+    return mul_vec2_f32(vec2_heading(angle), scale);
+}
+
+internal Vec2 
+vec2_inverse_heading_scaled(float32 angle, float32 scale)
+{
+    return mul_vec2_f32(vec2_inverse_heading(angle), scale);
+}
+
 internal Vec3 
 vec3(float32 x, float32 y, float32 z)
 {
@@ -363,6 +394,18 @@ angle_vec2(Vec2 v)
     float32 dot = dot_vec2(right, v);
     float32 det = right.x * v.y - right.y * v.x;
     return (float32)atan2(det, dot) * 180.0 / PI_FLOAT32;
+}
+
+internal Vec2 
+heading_to_vec2(Vec2 start, Vec2 end)
+{
+    return norm_vec2(sub_vec2(end, start));
+}
+
+internal Vec2
+scaled_heading_to_vec2(Vec2 start, Vec2 end, float32 scale)
+{
+    return mul_vec2_f32(norm_vec2(sub_vec2(end, start)), scale);
 }
 
 /* Matrix Operations */

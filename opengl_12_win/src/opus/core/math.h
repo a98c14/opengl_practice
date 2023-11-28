@@ -115,6 +115,10 @@ internal Vec2 vec2_zero();
 internal Vec2 vec2_one();
 internal Vec2 vec2_right();
 internal Vec2 vec2_up();
+internal Vec2 vec2_heading(float32 angle);
+internal Vec2 vec2_inverse_heading(float32 angle);
+internal Vec2 vec2_heading_scaled(float32 angle, float32 scale);
+internal Vec2 vec2_inverse_heading_scaled(float32 angle, float32 scale);
 internal Vec3 vec3(float32 x, float32 y, float32 z);
 internal Vec3 vec3_zero();
 internal Vec3 vec3_one();
@@ -156,6 +160,8 @@ internal float32 len_vec2(Vec2 a);
 internal float32 distsqr_vec2(Vec2 a, Vec2 b);
 internal float32 dist_vec2(Vec2 a, Vec2 b);
 internal float32 angle_vec2(Vec2 v);
+internal Vec2 heading_to_vec2(Vec2 start, Vec2 end);
+internal Vec2 scaled_heading_to_vec2(Vec2 start, Vec2 end, float32 scale);
 
 /* Matrix Operations*/
 internal Mat2 mat2_identity(void);
