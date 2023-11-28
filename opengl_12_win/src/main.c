@@ -28,6 +28,12 @@ int main(void)
     float32 world_half_width = world_width / 2.0f;
     float32 world_half_height = world_height / 2.0f;
 
+    const int32 joint_count = 3;
+    const float32 length = 100;
+    const float32 thickness = 3;
+    const Vec4 color = color_to_vec4(ColorWhite);
+    float32 angles[3] = { 30, 60, 90};
+
     /* main loop */
     while (!glfwWindowShouldClose(e->window->glfw_window))
     {
@@ -44,21 +50,26 @@ int main(void)
         // draw_line_fixed(dc, vec2(10, 10 * sin(e->time.current_frame / 1000)), 100, 0, ColorWhite, 3);
         // draw_line_fixed(dc, vec2(10, 10 * sin(e->time.current_frame / 1000)), 100, 360 * (fmod(e->time.current_frame / 1000.0f, 1.0f)), ColorRed500, 3);
         // draw_line_fixed(dc, vec2(10, 10 * sin(e->time.current_frame / 1000)), 100, 45, ColorBlue500, 3);
-        const int32 joint_count = 3;
-        const float32 length = 100;
-        const float32 thickness = 3;
-        const Vec4 color = color_to_vec4(ColorWhite);
+        
         Mat4 scale = mat4_scale(vec3(length, thickness, 0));
         DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, ViewTypeWorld, SORT_LAYER_INDEX_DEFAULT, FRAME_BUFFER_INDEX_DEFAULT, TEXTURE_INDEX_NULL, dc->geometry_quad, dc->material_line, joint_count);
         Vec2 root_position = vec2_zero();
         Vec2 current_position = root_position;
+
+        angles[0] = 360 * fmod(e->time.current_frame / 4000.0f, 1.0f);
+        angles[1] = 360 * sin(e->time.current_frame / 2000.0f);
+        angles[2] = 360 * cos(e->time.current_frame / 1000.0f);
+        
         for(int32 i = 0; i < joint_count; i++)
         {
             Vec2 position = current_position;
-            float32 angle = i * 10;
+            float32 angle = angles[i];
             float32 radian = angle * PI_FLOAT32 / 180.0;
             float32 cosx = (float32)cosf(radian);
             float32 sinx = (float32)sinf(radian);
+            draw_circle(dc, position, 20, ColorWhite);
+            draw_arrow(dc, position, 20, angle+90, ColorBlue500, 2);
+            draw_arrow(dc, position, 20, angle, ColorRed500, 2);
             position.x += cosx * (length / 2.0f);
             position.y += sinx * (length / 2.0f);
             current_position.x += cosx * length;
@@ -68,6 +79,7 @@ int main(void)
             draw_buffer.model_buffer[i] = mat4_transform(translation, rotation, scale);
             ((ShaderDataLine*)draw_buffer.uniform_data_buffer)[i].color = color;
         }
+        draw_circle(dc, current_position, 20, ColorRed500);
 
         /** TODO:
          * - draw a control panel

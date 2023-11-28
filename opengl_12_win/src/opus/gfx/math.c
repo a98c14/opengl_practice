@@ -38,17 +38,12 @@ transform_line(Vec2 start, Vec2 end, float32 thickness)
     Vec2 center = lerp_vec2(start, end, 0.5f);
     float32 dist = dist_vec2(end, start);
     float32 angle = angle_vec2(sub_vec2(end, start));
-    Mat4 translation = mat4_translation(vec3_xy_z(center, 0));
-    Mat4 rotation = mat4_rotation(angle);
-    Mat4 scale = mat4_scale(vec3(dist, thickness, 0));
-    return mat4_transform(translation, rotation, scale);
+    return transform_quad(center, vec2(dist, thickness), angle);
 }
 
 internal Mat4
 transform_line_rotated(Vec2 position, float32 length, float32 angle, float32 thickness)
 {
-    xassert(length > 0, "Line length needs to be larger than 0 for `transform_line_rotated`");
-
     // TODO: these values are also calculated in `mat4_rotation`, check if
     // they are optimized away or not.
     float32 radian = angle * PI_FLOAT32 / 180.0;
@@ -56,8 +51,5 @@ transform_line_rotated(Vec2 position, float32 length, float32 angle, float32 thi
     float32 sinx = (float32)sinf(radian) * (length / 2.0f);
     position.x += cosx;
     position.y += sinx;
-    Mat4 translation = mat4_translation(vec3_xy_z(position, 0));
-    Mat4 rotation = mat4_rotation(angle);
-    Mat4 scale = mat4_scale(vec3(length, thickness, 0));
-    return mat4_transform(translation, rotation, scale);
+    return transform_quad(position, vec2(length, thickness), angle);
 }

@@ -106,6 +106,9 @@ internal void
 draw_line_fixed(DrawContext* dc, Vec2 position, float32 length, float32 rotation, Color color, float32 thickness);
 
 internal void
+draw_arrow(DrawContext* dc, Vec2 position, float32 length, float32 angle, Color color, float32 thickness);
+
+internal void
 draw_debug_line(DrawContext* dc, Vec2 start, Vec2 end, Color color);
 
 internal void

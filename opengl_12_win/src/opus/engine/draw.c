@@ -95,9 +95,32 @@ draw_line(DrawContext* dc, Vec2 start, Vec2 end, Color color, float32 thickness)
 internal void
 draw_line_fixed(DrawContext* dc, Vec2 position, float32 length, float32 rotation, Color color, float32 thickness)
 {
+    xassert(length > 0, "Line length needs to be larger than 0 for `transform_line_rotated`");
     DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, ViewTypeWorld, SORT_LAYER_INDEX_DEFAULT, FRAME_BUFFER_INDEX_DEFAULT, TEXTURE_INDEX_NULL, dc->geometry_quad, dc->material_line, 1);
     draw_buffer.model_buffer[0] = transform_line_rotated(position, length, rotation, thickness);
     ((ShaderDataLine*)draw_buffer.uniform_data_buffer)[0].color = color_to_vec4(color);
+}
+
+internal void
+draw_arrow(DrawContext* dc, Vec2 position, float32 length, float32 angle, Color color, float32 thickness)
+{
+    xassert(length > 0, "Line length needs to be larger than 0 for `transform_line_rotated`");
+    DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, ViewTypeWorld, SORT_LAYER_INDEX_DEFAULT, FRAME_BUFFER_INDEX_DEFAULT, TEXTURE_INDEX_NULL, dc->geometry_quad, dc->material_line, 1);
+
+    float32 radian = angle * PI_FLOAT32 / 180.0;
+    float32 cosx = (float32)cosf(radian) * (length / 2.0f);
+    float32 sinx = (float32)sinf(radian) * (length / 2.0f);
+    position.x += cosx;
+    position.y += sinx;
+    Mat4 line = transform_quad(position, vec2(length, thickness), angle);
+    position.x += cosx;
+    position.y += sinx;
+    Mat4 arrow = transform_quad(position, vec2(thickness*2, thickness*2), angle-90);
+    draw_buffer.model_buffer[0] = line;
+    ((ShaderDataLine*)draw_buffer.uniform_data_buffer)[0].color = color_to_vec4(color);
+    DrawBuffer draw_buffer_arrow = renderer_buffer_request(dc->renderer, ViewTypeWorld, SORT_LAYER_INDEX_DEFAULT, FRAME_BUFFER_INDEX_DEFAULT, TEXTURE_INDEX_NULL, dc->geometry_triangle, dc->material_basic, 1);
+    draw_buffer_arrow.model_buffer[0] = arrow;
+    ((ShaderDataLine*)draw_buffer_arrow.uniform_data_buffer)[0].color = color_to_vec4(color);;
 }
 
 internal void
