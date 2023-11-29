@@ -9,6 +9,10 @@ typedef struct
     float32 length; 
 
     float32 local_rotation; // TEMP:
+
+    // constraints
+    float32 min_angle;
+    float32 max_angle;
 } Joint;
 
 internal void 

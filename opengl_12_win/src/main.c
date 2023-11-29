@@ -32,6 +32,7 @@ int main(void)
     Rect window_rect = rect(200, 100, 180, 100);
     bool32 is_expanded = false;
     bool32 smooth_animations = false;
+    bool32 rotation_animations = false;
     bool32 angle_constraints = true;
 
     const int32 joint_count = 3;
@@ -58,6 +59,13 @@ int main(void)
         current_joints[i].end = calculate_joint_end(current_joints[i]);
         target_joints[i] = current_joints[i];
     }
+    target_joints[0].min_angle = 0;
+    target_joints[0].max_angle = 90;
+    target_joints[1].min_angle = -120;
+    target_joints[1].max_angle =  120;
+    target_joints[2].min_angle = -180;
+    target_joints[2].max_angle =  180;
+
 
     /* main loop */
     while (!glfwWindowShouldClose(e->window->glfw_window))
@@ -70,60 +78,57 @@ int main(void)
         float32 distance_to_target = dist_vec2(root.start, target);
         target = scaled_heading_to_vec2(root.start, target, min(distance_to_target, max_reach_length));
 
-        // int32 attempt = 0;
-        // if(distance_to_target > 1 && attempt < 100)
-        // {
-            // attempt++;
         if(distance_to_target > 1)
         {
             if(angle_constraints)
             {
-                
                 // reach forward
                 Vec2 current_target = target;
                 for(int i = joint_count-1; i >= 0; i--)
                 {
-                    target_joints[i].end = current_target;
-                    Vec2 current_arm = scaled_heading_to_vec2(current_target, target_joints[i].start, target_joints[i].length);
+                    Joint* j = &target_joints[i];
+                    j->end = current_target;
+                    Vec2 current_arm = scaled_heading_to_vec2(current_target, j->start, j->length);
                     Vec2 next_arm = current_arm;
                     if(i < joint_count - 1) next_arm = sub_vec2(target_joints[i+1].end, target_joints[i+1].start);
 
                     float32 angle = angle_between_vec2(next_arm, current_arm);
-                    if(angle > 120 || angle < -120)
+                    if(angle > j->max_angle || angle < j->min_angle)
                     {
-                        float32 new_angle = clamp(-120, angle, 120);
+                        float32 new_angle = clamp(j->min_angle, angle, j->max_angle);
                         float32 diff = angle - new_angle; 
                         angle = new_angle;
                         current_arm = rotate_vec2(current_arm, diff);
                     }
-                    target_joints[i].start = add_vec2(current_target, current_arm);
-                    target_joints[i].local_rotation = angle;
-                    current_target = target_joints[i].start;
+                    j->start = add_vec2(current_target, current_arm);
+                    j->local_rotation = angle;
+                    current_target = j->start;
                 }
 
                 // reach backward
                 current_target = root.start;
                 for(int i = 0; i < joint_count; i++)
                 {
-                    target_joints[i].start = current_target;
-                    Vec2 current_arm = scaled_heading_to_vec2(current_target, target_joints[i].end, target_joints[i].length);
-                    Vec2 previous_arm =  vec2_up();
+                    Joint* j = &target_joints[i];
+                    j->start = current_target;
+                    Vec2 current_arm = scaled_heading_to_vec2(current_target, j->end, j->length);
+                    Vec2 previous_arm =  vec2_right();
                     if(i > 0) previous_arm = sub_vec2(target_joints[i-1].end, target_joints[i-1].start);
                     float32 base_rotation = 0;
                     if(i > 0) base_rotation = target_joints[i-1].rotation;
 
                     float32 angle = angle_between_vec2(current_arm, previous_arm);
-                    if(angle > 120 || angle < -120)
+                    if(angle > j->max_angle || angle < j->min_angle)
                     {
-                        float32 new_angle = clamp(-120, angle, 120);
+                        float32 new_angle = clamp(j->min_angle, angle, j->max_angle);
                         float32 diff = new_angle - angle; 
                         angle = new_angle;
                         current_arm = rotate_vec2(current_arm, diff);
                     }
-                    target_joints[i].end = add_vec2(current_target, current_arm);
-                    target_joints[i].rotation = base_rotation + angle;
-                    target_joints[i].local_rotation = angle;
-                    current_target = target_joints[i].end;
+                    j->end = add_vec2(current_target, current_arm);
+                    j->rotation = base_rotation + angle;
+                    j->local_rotation = angle;
+                    current_target = j->end;
                 }
             }
             else
@@ -162,6 +167,14 @@ int main(void)
                 current_joints[i].local_rotation = lerp_f32(current_joints[i].local_rotation, target_joints[i].local_rotation, dt * 8);
             }
         }
+        else if(rotation_animations)
+        {
+            for(int i = 0; i < joint_count; i++)
+            {
+                current_joints[i].rotation = lerp_f32(current_joints[i].rotation, target_joints[i].rotation, dt * 8);
+                current_joints[i].local_rotation = lerp_f32(current_joints[i].local_rotation, target_joints[i].local_rotation, dt * 8);
+            }
+        }
         else
         {
             for(int i = 0; i < joint_count; i++)
@@ -174,32 +187,56 @@ int main(void)
         }
 
         // draw
-        for(int32 i = 0; i < joint_count; i++)
+        if(rotation_animations)
         {
-            Vec2 position = current_joints[i].start;
-            float32 angle = current_joints[i].rotation;
-            draw_line(dc, current_joints[i].start, current_joints[i].end, ColorWhite, 2);
-            draw_arrow(dc, position, 20, angle+90, ColorBlue500, 2);
-            draw_arrow(dc, position, 20, angle, ColorRed500, 2);
-            draw_circle(dc, position, 20, ColorWhite);
-            draw_text(dc, vec2(position.x, position.y + 25), string_pushf(e->frame_arena, "Base: %0.2f", current_joints[i].rotation), AlignmentBottom, e->theme->font_default_light);
-            draw_text(dc, vec2(position.x, position.y + 20), string_pushf(e->frame_arena, "Local: %0.2f", current_joints[i].local_rotation), AlignmentBottom, e->theme->font_default_light);
+            Vec2 current_position = root.start;
+            for(int32 i = 0; i < joint_count; i++)
+            {
+                Vec2 position = current_position;
+                float32 angle = current_joints[i].rotation;
+                Vec2 end_position = add_vec2(position, vec2_heading_scaled(angle, current_joints[i].length));
+                draw_line(dc, position, end_position, ColorWhite, 2);
+                draw_arrow(dc, position, 20, angle+90, ColorBlue500, 2);
+                draw_arrow(dc, position, 20, angle, ColorRed500, 2);
+                draw_circle(dc, position, 20, ColorWhite);
+                draw_text(dc, vec2(position.x, position.y + 25), string_pushf(e->frame_arena, "Base: %0.2f", current_joints[i].rotation), AlignmentBottom, e->theme->font_default_light);
+                draw_text(dc, vec2(position.x, position.y + 20), string_pushf(e->frame_arena, "Local: %0.2f", current_joints[i].local_rotation), AlignmentBottom, e->theme->font_default_light);
+                current_position = end_position;
+            }
+        }
+        else
+        {
+            for(int32 i = 0; i < joint_count; i++)
+            {
+                Vec2 position = current_joints[i].start;
+                float32 angle = current_joints[i].rotation;
+                draw_line(dc, current_joints[i].start, current_joints[i].end, ColorWhite, 2);
+                draw_arrow(dc, position, 20, angle+90, ColorBlue500, 2);
+                draw_arrow(dc, position, 20, angle, ColorRed500, 2);
+                draw_circle(dc, position, 20, ColorWhite);
+                draw_text(dc, vec2(position.x, position.y + 25), string_pushf(e->frame_arena, "Base: %0.2f", current_joints[i].rotation), AlignmentBottom, e->theme->font_default_light);
+                draw_text(dc, vec2(position.x, position.y + 20), string_pushf(e->frame_arena, "Local: %0.2f", current_joints[i].local_rotation), AlignmentBottom, e->theme->font_default_light);
+            }
         }
 
         UIWindow window = ui_window(e->ctx, &window_rect, uuid_new(1, 0), string("simulation"), &is_expanded, t->window_default);
         if(window.is_expanded)
         {
-            uint32 row_count = 4;
-            LayoutGrid layout = layout_grid(rect_anchor(rect_from_wh(window.header.w, em(2) * row_count), window.header, ANCHOR_TL_TL), 3, row_count, e->theme->p2);
+            uint32 row_count = 6;
+            LayoutGrid layout = layout_grid(rect_anchor(rect_from_wh(window.header.w, em(2) * row_count), window.header, ANCHOR_TL_TL), 4, row_count, e->theme->p2);
             ui_container(e->ctx, layout_grid_container(layout), t->container_light);
             ui_label(e->ctx, layout_grid_cell(layout, 0, 0), string_pushf(e->frame_arena, "Angle [0]: %0.2f", angles[0]), t->label_default);
-            ui_slider(e->ctx, layout_grid_multicell(layout, 1, 0, 2, 1), uuid_new(2, 0), range(-360, 360), &angles[0], t->slider_default);
+            ui_slider(e->ctx, layout_grid_multicell(layout, 2, 0, 2, 1), uuid_new(2, 0), range(-360, 360), &angles[0], t->slider_default);
             ui_label(e->ctx, layout_grid_cell(layout, 0, 1), string_pushf(e->frame_arena, "Angle [1]: %0.2f", angles[1]), t->label_default);
-            ui_slider(e->ctx, layout_grid_multicell(layout, 1, 1, 2, 1), uuid_new(3, 0), range(-360, 360), &angles[1], t->slider_default);
+            ui_slider(e->ctx, layout_grid_multicell(layout, 2, 1, 2, 1), uuid_new(3, 0), range(-360, 360), &angles[1], t->slider_default);
             ui_label(e->ctx, layout_grid_cell(layout, 0, 2), string_pushf(e->frame_arena, "Angle [2] %0.2f", angles[2]), t->label_default);
-            ui_slider(e->ctx, layout_grid_multicell(layout, 1, 2, 2, 1), uuid_new(4, 0), range(-360, 360), &angles[2], t->slider_default);
+            ui_slider(e->ctx, layout_grid_multicell(layout, 2, 2, 2, 1), uuid_new(4, 0), range(-360, 360), &angles[2], t->slider_default);
             ui_label(e->ctx, layout_grid_cell(layout, 0, 3), string("Smooth animations:"), t->label_default);
-            ui_toggle(e->ctx, layout_grid_multicell(layout, 1, 3, 2, 1), uuid_new(5, 0), &smooth_animations, t->toggle_default);
+            ui_toggle(e->ctx, layout_grid_multicell(layout, 2, 3, 1, 1), uuid_new(5, 0), &smooth_animations, t->toggle_default);
+            ui_label(e->ctx, layout_grid_cell(layout, 0, 4), string("Rotation Constraints:"), t->label_default);
+            ui_toggle(e->ctx, layout_grid_multicell(layout, 2, 4, 1, 1), uuid_new(6, 0), &angle_constraints, t->toggle_default);
+            ui_label(e->ctx, layout_grid_cell(layout, 0, 5), string("Rotation Animations:"), t->label_default);
+            ui_toggle(e->ctx, layout_grid_multicell(layout, 2, 5, 1, 1), uuid_new(7, 0), &rotation_animations, t->toggle_default);
         }
         
 
