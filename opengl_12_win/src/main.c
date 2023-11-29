@@ -169,14 +169,20 @@ int main(void)
                 current_joints[i].max_angle = lerp_f32(current_joints[i].max_angle, target_joints[i].max_angle, dt * 8);
             }
         }
+        // interpolate the rotations only, then calculate the positions from the rotations, prevents arm stretching
         else if(rotation_animations)
         {
+            Vec2 current_position = root.start;
             for(int i = 0; i < joint_count; i++)
             {
                 current_joints[i].rotation = lerp_f32(current_joints[i].rotation, target_joints[i].rotation, dt * 8);
                 current_joints[i].local_rotation = lerp_f32(current_joints[i].local_rotation, target_joints[i].local_rotation, dt * 8);
+                current_joints[i].start = current_position;
+                current_joints[i].end = add_vec2(current_position, vec2_heading_scaled(current_joints[i].rotation, current_joints[i].length));
+                current_position = current_joints[i].end;
             }
         }
+        // no smoothing
         else
         {
             for(int i = 0; i < joint_count; i++)
@@ -191,38 +197,9 @@ int main(void)
         }
 
         // draw
-        if(rotation_animations)
+        for(int32 i = 0; i < joint_count; i++)
         {
-            Vec2 current_position = root.start;
-            for(int32 i = 0; i < joint_count; i++)
-            {
-                Vec2 position = current_position;
-                float32 angle = current_joints[i].rotation;
-                Vec2 end_position = add_vec2(position, vec2_heading_scaled(angle, current_joints[i].length));
-                draw_line(dc, position, end_position, ColorWhite, 2);
-                draw_arrow(dc, position, 20, angle+90, ColorBlue500, 2);
-                draw_arrow(dc, position, 20, angle, ColorRed500, 2);
-                draw_circle(dc, position, 20, ColorWhite);
-                draw_text(dc, vec2(position.x, position.y + 25), string_pushf(e->frame_arena, "Base: %0.2f", current_joints[i].rotation), AlignmentBottom, e->theme->font_default_light);
-                draw_text(dc, vec2(position.x, position.y + 20), string_pushf(e->frame_arena, "Local: %0.2f", current_joints[i].local_rotation), AlignmentBottom, e->theme->font_default_light);
-                current_position = end_position;
-            }
-        }
-        else
-        {
-            for(int32 i = 0; i < joint_count; i++)
-            {
-                Vec2 position = current_joints[i].start;
-                float32 angle = current_joints[i].rotation;
-                float32 constraint_ratio = (current_joints[i].max_angle - current_joints[i].min_angle) / 360.0f;
-                draw_partial_circle_filled(dc, position, (current_joints[i].max_angle + current_joints[i].min_angle) / 2 + current_joints[i].rotation - current_joints[i].local_rotation, 20, ColorAmber700A, constraint_ratio);
-                draw_line(dc, current_joints[i].start, current_joints[i].end, ColorWhite, 2);
-                draw_arrow(dc, position, 20, angle+90, ColorBlue500, 2);
-                draw_arrow(dc, position, 20, angle, ColorRed500, 2);
-                draw_circle(dc, position, 20, ColorWhite);
-                draw_text(dc, vec2(position.x, position.y + 25), string_pushf(e->frame_arena, "Base: %0.2f", current_joints[i].rotation), AlignmentBottom, e->theme->font_default_light);
-                draw_text(dc, vec2(position.x, position.y + 20), string_pushf(e->frame_arena, "Local: %0.2f", current_joints[i].local_rotation), AlignmentBottom, e->theme->font_default_light);
-            }
+            draw_joint(e, current_joints[i]);
         }
 
         UIWindow window = ui_window(e->ctx, &window_rect, uuid_new(1, 0), string("simulation"), &is_expanded, t->window_default);

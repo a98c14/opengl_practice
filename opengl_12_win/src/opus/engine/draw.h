@@ -130,7 +130,7 @@ internal void
 draw_circle_filled(DrawContext* dc, Circle circle, Color color);
 
 internal void
-draw_partial_circle_filled(DrawContext* dc, Vec2 position, float32 rotation, float32 radius, Color color, float32 percentage);
+draw_circle_partially_filled(DrawContext* dc, Vec2 position, float32 rotation, float32 radius, Color color, float32 min_angle, float32 max_angle);
 
 internal void
 draw_boid(DrawContext* dc, Vec2 position, float32 rotation, float32 size, Color color);

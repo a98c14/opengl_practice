@@ -225,8 +225,10 @@ draw_circle_filled(DrawContext* dc, Circle circle, Color color)
 }
 
 internal void
-draw_partial_circle_filled(DrawContext* dc, Vec2 position, float32 rotation, float32 radius, Color color, float32 percentage)
+draw_circle_partially_filled(DrawContext* dc, Vec2 position, float32 rotation, float32 radius, Color color, float32 min_angle, float32 max_angle)
 {
+    float32 percentage = (max_angle - min_angle) / 360.0f;
+    rotation += (max_angle + min_angle) / 2;
     DrawBuffer draw_buffer = renderer_buffer_request(dc->renderer, ViewTypeWorld, SORT_LAYER_INDEX_DEFAULT, FRAME_BUFFER_INDEX_DEFAULT, TEXTURE_INDEX_NULL, dc->geometry_quad, dc->material_circle_instanced, 1);
     draw_buffer.model_buffer[0] = transform_quad(position, vec2(radius, radius), rotation);
     ShaderDataCircle* model_buffer = (ShaderDataCircle*)draw_buffer.uniform_data_buffer;

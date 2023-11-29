@@ -16,8 +16,7 @@ typedef struct
 } Joint;
 
 internal void 
-draw_joint(DrawContext* dc, Vec2 position, float32 rotation, float32 radius);
-
+draw_joint(Engine* e, Joint j);
 
 internal void 
 draw_arm(DrawContext* dc, Vec2 position, float32 rotation,float32 length);
