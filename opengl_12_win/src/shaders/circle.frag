@@ -39,6 +39,7 @@ void main() {
     float softness = 3;
     vec2 uv = v_tex_coord;
     uv = uv * 2.0 - 1.0;
+
     vec2 dp = fwidth(uv);
     softness *= dp.x;
     float d = smoothstep((1 - u_fill_ratio) - softness * 2, (1 - u_fill_ratio) - softness, length(uv)) - smoothstep(1 - softness, 1.0, length(uv));

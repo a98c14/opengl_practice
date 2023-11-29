@@ -165,6 +165,8 @@ int main(void)
                 current_joints[i].end = lerp_vec2(current_joints[i].end, target_joints[i].end, dt * 8);
                 current_joints[i].rotation = lerp_f32(current_joints[i].rotation, target_joints[i].rotation, dt * 8);
                 current_joints[i].local_rotation = lerp_f32(current_joints[i].local_rotation, target_joints[i].local_rotation, dt * 8);
+                current_joints[i].min_angle = lerp_f32(current_joints[i].min_angle, target_joints[i].min_angle, dt * 8);
+                current_joints[i].max_angle = lerp_f32(current_joints[i].max_angle, target_joints[i].max_angle, dt * 8);
             }
         }
         else if(rotation_animations)
@@ -183,6 +185,8 @@ int main(void)
                 current_joints[i].end = target_joints[i].end;
                 current_joints[i].rotation = target_joints[i].rotation;
                 current_joints[i].local_rotation = target_joints[i].local_rotation;
+                current_joints[i].min_angle = target_joints[i].min_angle;
+                current_joints[i].max_angle = target_joints[i].max_angle;
             }
         }
 
@@ -210,6 +214,8 @@ int main(void)
             {
                 Vec2 position = current_joints[i].start;
                 float32 angle = current_joints[i].rotation;
+                float32 constraint_ratio = (current_joints[i].max_angle - current_joints[i].min_angle) / 360.0f;
+                draw_partial_circle_filled(dc, position, (current_joints[i].max_angle + current_joints[i].min_angle) / 2 + current_joints[i].rotation - current_joints[i].local_rotation, 20, ColorAmber700A, constraint_ratio);
                 draw_line(dc, current_joints[i].start, current_joints[i].end, ColorWhite, 2);
                 draw_arrow(dc, position, 20, angle+90, ColorBlue500, 2);
                 draw_arrow(dc, position, 20, angle, ColorRed500, 2);

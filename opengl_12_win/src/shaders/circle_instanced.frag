@@ -4,6 +4,7 @@ struct ShaderData
 {
     vec4 color;
     float fill_ratio;
+    float slice;
 };
 
 layout(location = 0) in vec3 a_pos;
@@ -46,12 +47,19 @@ flat in int v_instance_id;
 out vec4 color;
 
 void main() {
+    ShaderData v_data = data[v_instance_id];
     float softness = 3;
     vec2 uv = v_tex_coord;
     uv = uv * 2.0 - 1.0;
+
+    // partial circle
+    // TODO: maybe use different shader for this? might be 
+    // to costly for circles that don't use this feature.
+    float angle = acos(dot(normalize(uv), vec2(1, 0))) / 3.1415926;
+    float enabled = 1 - step(v_data.slice, angle);
+
     vec2 dp = fwidth(uv);
     softness *= dp.x;
-    ShaderData v_data = data[v_instance_id];
     float d = smoothstep((1 - v_data.fill_ratio) - softness * 2, (1 - v_data.fill_ratio) - softness, length(uv)) - smoothstep(1 - softness, 1.0, length(uv));
-    color = vec4(v_data.color.xyz, d * v_data.color.a);
+    color = vec4(v_data.color.xyz, d * v_data.color.a) * enabled;
 }

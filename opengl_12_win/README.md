@@ -1,7 +1,5 @@
 # Inverse Kinematics
-- angle constraint visuals
 - angle constraint in panel (min max slider)
-- angle constraint toggle
 - compression
 - ghost mode for angle constraints
 

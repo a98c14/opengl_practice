@@ -88,7 +88,9 @@ typedef struct
 {
     Vec4 color;
     float32 fill_ratio;
-    Vec3 _;
+    // determines how much of the circle will be drawn, 0.5 gives half circle
+    float32 slice_ratio;
+    Vec2 _;
 } ShaderDataCircle;
 
 typedef struct 
@@ -126,6 +128,9 @@ draw_circle(DrawContext* dc, Vec2 position, float32 radius, Color color);
 
 internal void
 draw_circle_filled(DrawContext* dc, Circle circle, Color color);
+
+internal void
+draw_partial_circle_filled(DrawContext* dc, Vec2 position, float32 rotation, float32 radius, Color color, float32 percentage);
 
 internal void
 draw_boid(DrawContext* dc, Vec2 position, float32 rotation, float32 size, Color color);

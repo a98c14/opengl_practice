@@ -4,6 +4,7 @@ struct ShaderData
 {
     vec4 color;
     float fill_ratio;
+    float slice;
 };
 
 layout(location = 0) in vec3 a_pos;
