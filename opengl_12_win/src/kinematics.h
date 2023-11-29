@@ -7,6 +7,8 @@ typedef struct
     Vec2 end;
     float32 rotation;
     float32 length; 
+
+    float32 local_rotation; // TEMP:
 } Joint;
 
 internal void 

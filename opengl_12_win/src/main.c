@@ -18,7 +18,7 @@ int main(void)
 {
     Engine* e = engine_init();
     DrawContext* dc = e->draw_context;
-    Theme* t = e->theme;
+    Theme* t = e->theme; 
 
     /* app initialization */
     float32 dt_scale = 1;
@@ -70,51 +70,59 @@ int main(void)
         float32 distance_to_target = dist_vec2(root.start, target);
         target = scaled_heading_to_vec2(root.start, target, min(distance_to_target, max_reach_length));
 
+        // int32 attempt = 0;
+        // if(distance_to_target > 1 && attempt < 100)
+        // {
+            // attempt++;
         if(distance_to_target > 1)
         {
             if(angle_constraints)
             {
-                Vec2 current_target = target;
                 
                 // reach forward
+                Vec2 current_target = target;
                 for(int i = joint_count-1; i >= 0; i--)
                 {
                     target_joints[i].end = current_target;
-                    target_joints[i].start = add_vec2(current_target, scaled_heading_to_vec2(current_target, target_joints[i].start, target_joints[i].length));
-                    float32 new_angle = angle_vec2(sub_vec2(target_joints[i].end, target_joints[i].start));
+                    Vec2 current_arm = scaled_heading_to_vec2(current_target, target_joints[i].start, target_joints[i].length);
+                    Vec2 next_arm = current_arm;
+                    if(i < joint_count - 1) next_arm = sub_vec2(target_joints[i+1].end, target_joints[i+1].start);
 
-                    float32 base_rotation = 0;
-                    if(i > 0) base_rotation = target_joints[i-1].rotation;
-
-                    if(new_angle - base_rotation > 180 || new_angle - base_rotation < 0)
+                    float32 angle = angle_between_vec2(next_arm, current_arm);
+                    if(angle > 120 || angle < -120)
                     {
-                        new_angle = base_rotation + clamp(0, new_angle - base_rotation, 180);
-                        target_joints[i].start = add_vec2(current_target, vec2_inverse_heading_scaled(new_angle, target_joints[i].length));
+                        float32 new_angle = clamp(-120, angle, 120);
+                        float32 diff = angle - new_angle; 
+                        angle = new_angle;
+                        current_arm = rotate_vec2(current_arm, diff);
                     }
-
-                    target_joints[i].rotation = new_angle;
+                    target_joints[i].start = add_vec2(current_target, current_arm);
+                    target_joints[i].local_rotation = angle;
                     current_target = target_joints[i].start;
                 }
 
-                current_target = root.start;
-
                 // reach backward
+                current_target = root.start;
                 for(int i = 0; i < joint_count; i++)
                 {
                     target_joints[i].start = current_target;
-                    target_joints[i].end = add_vec2(current_target, scaled_heading_to_vec2(current_target, target_joints[i].end, target_joints[i].length));
-                    float32 new_angle = angle_vec2(sub_vec2(target_joints[i].end, target_joints[i].start));
-
+                    Vec2 current_arm = scaled_heading_to_vec2(current_target, target_joints[i].end, target_joints[i].length);
+                    Vec2 previous_arm =  vec2_up();
+                    if(i > 0) previous_arm = sub_vec2(target_joints[i-1].end, target_joints[i-1].start);
                     float32 base_rotation = 0;
                     if(i > 0) base_rotation = target_joints[i-1].rotation;
 
-                    if(new_angle - base_rotation > 180 || new_angle - base_rotation < 0)
+                    float32 angle = angle_between_vec2(current_arm, previous_arm);
+                    if(angle > 120 || angle < -120)
                     {
-                        new_angle = base_rotation + clamp(0, new_angle - base_rotation, 180);
-                        target_joints[i].end = add_vec2(current_target, vec2_heading_scaled(new_angle, target_joints[i].length));
+                        float32 new_angle = clamp(-120, angle, 120);
+                        float32 diff = new_angle - angle; 
+                        angle = new_angle;
+                        current_arm = rotate_vec2(current_arm, diff);
                     }
-                    
-                    target_joints[i].rotation = new_angle;
+                    target_joints[i].end = add_vec2(current_target, current_arm);
+                    target_joints[i].rotation = base_rotation + angle;
+                    target_joints[i].local_rotation = angle;
                     current_target = target_joints[i].end;
                 }
             }
@@ -151,6 +159,7 @@ int main(void)
                 current_joints[i].start = lerp_vec2(current_joints[i].start, target_joints[i].start, dt * 8);
                 current_joints[i].end = lerp_vec2(current_joints[i].end, target_joints[i].end, dt * 8);
                 current_joints[i].rotation = lerp_f32(current_joints[i].rotation, target_joints[i].rotation, dt * 8);
+                current_joints[i].local_rotation = lerp_f32(current_joints[i].local_rotation, target_joints[i].local_rotation, dt * 8);
             }
         }
         else
@@ -160,6 +169,7 @@ int main(void)
                 current_joints[i].start = target_joints[i].start;
                 current_joints[i].end = target_joints[i].end;
                 current_joints[i].rotation = target_joints[i].rotation;
+                current_joints[i].local_rotation = target_joints[i].local_rotation;
             }
         }
 
@@ -172,6 +182,8 @@ int main(void)
             draw_arrow(dc, position, 20, angle+90, ColorBlue500, 2);
             draw_arrow(dc, position, 20, angle, ColorRed500, 2);
             draw_circle(dc, position, 20, ColorWhite);
+            draw_text(dc, vec2(position.x, position.y + 25), string_pushf(e->frame_arena, "Base: %0.2f", current_joints[i].rotation), AlignmentBottom, e->theme->font_default_light);
+            draw_text(dc, vec2(position.x, position.y + 20), string_pushf(e->frame_arena, "Local: %0.2f", current_joints[i].local_rotation), AlignmentBottom, e->theme->font_default_light);
         }
 
         UIWindow window = ui_window(e->ctx, &window_rect, uuid_new(1, 0), string("simulation"), &is_expanded, t->window_default);

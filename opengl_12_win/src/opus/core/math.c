@@ -265,6 +265,17 @@ mul_vec3_f32(Vec3 a, float32 b)
     return result;
 }
 
+internal Vec2
+mul_mat2_vec2(Mat2 m, Vec2 v)
+{
+    Vec2 result;
+    result.x = v.elements[0] * m.columns[0].x;
+    result.y = v.elements[0] * m.columns[0].y;
+    result.x += v.elements[1] * m.columns[1].x;
+    result.y += v.elements[1] * m.columns[1].y;
+    return result;
+}
+
 internal Vec3
 mul_mat3_vec3(Mat3 m, Vec3 v)
 {
@@ -389,11 +400,20 @@ dist_vec2(Vec2 a, Vec2 b)
 internal float32 
 angle_vec2(Vec2 v)
 {
-    // do we need to normalize the vector?
     Vec2 right = vec2_right();
     float32 dot = dot_vec2(right, v);
     float32 det = right.x * v.y - right.y * v.x;
     return (float32)atan2(det, dot) * 180.0 / PI_FLOAT32;
+}
+
+internal float32 
+angle_between_vec2(Vec2 a, Vec2 b)
+{
+    // do we need to normalize the vector?
+    float32 dot = dot_vec2(b, a);
+    float32 det = b.x * a.y - b.y * a.x;
+    float32 angle = (float32)atan2(det, dot) * 180.0 / PI_FLOAT32;
+    return angle;
 }
 
 internal Vec2 
@@ -406,6 +426,13 @@ internal Vec2
 scaled_heading_to_vec2(Vec2 start, Vec2 end, float32 scale)
 {
     return mul_vec2_f32(norm_vec2(sub_vec2(end, start)), scale);
+}
+
+internal Vec2 
+rotate_vec2(Vec2 v, float angle)
+{
+    Mat2 rotation = mat2_rotation(angle);
+    return mul_mat2_vec2(rotation, v);
 }
 
 /* Matrix Operations */

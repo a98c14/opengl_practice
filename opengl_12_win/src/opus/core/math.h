@@ -142,6 +142,7 @@ internal Vec4 sub_vec4(Vec4 a, Vec4 b);
 internal Vec2 mul_vec2_f32(Vec2 a, float32 b);
 internal Vec3 mul_vec3_f32(Vec3 a, float32 b);
 internal Mat3 mul_mat3(Mat3 a, Mat3 b);
+internal Vec2 mul_mat2_vec2(Mat2 m, Vec2 v);
 internal Vec3 mul_mat3_vec3(Mat3 m, Vec3 v);
 internal Mat4 mul_mat4(Mat4 a, Mat4 b);
 internal Vec2 div_vec2_f32(Vec2 a, float32 b);
@@ -160,8 +161,10 @@ internal float32 len_vec2(Vec2 a);
 internal float32 distsqr_vec2(Vec2 a, Vec2 b);
 internal float32 dist_vec2(Vec2 a, Vec2 b);
 internal float32 angle_vec2(Vec2 v);
+internal float32 angle_between_vec2(Vec2 a, Vec2 b);
 internal Vec2 heading_to_vec2(Vec2 start, Vec2 end);
 internal Vec2 scaled_heading_to_vec2(Vec2 start, Vec2 end, float32 scale);
+internal Vec2 rotate_vec2(Vec2 v, float angle);
 
 /* Matrix Operations*/
 internal Mat2 mat2_identity(void);
