@@ -34,6 +34,7 @@ int main(void)
     bool32 smooth_animations = false;
     bool32 rotation_animations = false;
     bool32 angle_constraints = true;
+    bool32 distance_check = true;
 
     const int32 joint_count = 3;
     const float32 arm_length = 100;
@@ -49,6 +50,7 @@ int main(void)
 
     Joint current_joints[3] = {0};
     Joint target_joints[3] = {0};
+    Joint temp_joints[3] = {0};
     current_joints[0] = root;
     target_joints[0] = root;
     for(int i = 1; i < joint_count; i++)
@@ -65,6 +67,7 @@ int main(void)
     target_joints[1].max_angle =  120;
     target_joints[2].min_angle = -180;
     target_joints[2].max_angle =  180;
+    memcpy(temp_joints, target_joints, sizeof(target_joints));
 
 
     /* main loop */
@@ -76,7 +79,10 @@ int main(void)
         Vec2 target = e->mouse.world;
         float32 max_reach_length = joint_count * arm_length;
         float32 distance_to_target = dist_vec2(root.start, target);
-        target = scaled_heading_to_vec2(root.start, target, min(distance_to_target, max_reach_length));
+        if(distance_to_target > max_reach_length)
+        {
+            target = scaled_heading_to_vec2(root.start, target, max_reach_length);
+        }
 
         if(distance_to_target > 1)
         {
@@ -86,11 +92,11 @@ int main(void)
                 Vec2 current_target = target;
                 for(int i = joint_count-1; i >= 0; i--)
                 {
-                    Joint* j = &target_joints[i];
+                    Joint* j = &temp_joints[i];
                     j->end = current_target;
                     Vec2 current_arm = scaled_heading_to_vec2(current_target, j->start, j->length);
                     Vec2 next_arm = current_arm;
-                    if(i < joint_count - 1) next_arm = sub_vec2(target_joints[i+1].end, target_joints[i+1].start);
+                    if(i < joint_count - 1) next_arm = sub_vec2(temp_joints[i+1].end, temp_joints[i+1].start);
 
                     float32 angle = angle_between_vec2(next_arm, current_arm);
                     if(angle > j->max_angle || angle < j->min_angle)
@@ -109,13 +115,13 @@ int main(void)
                 current_target = root.start;
                 for(int i = 0; i < joint_count; i++)
                 {
-                    Joint* j = &target_joints[i];
+                    Joint* j = &temp_joints[i];
                     j->start = current_target;
                     Vec2 current_arm = scaled_heading_to_vec2(current_target, j->end, j->length);
                     Vec2 previous_arm =  vec2_right();
-                    if(i > 0) previous_arm = sub_vec2(target_joints[i-1].end, target_joints[i-1].start);
+                    if(i > 0) previous_arm = sub_vec2(temp_joints[i-1].end, temp_joints[i-1].start);
                     float32 base_rotation = 0;
-                    if(i > 0) base_rotation = target_joints[i-1].rotation;
+                    if(i > 0) base_rotation = temp_joints[i-1].rotation;
 
                     float32 angle = angle_between_vec2(current_arm, previous_arm);
                     if(angle > j->max_angle || angle < j->min_angle)
@@ -138,20 +144,32 @@ int main(void)
                 // reach forward
                 for(int i = joint_count-1; i >= 0; i--)
                 {
-                target_joints[i].end = current_target;
-                target_joints[i].start = add_vec2(current_target, scaled_heading_to_vec2(current_target, target_joints[i].start, target_joints[i].length));
-                target_joints[i].rotation = angle_vec2(sub_vec2(target_joints[i].end, target_joints[i].start));
-                current_target = target_joints[i].start;
+                    temp_joints[i].end = current_target;
+                    temp_joints[i].start = add_vec2(current_target, scaled_heading_to_vec2(current_target, temp_joints[i].start, temp_joints[i].length));
+                    temp_joints[i].rotation = angle_vec2(sub_vec2(temp_joints[i].end, temp_joints[i].start));
+                    current_target = temp_joints[i].start;
                 }
 
                 current_target = root.start;
                 // reach backward
                 for(int i = 0; i < joint_count; i++)
                 {
-                    target_joints[i].start = current_target;
-                    target_joints[i].end = add_vec2(current_target, scaled_heading_to_vec2(current_target, target_joints[i].end, target_joints[i].length));
-                    target_joints[i].rotation = angle_vec2(sub_vec2(target_joints[i].end, target_joints[i].start));
-                    current_target = target_joints[i].end;
+                    temp_joints[i].start = current_target;
+                    temp_joints[i].end = add_vec2(current_target, scaled_heading_to_vec2(current_target, temp_joints[i].end, temp_joints[i].length));
+                    temp_joints[i].rotation = angle_vec2(sub_vec2(temp_joints[i].end, temp_joints[i].start));
+                    current_target = temp_joints[i].end;
+                }
+            }
+
+            if(!distance_check)
+            {
+                memcpy(target_joints, temp_joints, sizeof(target_joints));
+            }
+            else 
+            {
+                if(dist_vec2(temp_joints[joint_count-1].end, target) < dist_vec2(target_joints[joint_count-1].end, target))
+                {
+                    memcpy(target_joints, temp_joints, sizeof(target_joints));
                 }
             }
         }
@@ -205,7 +223,7 @@ int main(void)
         UIWindow window = ui_window(e->ctx, &window_rect, uuid_new(1, 0), string("simulation"), &is_expanded, t->window_default);
         if(window.is_expanded)
         {
-            uint32 row_count = 6;
+            uint32 row_count = 7;
             LayoutGrid layout = layout_grid(rect_anchor(rect_from_wh(window.header.w, em(2) * row_count), window.header, ANCHOR_TL_TL), 4, row_count, e->theme->p2);
             ui_container(e->ctx, layout_grid_container(layout), t->container_light);
             ui_label(e->ctx, layout_grid_cell(layout, 0, 0), string_pushf(e->frame_arena, "Angle [0]: %0.2f", angles[0]), t->label_default);
@@ -220,6 +238,8 @@ int main(void)
             ui_toggle(e->ctx, layout_grid_multicell(layout, 2, 4, 1, 1), uuid_new(6, 0), &angle_constraints, t->toggle_default);
             ui_label(e->ctx, layout_grid_cell(layout, 0, 5), string("Rotation Animations:"), t->label_default);
             ui_toggle(e->ctx, layout_grid_multicell(layout, 2, 5, 1, 1), uuid_new(7, 0), &rotation_animations, t->toggle_default);
+            ui_label(e->ctx, layout_grid_cell(layout, 0, 6), string("Distance Check:"), t->label_default);
+            ui_toggle(e->ctx, layout_grid_multicell(layout, 2, 6, 1, 1), uuid_new(8, 0), &distance_check, t->toggle_default);
         }
         
 
