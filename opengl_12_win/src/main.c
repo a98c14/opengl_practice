@@ -36,45 +36,17 @@ int main(void)
     bool32 angle_constraints = true;
     bool32 distance_check = true;
 
-
-    float32 angles[3] = { 30, 60, 90};
-
-    // Joint_Deprecated root;
-    // root.start = vec2(100, 0);
-    // root.rotation = 0;
-    // root.length = arm_length;
-    // root.end = calculate_joint_end(root);
-
-    // Joint_Deprecated current_joints[3] = {0};
-    // Joint_Deprecated target_joints[3] = {0};
-    // Joint_Deprecated temp_joints[3] = {0};
-    // current_joints[0] = root;
-    // target_joints[0] = root;
-    // for(int i = 1; i < joint_count; i++)
-    // {
-    //     current_joints[i].start = current_joints[i-1].end;
-    //     current_joints[i].rotation = 90;
-    //     current_joints[i].length = arm_length;
-    //     current_joints[i].end = calculate_joint_end(current_joints[i]);
-    //     target_joints[i] = current_joints[i];
-    // }
-    // target_joints[0].min_angle = -180;
-    // target_joints[0].max_angle = 180;
-    // target_joints[1].min_angle = -120;
-    // target_joints[1].max_angle =  120;
-    // target_joints[2].min_angle = -90;
-    // target_joints[2].max_angle =  90;
-    // memcpy(temp_joints, target_joints, sizeof(target_joints));
-
     const float32 arm_length = 100;
-    Joint joints[3] = {0};
-    int32 joint_count = array_count(joints);
+    int32 joint_count = 3;
+    Joint* joints = arena_push_array_zero(e->persistent_arena, Joint, joint_count);
+    Joint* temp_joints = arena_push_array_zero(e->persistent_arena, Joint, joint_count);
     float32 reach_threshold = 1;
 
     joints[0] = joint(vec2(-200, 0), 90, 0, arm_length);
     joints[1] = joint(vec2_zero(), 90, 0, arm_length);
     joints[2] = joint(vec2_zero(), 90, 0, arm_length);
     Joint root = joints[0];
+    memcpy(temp_joints, joints, joint_count * sizeof(Joint));
 
     /* main loop */
     while (!glfwWindowShouldClose(e->window->glfw_window))
@@ -92,8 +64,22 @@ int main(void)
 
         if(distance_to_target > reach_threshold)
         {
-            fabrik_reach_forward(target, joints, joint_count);
-            fabrik_reach_backwards(root.position, joints, joint_count);
+            if(!distance_check)
+            {
+                fabrik_reach_forward(target, joints, joint_count);
+                fabrik_reach_backwards(root.position, joints, joint_count);
+            }
+            else
+            {
+                float32 end_distance_to_target = distsqr_vec2(joint_end(joints[joint_count-1]), target);
+                fabrik_reach_forward(target, temp_joints, joint_count);
+                fabrik_reach_backwards(root.position, temp_joints, joint_count);
+                float32 new_end_distance_to_target = distsqr_vec2(joint_end(temp_joints[joint_count-1]), target);
+                if(new_end_distance_to_target < end_distance_to_target)
+                {
+                    memcpy(joints, temp_joints, joint_count * sizeof(Joint));
+                }
+            }
         }
 
         // draw
@@ -108,12 +94,6 @@ int main(void)
             uint32 row_count = 7;
             LayoutGrid layout = layout_grid(rect_anchor(rect_from_wh(window.header.w, em(2) * row_count), window.header, ANCHOR_TL_TL), 4, row_count, e->theme->p2);
             ui_container(e->ctx, layout_grid_container(layout), t->container_light);
-            ui_label(e->ctx, layout_grid_cell(layout, 0, 0), string_pushf(e->frame_arena, "Angle [0]: %0.2f", angles[0]), t->label_default);
-            ui_slider(e->ctx, layout_grid_multicell(layout, 2, 0, 2, 1), uuid_new(2, 0), range(-360, 360), &angles[0], t->slider_default);
-            ui_label(e->ctx, layout_grid_cell(layout, 0, 1), string_pushf(e->frame_arena, "Angle [1]: %0.2f", angles[1]), t->label_default);
-            ui_slider(e->ctx, layout_grid_multicell(layout, 2, 1, 2, 1), uuid_new(3, 0), range(-360, 360), &angles[1], t->slider_default);
-            ui_label(e->ctx, layout_grid_cell(layout, 0, 2), string_pushf(e->frame_arena, "Angle [2] %0.2f", angles[2]), t->label_default);
-            ui_slider(e->ctx, layout_grid_multicell(layout, 2, 2, 2, 1), uuid_new(4, 0), range(-360, 360), &angles[2], t->slider_default);
             ui_label(e->ctx, layout_grid_cell(layout, 0, 3), string("Smooth animations:"), t->label_default);
             ui_toggle(e->ctx, layout_grid_multicell(layout, 2, 3, 1, 1), uuid_new(5, 0), &smooth_animations, t->toggle_default);
             ui_label(e->ctx, layout_grid_cell(layout, 0, 4), string("Rotation Constraints:"), t->label_default);
