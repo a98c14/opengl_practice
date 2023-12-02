@@ -1,7 +1,7 @@
 #include "kinematics.h"
 
 internal Joint 
-joint(Vec2 pos, float32 rotation, float32 default_rotation, float32 length)
+joint(Vec2 pos, float32 rotation, float32 default_rotation, float32 length, float32 rotation_constraint)
 {
     Joint result;
     result.position = pos;
@@ -9,6 +9,7 @@ joint(Vec2 pos, float32 rotation, float32 default_rotation, float32 length)
     result.local_rotation = rotation;
     result.default_rotation = default_rotation;
     result.length = length;
+    result.rotation_constraint = rotation_constraint;
     return result;
 }
 
@@ -87,7 +88,7 @@ fabrik_reach_forward(Vec2 target, Joint* joints, int32 joint_count)
         {
             fix_base_rotation(&joints[i+1], j);
             // rotation constraint
-            float32 diff = joints[i+1].local_rotation - min(joints[i+1].local_rotation, 90);
+            float32 diff = joints[i+1].local_rotation - min(joints[i+1].local_rotation, joints[i+1].rotation_constraint);
             if(diff > 0)
             {
                 j.position = add_vec2(current_target, rotate_vec2(sub_vec2(j.position, current_target), diff));
@@ -114,7 +115,7 @@ fabrik_reach_backwards(Vec2 position, Joint* joints, int32 joint_count)
         new_start_position = joint_end(j);
 
         // rotation constraint
-        float32 diff = j.local_rotation - min(j.local_rotation, 90);
+        float32 diff = j.local_rotation - min(j.local_rotation, j.rotation_constraint);
         if(diff > 0)
         {
             new_start_position = add_vec2(j.position, rotate_vec2(sub_vec2(new_start_position, j.position), -diff));
@@ -128,6 +129,18 @@ fabrik_reach_backwards(Vec2 position, Joint* joints, int32 joint_count)
 
         joints[i] = j;
     }
+}
+
+internal Joint
+lerp_joint(Joint a, Joint b, float32 dt)
+{
+    Joint result;
+    result.base_rotation = lerp_f32(a.base_rotation, b.base_rotation, dt);
+    result.local_rotation = lerp_f32(a.local_rotation, b.local_rotation, dt);
+    result.default_rotation = lerp_f32(a.default_rotation, b.default_rotation, dt);
+    result.length = lerp_f32(a.length, b.length, dt);
+    result.position = b.position;
+    return result;
 }
 
 /** Fixes the base rotation for the child. Needs to be called

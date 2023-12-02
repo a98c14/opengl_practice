@@ -31,8 +31,7 @@ int main(void)
     /* ui stuff */
     Rect window_rect = rect(200, 100, 180, 100);
     bool32 is_expanded = false;
-    bool32 smooth_animations = false;
-    bool32 rotation_animations = false;
+    bool32 smooth_animations = true;
     bool32 angle_constraints = true;
     bool32 distance_check = true;
 
@@ -40,11 +39,12 @@ int main(void)
     int32 joint_count = 3;
     Joint* joints = arena_push_array_zero(e->persistent_arena, Joint, joint_count);
     Joint* temp_joints = arena_push_array_zero(e->persistent_arena, Joint, joint_count);
+    Joint* visual_joints = arena_push_array_zero(e->persistent_arena, Joint, joint_count);
     float32 reach_threshold = 1;
 
-    joints[0] = joint(vec2(-200, 0), 90, 0, arm_length);
-    joints[1] = joint(vec2_zero(), 90, 0, arm_length);
-    joints[2] = joint(vec2_zero(), 90, 0, arm_length);
+    joints[0] = joint(vec2(-200, 0), 90, 0, arm_length, 180);
+    joints[1] = joint(vec2_zero(), 90, 0, arm_length, 90);
+    joints[2] = joint(vec2_zero(), 90, 0, arm_length, 360);
     Joint root = joints[0];
     memcpy(temp_joints, joints, joint_count * sizeof(Joint));
 
@@ -82,10 +82,24 @@ int main(void)
             }
         }
 
+        
+        if(smooth_animations)
+        {
+            for(int32 i = 0; i < joint_count; i++)
+            {
+                visual_joints[i] = lerp_joint(visual_joints[i], joints[i], dt*8);
+                if(i > 0) visual_joints[i].position = joint_end(visual_joints[i-1]);
+            }
+        }
+        else
+        {
+            memcpy(visual_joints, joints, joint_count * sizeof(Joint));
+        }
+
         // draw
         for(int32 i = 0; i < joint_count; i++)
         {
-            draw_joint(e, joints[i]);
+            draw_joint(e, visual_joints[i]);
         }
 
         UIWindow window = ui_window(e->ctx, &window_rect, uuid_new(1, 0), string("simulation"), &is_expanded, t->window_default);
@@ -98,8 +112,6 @@ int main(void)
             ui_toggle(e->ctx, layout_grid_multicell(layout, 2, 3, 1, 1), uuid_new(5, 0), &smooth_animations, t->toggle_default);
             ui_label(e->ctx, layout_grid_cell(layout, 0, 4), string("Rotation Constraints:"), t->label_default);
             ui_toggle(e->ctx, layout_grid_multicell(layout, 2, 4, 1, 1), uuid_new(6, 0), &angle_constraints, t->toggle_default);
-            ui_label(e->ctx, layout_grid_cell(layout, 0, 5), string("Rotation Animations:"), t->label_default);
-            ui_toggle(e->ctx, layout_grid_multicell(layout, 2, 5, 1, 1), uuid_new(7, 0), &rotation_animations, t->toggle_default);
             ui_label(e->ctx, layout_grid_cell(layout, 0, 6), string("Distance Check:"), t->label_default);
             ui_toggle(e->ctx, layout_grid_multicell(layout, 2, 6, 1, 1), uuid_new(8, 0), &distance_check, t->toggle_default);
         }

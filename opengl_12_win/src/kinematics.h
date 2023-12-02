@@ -22,10 +22,11 @@ typedef struct
     float32 base_rotation;
     float32 local_rotation;
     float32 length;
+    float32 rotation_constraint;
 } Joint;
 
 internal Joint 
-joint(Vec2 pos, float32 rotation, float32 default_rotation, float32 length);
+joint(Vec2 pos, float32 rotation, float32 default_rotation, float32 length, float32 rotation_constraint);
 
 internal Vec2
 joint_end(Joint j);
