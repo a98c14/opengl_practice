@@ -86,6 +86,7 @@ fabrik_reach_forward(Vec2 target, Joint* joints, int32 joint_count)
         if(i < joint_count - 1) 
         {
             fix_base_rotation(&joints[i+1], j);
+            // rotation constraint
             float32 diff = joints[i+1].local_rotation - min(joints[i+1].local_rotation, 90);
             if(diff > 0)
             {
@@ -110,12 +111,22 @@ fabrik_reach_backwards(Vec2 position, Joint* joints, int32 joint_count)
         float32 new_rotation = angle_vec2(sub_vec2(old_end_position, new_start_position));
         j.position = new_start_position;
         j = joint_rotate(j, new_rotation);
-        joints[i] = j;
         new_start_position = joint_end(j);
+
+        // rotation constraint
+        float32 diff = j.local_rotation - min(j.local_rotation, 90);
+        if(diff > 0)
+        {
+            new_start_position = add_vec2(j.position, rotate_vec2(sub_vec2(new_start_position, j.position), -diff));
+            j = joint_rotate(j, angle_vec2(sub_vec2(new_start_position, j.position)));
+        }
+
         if(i < joint_count - 1) 
         {
-            fix_base_rotation(&joints[i+1], j);
+            fix_base_rotation(&joints[i+1], j);            
         }
+
+        joints[i] = j;
     }
 }
 
