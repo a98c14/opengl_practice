@@ -50,7 +50,11 @@ internal void
 draw_joint(Engine* e, Joint j)
 {
     draw_line(e->draw_context, j.position, joint_end(j), ColorWhite, 2);
-    draw_circle_partially_filled(e->draw_context, j.position, j.base_rotation, 20, ColorAmber700A, 0,  joint_rotation(j) - j.base_rotation);
+    draw_circle_partially_filled(e->draw_context, j.position, j.base_rotation, 25, ColorBlue400A, 0,  j.rotation_constraint);
+    draw_circle_partially_filled(e->draw_context, j.position, j.base_rotation, 25, ColorAmber700A, 0,  joint_rotation(j) - j.base_rotation);
+    draw_circle(e->draw_context, j.position, 25, ColorWhite);
+    draw_arrow(e->draw_context, j.position, 30, j.base_rotation+j.default_rotation, ColorGreen500, 2);
+    draw_arrow(e->draw_context, j.position, 30, j.base_rotation+j.default_rotation+j.local_rotation, ColorRed500, 2);
     draw_text(e->draw_context, vec2(j.position.x + 5, j.position.y + 10), string_pushf(e->frame_arena, "Local: %0.2f", j.local_rotation), AlignmentBottomLeft, e->theme->font_default_light);
     draw_text(e->draw_context, vec2(j.position.x + 5, j.position.y + 15), string_pushf(e->frame_arena, "Base: %0.2f", j.base_rotation), AlignmentBottomLeft, e->theme->font_default_light);
     draw_text(e->draw_context, vec2(j.position.x + 5, j.position.y + 20), string_pushf(e->frame_arena, "Default: %0.2f", j.default_rotation), AlignmentBottomLeft, e->theme->font_default_light);
@@ -140,6 +144,7 @@ lerp_joint(Joint a, Joint b, float32 dt)
     result.default_rotation = lerp_f32(a.default_rotation, b.default_rotation, dt);
     result.length = lerp_f32(a.length, b.length, dt);
     result.position = b.position;
+    result.rotation_constraint = b.rotation_constraint;
     return result;
 }
 

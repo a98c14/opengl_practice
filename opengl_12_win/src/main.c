@@ -36,7 +36,7 @@ int main(void)
     bool32 distance_check = true;
 
     const float32 arm_length = 100;
-    int32 joint_count = 3;
+    int32 joint_count = 2;
     Joint* joints = arena_push_array_zero(e->persistent_arena, Joint, joint_count);
     Joint* temp_joints = arena_push_array_zero(e->persistent_arena, Joint, joint_count);
     Joint* visual_joints = arena_push_array_zero(e->persistent_arena, Joint, joint_count);
@@ -44,9 +44,10 @@ int main(void)
 
     joints[0] = joint(vec2(-200, 0), 90, 0, arm_length, 180);
     joints[1] = joint(vec2_zero(), 90, 0, arm_length, 90);
-    joints[2] = joint(vec2_zero(), 90, 0, arm_length, 360);
+    // joints[2] = joint(vec2_zero(), 90, 0, arm_length, 360);
     Joint root = joints[0];
     memcpy(temp_joints, joints, joint_count * sizeof(Joint));
+    memcpy(visual_joints, joints, joint_count * sizeof(Joint));
 
     /* main loop */
     while (!glfwWindowShouldClose(e->window->glfw_window))
@@ -82,7 +83,6 @@ int main(void)
             }
         }
 
-        
         if(smooth_animations)
         {
             for(int32 i = 0; i < joint_count; i++)

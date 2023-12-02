@@ -112,7 +112,7 @@ global const Color ColorBlue800 = { .r= 0x15, .g = 0x65, .b=0xc0, .a = 0xff };
 global const Color ColorBlue900 = { .r= 0x0d, .g = 0x47, .b=0xa1, .a = 0xff };
 global const Color ColorBlue100A = { .r= 0x82, .g = 0xb1, .b=0xff, .a = 0xff };
 global const Color ColorBlue200A = { .r= 0x44, .g = 0x8a, .b=0xff, .a = 0xff };
-global const Color ColorBlue400A = { .r= 0x29, .g = 0x79, .b=0xff, .a = 0xff };
+global const Color ColorBlue400A = { .r= 0x29, .g = 0x79, .b=0xff, .a = 0xaa };
 global const Color ColorBlue700A = { .r= 0x29, .g = 0x62, .b=0xff, .a = 0xff };
 global const Color ColorLightBlue = { .r= 0x03, .g = 0xa9, .b=0xf4, .a = 0xff };
 global const Color ColorLightBlue50 = { .r= 0xe1, .g = 0xf5, .b=0xfe, .a = 0xff };
