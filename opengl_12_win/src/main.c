@@ -42,8 +42,9 @@ int main(void)
     Joint* visual_joints = arena_push_array_zero(e->persistent_arena, Joint, joint_count);
     float32 reach_threshold = 1;
 
-    joints[0] = joint(vec2(-200, 0), 90, 0, arm_length, 180);
+    joints[0] = joint(vec2(-200, 0), 90, -60, arm_length, 180);
     joints[1] = joint(vec2_zero(), 90, 0, arm_length, 180);
+    
     // joints[2] = joint(vec2_zero(), 90, 0, arm_length, 360);
     Joint root = joints[0];
     memcpy(temp_joints, joints, joint_count * sizeof(Joint));
@@ -58,29 +59,32 @@ int main(void)
         Vec2 target = e->mouse.world;
         float32 max_reach_length = joint_count * arm_length;
         float32 distance_to_target = dist_vec2(root.position, target);
-        if(distance_to_target > max_reach_length)
-            target = move_towards_vec2(root.position, target, max_reach_length);
+        target = move_towards_vec2(root.position, target, min(max_reach_length, distance_to_target));
         draw_circle_filled(dc, circle(target, 5), ColorRed300);
         draw_line(dc, root.position, e->mouse.world, ColorSlate500, 2);
 
-        if(distance_to_target > reach_threshold)
+        int32 attempt = 0;
+        while(attempt < 100 && distance_to_target > reach_threshold)
+        // if(distance_to_target > reach_threshold)
         {
+            attempt++;            
             if(!distance_check)
             {
-                fabrik_reach_forward(target, joints, joint_count);
-                fabrik_reach_backwards(root.position, joints, joint_count);
+                fabrik_reach_forward(target, joints, joint_count, angle_constraints);
+                fabrik_reach_backwards(root.position, joints, joint_count, angle_constraints);
             }
             else
             {
                 float32 end_distance_to_target = distsqr_vec2(joint_end(joints[joint_count-1]), target);
-                fabrik_reach_forward(target, temp_joints, joint_count);
-                fabrik_reach_backwards(root.position, temp_joints, joint_count);
+                fabrik_reach_forward(target, temp_joints, joint_count, angle_constraints);
+                fabrik_reach_backwards(root.position, temp_joints, joint_count, angle_constraints);
                 float32 new_end_distance_to_target = distsqr_vec2(joint_end(temp_joints[joint_count-1]), target);
                 if(new_end_distance_to_target < end_distance_to_target)
                 {
                     memcpy(joints, temp_joints, joint_count * sizeof(Joint));
                 }
             }
+            distance_to_target = dist_vec2(root.position, target);
         }
 
         if(smooth_animations)

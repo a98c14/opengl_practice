@@ -67,7 +67,7 @@ draw_arm(DrawContext* dc, Vec2 position, float32 rotation,float32 length)
 }
 
 internal void
-fabrik_reach_forward(Vec2 target, Joint* joints, int32 joint_count)
+fabrik_reach_forward(Vec2 target, Joint* joints, int32 joint_count, bool32 rotation_constraint)
 {
     Vec2 current_target = target;
     for(int i = joint_count-1; i >= 0; i--)
@@ -78,13 +78,16 @@ fabrik_reach_forward(Vec2 target, Joint* joints, int32 joint_count)
         if(i < joint_count - 1) 
         {
             fix_base_rotation(&joints[i+1], j);
-            // rotation constraint
-            float32 diff = joints[i+1].local_rotation - min(joints[i+1].local_rotation, joints[i+1].rotation_constraint);
-            if(diff > 0)
+
+            if(rotation_constraint)
             {
-                j.position = add_vec2(current_target, rotate_vec2(sub_vec2(j.position, current_target), diff));
-                j = joint_rotate(j, angle_vec2(sub_vec2(current_target, j.position)));
-                fix_base_rotation(&joints[i+1], j);
+                float32 diff = joints[i+1].local_rotation - min(joints[i+1].local_rotation, joints[i+1].rotation_constraint);
+                if(diff > 0)
+                {
+                    j.position = add_vec2(current_target, rotate_vec2(sub_vec2(j.position, current_target), diff));
+                    j = joint_rotate(j, angle_vec2(sub_vec2(current_target, j.position)));
+                    fix_base_rotation(&joints[i+1], j);
+                }
             }
         }
         joints[i] = j;
@@ -93,7 +96,7 @@ fabrik_reach_forward(Vec2 target, Joint* joints, int32 joint_count)
 }
 
 internal void
-fabrik_reach_backwards(Vec2 position, Joint* joints, int32 joint_count)
+fabrik_reach_backwards(Vec2 position, Joint* joints, int32 joint_count, bool32 rotation_constraint)
 {
     Vec2 new_start_position = position;
     for(int i = 0; i < joint_count; i++)
@@ -106,11 +109,14 @@ fabrik_reach_backwards(Vec2 position, Joint* joints, int32 joint_count)
         new_start_position = joint_end(j);
 
         // rotation constraint
-        float32 diff = j.local_rotation - min(j.local_rotation, j.rotation_constraint);
-        if(diff > 0)
+        if(rotation_constraint)
         {
-            new_start_position = add_vec2(j.position, rotate_vec2(sub_vec2(new_start_position, j.position), -diff));
-            j = joint_rotate(j, angle_vec2(sub_vec2(new_start_position, j.position)));
+            float32 diff = j.local_rotation - min(j.local_rotation, j.rotation_constraint);
+            if(diff > 0)
+            {
+                new_start_position = add_vec2(j.position, rotate_vec2(sub_vec2(new_start_position, j.position), -diff));
+                j = joint_rotate(j, angle_vec2(sub_vec2(new_start_position, j.position)));
+            }
         }
 
         if(i < joint_count - 1) 

@@ -32,10 +32,10 @@ internal void
 draw_arm(DrawContext* dc, Vec2 position, float32 rotation,float32 length);
 
 internal void
-fabrik_reach_forward(Vec2 target, Joint* joints, int32 joint_count);
+fabrik_reach_forward(Vec2 target, Joint* joints, int32 joint_count, bool32 rotation_constraint);
 
 internal void
-fabrik_reach_backwards(Vec2 position, Joint* joints, int32 joint_count);
+fabrik_reach_backwards(Vec2 position, Joint* joints, int32 joint_count, bool32 rotation_constraint);
 
 internal void
 fix_base_rotation(Joint* child, Joint parent);
