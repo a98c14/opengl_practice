@@ -38,7 +38,7 @@ joint_rotation(Joint j)
 }
 
 internal Joint
-joint_set_rotation(Joint j, float32 angle)
+joint_rotate(Joint j, float32 angle)
 {
     j.local_rotation = angle - j.base_rotation - j.default_rotation;
     if(j.local_rotation < 0) j.local_rotation = 360 + j.local_rotation;
@@ -82,7 +82,7 @@ fabrik_reach_forward(Vec2 target, Joint* joints, int32 joint_count)
     {
         Joint j = joints[i];
         j.position = move_towards_vec2(current_target, j.position, j.length);
-        j = joint_set_rotation(j, angle_vec2(sub_vec2(current_target, j.position)));
+        j = joint_rotate(j, angle_vec2(sub_vec2(current_target, j.position)));
         if(i < joint_count - 1)
         {
             Joint next = joints[i+1];
@@ -94,6 +94,22 @@ fabrik_reach_forward(Vec2 target, Joint* joints, int32 joint_count)
         }
         joints[i] = j;
         current_target = j.position;
+    }
+}
+
+internal void
+fabrik_reach_backwards(Vec2 position, Joint* joints, int32 joint_count)
+{
+    Vec2 new_start_position = position;
+    for(int i = 0; i < joint_count; i++)
+    {
+        Joint j = joints[i];
+        Vec2 old_end_position = joint_end(j);
+        float32 new_rotation = angle_vec2(sub_vec2(old_end_position, new_start_position));
+        j.position = new_start_position;
+        j = joint_rotate(j, new_rotation);
+        joints[i] = j;
+        new_start_position = joint_end(j);
     }
 }
 

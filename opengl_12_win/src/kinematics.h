@@ -37,7 +37,7 @@ internal float32
 joint_rotation(Joint j);
 
 internal Joint
-joint_set_rotation(Joint j, float32 angle);
+joint_rotate(Joint j, float32 angle);
 
 internal void
 draw_joint(Engine* e, Joint j);
@@ -50,3 +50,9 @@ draw_arm(DrawContext* dc, Vec2 position, float32 rotation,float32 length);
 
 internal Vec2
 calculate_joint_end(Joint_Deprecated j);
+
+internal void
+fabrik_reach_forward(Vec2 target, Joint* joints, int32 joint_count);
+
+internal void
+fabrik_reach_backwards(Vec2 position, Joint* joints, int32 joint_count);
