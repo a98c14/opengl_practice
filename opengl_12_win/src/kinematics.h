@@ -1,20 +1,5 @@
 #pragma once
 #include "app.h"
-
-typedef struct
-{
-    Vec2 start;
-    Vec2 end;
-    float32 rotation;
-    float32 length; 
-
-    float32 local_rotation; // TEMP:
-
-    // constraints
-    float32 min_angle;
-    float32 max_angle;
-} Joint_Deprecated;
-
 typedef struct
 {
     Vec2 position;
@@ -44,13 +29,7 @@ internal void
 draw_joint(Engine* e, Joint j);
 
 internal void 
-draw_joint_deprecated(Engine* e, Joint_Deprecated j);
-
-internal void 
 draw_arm(DrawContext* dc, Vec2 position, float32 rotation,float32 length);
-
-internal Vec2
-calculate_joint_end(Joint_Deprecated j);
 
 internal void
 fabrik_reach_forward(Vec2 target, Joint* joints, int32 joint_count);

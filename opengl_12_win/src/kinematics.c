@@ -50,27 +50,14 @@ internal void
 draw_joint(Engine* e, Joint j)
 {
     draw_line(e->draw_context, j.position, joint_end(j), ColorWhite, 2);
-    draw_circle_partially_filled(e->draw_context, j.position, j.base_rotation, 25, ColorBlue400A, 0,  j.rotation_constraint);
-    draw_circle_partially_filled(e->draw_context, j.position, j.base_rotation, 25, ColorAmber700A, 0,  joint_rotation(j) - j.base_rotation);
+    draw_circle_partially_filled(e->draw_context, j.position, j.base_rotation + j.default_rotation, 25, ColorBlue400A, 0,  j.rotation_constraint);
+    draw_circle_partially_filled(e->draw_context, j.position, j.base_rotation + j.default_rotation, 25, ColorAmber700A, 0,  j.local_rotation);
     draw_circle(e->draw_context, j.position, 25, ColorWhite);
     draw_arrow(e->draw_context, j.position, 30, j.base_rotation+j.default_rotation, ColorGreen500, 2);
     draw_arrow(e->draw_context, j.position, 30, j.base_rotation+j.default_rotation+j.local_rotation, ColorRed500, 2);
     draw_text(e->draw_context, vec2(j.position.x + 5, j.position.y + 10), string_pushf(e->frame_arena, "Local: %0.2f", j.local_rotation), AlignmentBottomLeft, e->theme->font_default_light);
     draw_text(e->draw_context, vec2(j.position.x + 5, j.position.y + 15), string_pushf(e->frame_arena, "Base: %0.2f", j.base_rotation), AlignmentBottomLeft, e->theme->font_default_light);
     draw_text(e->draw_context, vec2(j.position.x + 5, j.position.y + 20), string_pushf(e->frame_arena, "Default: %0.2f", j.default_rotation), AlignmentBottomLeft, e->theme->font_default_light);
-}
-
-internal void 
-draw_joint_deprecated(Engine* e, Joint_Deprecated j)
-{
-    float32 angle = j.rotation;
-    draw_circle_partially_filled(e->draw_context, j.start, j.rotation - j.local_rotation, 20, ColorAmber700A, j.min_angle, j.max_angle);
-    draw_line(e->draw_context, j.start, j.end, ColorWhite, 2);
-    draw_arrow(e->draw_context, j.start, 20, angle+90, ColorBlue500, 2);
-    draw_arrow(e->draw_context, j.start, 20, angle, ColorRed500, 2);
-    draw_circle(e->draw_context, j.start, 20, ColorWhite);
-    draw_text(e->draw_context, vec2(j.start.x, j.start.y + 25), string_pushf(e->frame_arena, "Base: %0.2f", j.rotation), AlignmentBottom, e->theme->font_default_light);
-    draw_text(e->draw_context, vec2(j.start.x, j.start.y + 20), string_pushf(e->frame_arena, "Local: %0.2f", j.local_rotation), AlignmentBottom, e->theme->font_default_light);
 }
 
 internal void 
@@ -158,19 +145,4 @@ fix_base_rotation(Joint* child, Joint parent)
     child->local_rotation = child->local_rotation + child->base_rotation - new_base_rotation;
     if(child->local_rotation < 0) child->local_rotation = 360 + child->local_rotation;
     child->base_rotation = new_base_rotation;    
-}
-
-
-internal Vec2
-calculate_joint_start(Joint_Deprecated j)
-{
-    Vec2 result = add_vec2(j.start, heading_inverse_vec2_scaled(j.rotation, j.length));
-    return result;
-}
-
-internal Vec2
-calculate_joint_end(Joint_Deprecated j)
-{
-    Vec2 result = add_vec2(j.start, heading_vec2_scaled(j.rotation, j.length));
-    return result;
 }
