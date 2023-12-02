@@ -43,7 +43,7 @@ int main(void)
     float32 reach_threshold = 1;
 
     joints[0] = joint(vec2(-200, 0), 90, 0, arm_length, 180);
-    joints[1] = joint(vec2_zero(), 90, -90, arm_length, 180);
+    joints[1] = joint(vec2_zero(), 90, 0, arm_length, 180);
     // joints[2] = joint(vec2_zero(), 90, 0, arm_length, 360);
     Joint root = joints[0];
     memcpy(temp_joints, joints, joint_count * sizeof(Joint));
