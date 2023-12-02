@@ -56,3 +56,6 @@ fabrik_reach_forward(Vec2 target, Joint* joints, int32 joint_count);
 
 internal void
 fabrik_reach_backwards(Vec2 position, Joint* joints, int32 joint_count);
+
+internal void
+fix_base_rotation(Joint* child, Joint parent);

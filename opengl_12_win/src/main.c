@@ -93,7 +93,7 @@ int main(void)
         if(distance_to_target > reach_threshold)
         {
             fabrik_reach_forward(target, joints, joint_count);
-            fabrik_reach_backwards(root.position, joints, joint_count);
+            // fabrik_reach_backwards(root.position, joints, joint_count);
         }
 
         // draw

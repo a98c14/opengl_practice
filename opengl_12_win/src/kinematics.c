@@ -83,14 +83,16 @@ fabrik_reach_forward(Vec2 target, Joint* joints, int32 joint_count)
         Joint j = joints[i];
         j.position = move_towards_vec2(current_target, j.position, j.length);
         j = joint_rotate(j, angle_vec2(sub_vec2(current_target, j.position)));
-        if(i < joint_count - 1)
+        if(i < joint_count - 1) 
         {
-            Joint next = joints[i+1];
-            float32 new_base_rotation = joint_rotation(j) - 180;
-            next.local_rotation = next.local_rotation + next.base_rotation - new_base_rotation;
-            if(next.local_rotation < 0) next.local_rotation = 360 + next.local_rotation;
-            next.base_rotation = new_base_rotation;
-            joints[i+1] = next;
+            fix_base_rotation(&joints[i+1], j);
+            float32 diff = joints[i+1].local_rotation - min(joints[i+1].local_rotation, 90);
+            if(diff > 0)
+            {
+                j.position = add_vec2(current_target, rotate_vec2(sub_vec2(j.position, current_target), diff));
+                j = joint_rotate(j, angle_vec2(sub_vec2(current_target, j.position)));
+                fix_base_rotation(&joints[i+1], j);
+            }
         }
         joints[i] = j;
         current_target = j.position;
@@ -110,8 +112,25 @@ fabrik_reach_backwards(Vec2 position, Joint* joints, int32 joint_count)
         j = joint_rotate(j, new_rotation);
         joints[i] = j;
         new_start_position = joint_end(j);
+        if(i < joint_count - 1) 
+        {
+            fix_base_rotation(&joints[i+1], j);
+        }
     }
 }
+
+/** Fixes the base rotation for the child. Needs to be called
+ * when parent rotation changes so it propagates to the child.
+ */
+internal void
+fix_base_rotation(Joint* child, Joint parent)
+{
+    float32 new_base_rotation = joint_rotation(parent) - 180;
+    child->local_rotation = child->local_rotation + child->base_rotation - new_base_rotation;
+    if(child->local_rotation < 0) child->local_rotation = 360 + child->local_rotation;
+    child->base_rotation = new_base_rotation;    
+}
+
 
 internal Vec2
 calculate_joint_start(Joint_Deprecated j)
