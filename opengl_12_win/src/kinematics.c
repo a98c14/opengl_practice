@@ -83,6 +83,15 @@ fabrik_reach_forward(Vec2 target, Joint* joints, int32 joint_count)
         Joint j = joints[i];
         j.position = move_towards_vec2(current_target, j.position, j.length);
         j = joint_set_rotation(j, angle_vec2(sub_vec2(current_target, j.position)));
+        if(i < joint_count - 1)
+        {
+            Joint next = joints[i+1];
+            float32 new_base_rotation = joint_rotation(j) - 180;
+            next.local_rotation = next.local_rotation + next.base_rotation - new_base_rotation;
+            if(next.local_rotation < 0) next.local_rotation = 360 + next.local_rotation;
+            next.base_rotation = new_base_rotation;
+            joints[i+1] = next;
+        }
         joints[i] = j;
         current_target = j.position;
     }
