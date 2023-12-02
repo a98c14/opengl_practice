@@ -47,7 +47,7 @@ vec2_right()
 }
 
 internal Vec2 
-vec2_heading(float32 angle)
+heading_vec2(float32 angle)
 {
     float32 radian = angle * PI_FLOAT32 / 180.0;
     float32 cosx = (float32)cosf(radian);
@@ -60,21 +60,21 @@ vec2_heading(float32 angle)
 }
 
 internal Vec2 
-vec2_inverse_heading(float32 angle)
+heading_inverse_vec2(float32 angle)
 {
-    return mul_vec2_f32(vec2_heading(angle), -1);
+    return mul_vec2_f32(heading_vec2(angle), -1);
 }
 
 internal Vec2 
-vec2_heading_scaled(float32 angle, float32 scale)
+heading_vec2_scaled(float32 angle, float32 scale)
 {
-    return mul_vec2_f32(vec2_heading(angle), scale);
+    return mul_vec2_f32(heading_vec2(angle), scale);
 }
 
 internal Vec2 
-vec2_inverse_heading_scaled(float32 angle, float32 scale)
+heading_inverse_vec2_scaled(float32 angle, float32 scale)
 {
-    return mul_vec2_f32(vec2_inverse_heading(angle), scale);
+    return mul_vec2_f32(heading_inverse_vec2(angle), scale);
 }
 
 internal Vec3 
@@ -422,10 +422,28 @@ heading_to_vec2(Vec2 start, Vec2 end)
     return norm_vec2(sub_vec2(end, start));
 }
 
+internal Vec2 
+inverse_heading_to_vec2(Vec2 start, Vec2 end)
+{
+    return mul_vec2_f32(heading_to_vec2(start, end), -1);
+}
+
 internal Vec2
 scaled_heading_to_vec2(Vec2 start, Vec2 end, float32 scale)
 {
-    return mul_vec2_f32(norm_vec2(sub_vec2(end, start)), scale);
+    return mul_vec2_f32(heading_to_vec2(end, start), scale);
+}
+
+internal Vec2
+inverse_scaled_heading_to_vec2(Vec2 start, Vec2 end, float32 scale)
+{
+    return mul_vec2_f32(heading_to_vec2(end, start), -scale);
+}
+
+internal Vec2
+move_towards_vec2(Vec2 from, Vec2 to, float32 length)
+{
+    return add_vec2(from, mul_vec2_f32(norm_vec2(sub_vec2(to, from)), length));
 }
 
 internal Vec2 

@@ -36,39 +36,45 @@ int main(void)
     bool32 angle_constraints = true;
     bool32 distance_check = true;
 
-    const int32 joint_count = 3;
-    const float32 arm_length = 100;
-    const float32 thickness = 3;
-    const Vec4 color = color_to_vec4(ColorWhite);
+
     float32 angles[3] = { 30, 60, 90};
 
-    Joint root;
-    root.start = vec2_zero();
-    root.rotation = 0;
-    root.length = arm_length;
-    root.end = calculate_joint_end(root);
+    // Joint_Deprecated root;
+    // root.start = vec2(100, 0);
+    // root.rotation = 0;
+    // root.length = arm_length;
+    // root.end = calculate_joint_end(root);
 
-    Joint current_joints[3] = {0};
-    Joint target_joints[3] = {0};
-    Joint temp_joints[3] = {0};
-    current_joints[0] = root;
-    target_joints[0] = root;
-    for(int i = 1; i < joint_count; i++)
-    {
-        current_joints[i].start = current_joints[i-1].end;
-        current_joints[i].rotation = 90;
-        current_joints[i].length = arm_length;
-        current_joints[i].end = calculate_joint_end(current_joints[i]);
-        target_joints[i] = current_joints[i];
-    }
-    target_joints[0].min_angle = 0;
-    target_joints[0].max_angle = 90;
-    target_joints[1].min_angle = -120;
-    target_joints[1].max_angle =  120;
-    target_joints[2].min_angle = -180;
-    target_joints[2].max_angle =  180;
-    memcpy(temp_joints, target_joints, sizeof(target_joints));
+    // Joint_Deprecated current_joints[3] = {0};
+    // Joint_Deprecated target_joints[3] = {0};
+    // Joint_Deprecated temp_joints[3] = {0};
+    // current_joints[0] = root;
+    // target_joints[0] = root;
+    // for(int i = 1; i < joint_count; i++)
+    // {
+    //     current_joints[i].start = current_joints[i-1].end;
+    //     current_joints[i].rotation = 90;
+    //     current_joints[i].length = arm_length;
+    //     current_joints[i].end = calculate_joint_end(current_joints[i]);
+    //     target_joints[i] = current_joints[i];
+    // }
+    // target_joints[0].min_angle = -180;
+    // target_joints[0].max_angle = 180;
+    // target_joints[1].min_angle = -120;
+    // target_joints[1].max_angle =  120;
+    // target_joints[2].min_angle = -90;
+    // target_joints[2].max_angle =  90;
+    // memcpy(temp_joints, target_joints, sizeof(target_joints));
 
+    const float32 arm_length = 100;
+    Joint joints[3] = {0};
+    int32 joint_count = array_count(joints);
+    float32 reach_threshold = 1;
+
+    joints[0] = joint(vec2(-200, 0), 90, 0, arm_length);
+    joints[1] = joint(vec2_zero(), 90, 0, arm_length);
+    joints[2] = joint(vec2_zero(), 90, 0, arm_length);
+    Joint root = joints[0];
 
     /* main loop */
     while (!glfwWindowShouldClose(e->window->glfw_window))
@@ -78,146 +84,21 @@ int main(void)
 
         Vec2 target = e->mouse.world;
         float32 max_reach_length = joint_count * arm_length;
-        float32 distance_to_target = dist_vec2(root.start, target);
+        float32 distance_to_target = dist_vec2(root.position, target);
         if(distance_to_target > max_reach_length)
+            target = move_towards_vec2(root.position, target, max_reach_length);
+        draw_circle_filled(dc, circle(target, 5), ColorRed300);
+        draw_line(dc, root.position, e->mouse.world, ColorSlate500, 2);
+
+        if(distance_to_target > reach_threshold)
         {
-            target = scaled_heading_to_vec2(root.start, target, max_reach_length);
-        }
-
-        if(distance_to_target > 1)
-        {
-            if(angle_constraints)
-            {
-                // reach forward
-                Vec2 current_target = target;
-                for(int i = joint_count-1; i >= 0; i--)
-                {
-                    Joint* j = &temp_joints[i];
-                    j->end = current_target;
-                    Vec2 current_arm = scaled_heading_to_vec2(current_target, j->start, j->length);
-                    Vec2 next_arm = current_arm;
-                    if(i < joint_count - 1) next_arm = sub_vec2(temp_joints[i+1].end, temp_joints[i+1].start);
-
-                    float32 angle = angle_between_vec2(next_arm, current_arm);
-                    if(angle > j->max_angle || angle < j->min_angle)
-                    {
-                        float32 new_angle = clamp(j->min_angle, angle, j->max_angle);
-                        float32 diff = angle - new_angle; 
-                        angle = new_angle;
-                        current_arm = rotate_vec2(current_arm, diff);
-                    }
-                    j->start = add_vec2(current_target, current_arm);
-                    j->local_rotation = angle;
-                    current_target = j->start;
-                }
-
-                // reach backward
-                current_target = root.start;
-                for(int i = 0; i < joint_count; i++)
-                {
-                    Joint* j = &temp_joints[i];
-                    j->start = current_target;
-                    Vec2 current_arm = scaled_heading_to_vec2(current_target, j->end, j->length);
-                    Vec2 previous_arm =  vec2_right();
-                    if(i > 0) previous_arm = sub_vec2(temp_joints[i-1].end, temp_joints[i-1].start);
-                    float32 base_rotation = 0;
-                    if(i > 0) base_rotation = temp_joints[i-1].rotation;
-
-                    float32 angle = angle_between_vec2(current_arm, previous_arm);
-                    if(angle > j->max_angle || angle < j->min_angle)
-                    {
-                        float32 new_angle = clamp(j->min_angle, angle, j->max_angle);
-                        float32 diff = new_angle - angle; 
-                        angle = new_angle;
-                        current_arm = rotate_vec2(current_arm, diff);
-                    }
-                    j->end = add_vec2(current_target, current_arm);
-                    j->rotation = base_rotation + angle;
-                    j->local_rotation = angle;
-                    current_target = j->end;
-                }
-            }
-            else
-            {
-                Vec2 current_target = target;
-                
-                // reach forward
-                for(int i = joint_count-1; i >= 0; i--)
-                {
-                    temp_joints[i].end = current_target;
-                    temp_joints[i].start = add_vec2(current_target, scaled_heading_to_vec2(current_target, temp_joints[i].start, temp_joints[i].length));
-                    temp_joints[i].rotation = angle_vec2(sub_vec2(temp_joints[i].end, temp_joints[i].start));
-                    current_target = temp_joints[i].start;
-                }
-
-                current_target = root.start;
-                // reach backward
-                for(int i = 0; i < joint_count; i++)
-                {
-                    temp_joints[i].start = current_target;
-                    temp_joints[i].end = add_vec2(current_target, scaled_heading_to_vec2(current_target, temp_joints[i].end, temp_joints[i].length));
-                    temp_joints[i].rotation = angle_vec2(sub_vec2(temp_joints[i].end, temp_joints[i].start));
-                    current_target = temp_joints[i].end;
-                }
-            }
-
-            if(!distance_check)
-            {
-                memcpy(target_joints, temp_joints, sizeof(target_joints));
-            }
-            else 
-            {
-                if(dist_vec2(temp_joints[joint_count-1].end, target) < dist_vec2(target_joints[joint_count-1].end, target))
-                {
-                    memcpy(target_joints, temp_joints, sizeof(target_joints));
-                }
-            }
-        }
-
-        // interpolate for smoother animations
-        if(smooth_animations)
-        {
-            for(int i = 0; i < joint_count; i++)
-            {
-                current_joints[i].start = lerp_vec2(current_joints[i].start, target_joints[i].start, dt * 8);
-                current_joints[i].end = lerp_vec2(current_joints[i].end, target_joints[i].end, dt * 8);
-                current_joints[i].rotation = lerp_f32(current_joints[i].rotation, target_joints[i].rotation, dt * 8);
-                current_joints[i].local_rotation = lerp_f32(current_joints[i].local_rotation, target_joints[i].local_rotation, dt * 8);
-                current_joints[i].min_angle = lerp_f32(current_joints[i].min_angle, target_joints[i].min_angle, dt * 8);
-                current_joints[i].max_angle = lerp_f32(current_joints[i].max_angle, target_joints[i].max_angle, dt * 8);
-            }
-        }
-        // interpolate the rotations only, then calculate the positions from the rotations, prevents arm stretching
-        else if(rotation_animations)
-        {
-            Vec2 current_position = root.start;
-            for(int i = 0; i < joint_count; i++)
-            {
-                current_joints[i].rotation = lerp_f32(current_joints[i].rotation, target_joints[i].rotation, dt * 8);
-                current_joints[i].local_rotation = lerp_f32(current_joints[i].local_rotation, target_joints[i].local_rotation, dt * 8);
-                current_joints[i].start = current_position;
-                current_joints[i].end = add_vec2(current_position, vec2_heading_scaled(current_joints[i].rotation, current_joints[i].length));
-                current_position = current_joints[i].end;
-            }
-        }
-        // no smoothing
-        else
-        {
-            for(int i = 0; i < joint_count; i++)
-            {
-                current_joints[i].start = target_joints[i].start;
-                current_joints[i].end = target_joints[i].end;
-                current_joints[i].rotation = target_joints[i].rotation;
-                current_joints[i].local_rotation = target_joints[i].local_rotation;
-                current_joints[i].min_angle = target_joints[i].min_angle;
-                current_joints[i].max_angle = target_joints[i].max_angle;
-            }
+            fabrik_reach_forward(target, joints, joint_count);
         }
 
         // draw
         for(int32 i = 0; i < joint_count; i++)
         {
-            draw_joint(e, current_joints[i]);
+            draw_joint(e, joints[i]);
         }
 
         UIWindow window = ui_window(e->ctx, &window_rect, uuid_new(1, 0), string("simulation"), &is_expanded, t->window_default);
