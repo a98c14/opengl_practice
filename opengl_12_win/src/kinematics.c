@@ -60,6 +60,15 @@ draw_joint(Engine* e, Joint j)
     draw_text(e->draw_context, vec2(j.position.x + 5, j.position.y + 20), string_pushf(e->frame_arena, "Default: %0.2f", j.default_rotation), AlignmentBottomLeft, e->theme->font_default_light);
 }
 
+internal void
+draw_ghost_joint(Engine* e, Joint j)
+{
+    draw_line(e->draw_context, j.position, joint_end(j), ColorWhite100A, 2);
+    draw_circle_partially_filled(e->draw_context, j.position, j.base_rotation + j.default_rotation, 25, ColorBlue200A, 0,  j.rotation_constraint);
+    draw_circle_partially_filled(e->draw_context, j.position, j.base_rotation + j.default_rotation, 25, ColorAmber200A, 0,  j.local_rotation);
+    draw_circle(e->draw_context, j.position, 25, ColorWhite100A);
+}
+
 internal void 
 draw_arm(DrawContext* dc, Vec2 position, float32 rotation,float32 length)
 {

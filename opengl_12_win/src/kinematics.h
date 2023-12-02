@@ -28,6 +28,9 @@ joint_rotate(Joint j, float32 angle);
 internal void
 draw_joint(Engine* e, Joint j);
 
+internal void
+draw_ghost_joint(Engine* e, Joint j);
+
 internal void 
 draw_arm(DrawContext* dc, Vec2 position, float32 rotation,float32 length);
 

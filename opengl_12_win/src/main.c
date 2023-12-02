@@ -40,6 +40,7 @@ int main(void)
     Joint* joints = arena_push_array_zero(e->persistent_arena, Joint, joint_count);
     Joint* temp_joints = arena_push_array_zero(e->persistent_arena, Joint, joint_count);
     Joint* visual_joints = arena_push_array_zero(e->persistent_arena, Joint, joint_count);
+    Joint* visual_forward_reach_joints = arena_push_array_zero(e->persistent_arena, Joint, joint_count);
     float32 reach_threshold = 1;
 
     joints[0] = joint(vec2(-200, 0), 90, -60, arm_length, 180);
@@ -49,6 +50,7 @@ int main(void)
     Joint root = joints[0];
     memcpy(temp_joints, joints, joint_count * sizeof(Joint));
     memcpy(visual_joints, joints, joint_count * sizeof(Joint));
+    memcpy(visual_forward_reach_joints, joints, joint_count * sizeof(Joint));
 
     /* main loop */
     while (!glfwWindowShouldClose(e->window->glfw_window))
@@ -71,12 +73,14 @@ int main(void)
             if(!distance_check)
             {
                 fabrik_reach_forward(target, joints, joint_count, angle_constraints);
+                memcpy(visual_forward_reach_joints, joints, joint_count * sizeof(Joint));
                 fabrik_reach_backwards(root.position, joints, joint_count, angle_constraints);
             }
             else
             {
                 float32 end_distance_to_target = distsqr_vec2(joint_end(joints[joint_count-1]), target);
                 fabrik_reach_forward(target, temp_joints, joint_count, angle_constraints);
+                memcpy(visual_forward_reach_joints, temp_joints, joint_count * sizeof(Joint));
                 fabrik_reach_backwards(root.position, temp_joints, joint_count, angle_constraints);
                 float32 new_end_distance_to_target = distsqr_vec2(joint_end(temp_joints[joint_count-1]), target);
                 if(new_end_distance_to_target < end_distance_to_target)
@@ -103,6 +107,7 @@ int main(void)
         // draw
         for(int32 i = 0; i < joint_count; i++)
         {
+            draw_ghost_joint(e, visual_forward_reach_joints[i]);
             draw_joint(e, visual_joints[i]);
         }
 
