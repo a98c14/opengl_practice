@@ -144,6 +144,19 @@ int main(void)
         }
         
 
+        Rect r = rect(100, 0, 100, 100);
+        draw_rect(dc, r, 0, 10, e->theme->rect_view);
+
+        Rect r2 = rect_from_wh(100, 20);
+        draw_rect(dc, rect_shrink(rect_anchor(r2, r, ANCHOR_T_BL), vec2(4, 4)), 0, 10, e->theme->rect_debug);
+        draw_rect(dc, rect_cut_top(&r, 10), 0, 10, e->theme->rect_debug);
+        draw_rect(dc, rect_cut_top(&r, 10), 0, 10, e->theme->rect_debug);
+        Rect header = rect_cut_top(&r, 10);
+        draw_rect(dc, rect_cut_left(&header, 10), 0, 10, e->theme->rect_debug);
+        draw_rect(dc, rect_cut_left(&header, 10), 0, 10, e->theme->rect_debug);
+        draw_rect(dc, rect_cut_left(&header, 10), 0, 10, e->theme->rect_debug);
+        draw_rect(dc, r, 0, 10, e->theme->rect_debug2);
+
         /** Control Panel */
 
         engine_render(e);

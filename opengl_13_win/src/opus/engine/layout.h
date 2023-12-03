@@ -82,6 +82,26 @@ typedef struct
 	float32 spacing;
 } LayoutStack;
 
+typedef enum 
+{
+	CutSideLeft,
+	CutSideRight,
+	CutSideTop,
+	CutSideBottom,
+} CutSide;
+
+typedef struct 
+{
+	Rect* rect;
+	CutSide side;
+} Cut;
+
+internal Cut cut(Rect* rect, CutSide side);
+internal Rect rect_cut_left(Rect* r, float32 size);
+internal Rect rect_cut_right(Rect* r, float32 size);
+internal Rect rect_cut_top(Rect* r, float32 size);
+internal Rect rect_cut_bottom(Rect* r, float32 size);
+
 internal Rect
 rect_aligned(float32 x, float32 y, float32 w, float32 h, Alignment alignment);
 
@@ -139,3 +159,5 @@ layout_stack_push_scaled(LayoutStack* layout, float32 scale);
 
 internal Rect
 layout_stack_container(LayoutStack* layout);
+
+/** Rect Cut */

@@ -22,6 +22,7 @@ typedef struct
 
     StyleRect rect_default;
     StyleRect rect_debug;
+    StyleRect rect_debug2;
     StyleRect rect_view;
     StyleRect rect_header;
     StyleRect rect_slider_bar;

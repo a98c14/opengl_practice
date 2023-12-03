@@ -22,7 +22,8 @@ theme_init_default(Arena* arena, Renderer* renderer)
     t->rounded_xl   = (BorderRadius){ .bl = 30, .br = 30, .tr = 30, .tl = 30 };
 
     t->rect_default = (StyleRect){ .softness = 2, .color = color_to_vec4(ColorSlate800_Transparent), .border_radius = t->rounded_sm };
-    t->rect_debug = (StyleRect){ .border_thickness = 2, .softness = 0, .color = color_to_vec4(ColorInvisible), .border_color = color_to_vec4(ColorRed600), .border_radius = t->rounded_none };
+    t->rect_debug = (StyleRect){ .border_thickness = 3, .softness = 0, .color = color_to_vec4(ColorInvisible), .border_color = color_to_vec4(ColorRed600), .border_radius = t->rounded_none };
+    t->rect_debug2 = (StyleRect){ .border_thickness = 3, .softness = 0, .color = color_to_vec4(ColorInvisible), .border_color = color_to_vec4(ColorGreen600), .border_radius = t->rounded_none };
     t->rect_view = (StyleRect){ .softness = 2, .color = color_to_vec4(ColorWhite100), .border_radius = { .bl = 3, .br = 3, .tr = 0, .tl = 0 } };
     t->rect_header = (StyleRect){ .border_thickness = 0, .softness = 2, .color = color_to_vec4(ColorSlate700), .border_color = color_to_vec4(ColorInvisible), .border_radius = { .bl = 0, .br = 0, .tr = 3, .tl = 3 } };
     t->rect_slider_bar = (StyleRect){ .softness = 2, .color = color_to_vec4(ColorBlack), .border_radius = t->rounded_sm };

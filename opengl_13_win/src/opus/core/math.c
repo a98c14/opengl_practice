@@ -710,8 +710,7 @@ internal Vec2 rect_ct(Rect rect)
     return vec2(rect.x, rect.y + rect.h / 2.0f);
 }
 
-internal void 
-b32_flip(bool32* b)
+internal void b32_flip(bool32* b)
 {
     *b = !(*b);
 }
